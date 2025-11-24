@@ -241,6 +241,24 @@ make
 - `filesystem/file_indexing.c` - Global File Search
 - `filesystem/snapshot_versioning.c` - Snapshots & Versioning
 
+## Driver Layer Modules (5 drivers, WebAssembly sandboxed)
+
+- `drivers/input_driver.c` - Input Drivers (Keyboard, Mouse, Touch) with low-latency event normalization
+- `drivers/gpu_driver.c` - GPU Driver Module (Vulkan/OpenGL support with secure sandbox)
+- `drivers/storage_driver.c` - Storage Drivers (NVMe, SATA, USB, SD Card with encryption-by-default)
+- `drivers/network_driver.c` - Network Interface Drivers (Wi-Fi, Ethernet, Bluetooth with threat detection)
+- `drivers/sensor_driver.c` - Sensor Drivers (Camera, Mic, Accelerometer, GPS, Fingerprint with strict permissions)
+
+## Developer API Modules (7 APIs)
+
+- `devapi/core_api.c` - Aegis Core API (Processes, Threads, Memory, Devices, System Calls Wrapper)
+- `devapi/ui_api.c` - Aegis UI API (Native UI components, Windows, Animations, Canvas, Dialogs)
+- `devapi/fs_api.c` - AegisFS API (File operations, Encryption, Snapshots, Sharing, Indexing)
+- `devapi/network_api.c` - Network API (Sockets, Encrypted by default, DNS, WebSockets, HTTP, Background Sync)
+- `devapi/crypto_api.c` - Cryptography API (AES, ChaCha20, RSA, ECC, Post-Quantum Kyber/Dilithium, Key Management)
+- `devapi/sensor_api.c` - Sensor & Hardware API (Camera, Microphone, GPS, Fingerprint, IMU, all require permissions)
+- `devapi/container_api.c` - Container API (Docker/Podman/LXC/Firecracker support with YAML configuration)
+
 ## Next Steps
 
 1. Implement bootloader for x86_64 and ARM

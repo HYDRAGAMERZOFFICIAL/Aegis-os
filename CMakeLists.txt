@@ -36,5 +36,7 @@ add_subdirectory(services)
 add_subdirectory(security)
 add_subdirectory(userland)
 add_subdirectory(filesystem)
+add_subdirectory(drivers)
+add_subdirectory(devapi)
 
 enable_testing()
