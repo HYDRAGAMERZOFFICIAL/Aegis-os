@@ -40,3 +40,4 @@ add_subdirectory(drivers)
 add_subdirectory(devapi)
 
 enable_testing()
+add_subdirectory(tests)

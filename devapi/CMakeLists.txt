@@ -10,6 +10,6 @@ set(DEVAPI_SOURCES
     container_api.c
 )
 
-add_library(aegis_devapi STATIC ${DEVAPI_SOURCES})
-target_include_directories(aegis_devapi PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_compile_options(aegis_devapi PRIVATE -Wall -Wextra -Werror)
+add_library(devapi_lib STATIC ${DEVAPI_SOURCES})
+target_include_directories(devapi_lib PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_compile_options(devapi_lib PRIVATE -Wall -Wextra -Werror)

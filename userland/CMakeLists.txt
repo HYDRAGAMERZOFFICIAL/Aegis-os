@@ -7,6 +7,6 @@ set(USERLAND_SOURCES
     aegis_ui_theme.c
 )
 
-add_library(aegis_userland STATIC ${USERLAND_SOURCES})
-target_include_directories(aegis_userland PUBLIC ${INCLUDE_DIR})
-target_link_libraries(aegis_userland PUBLIC aegis_kernel aegis_common)
+add_library(userland_lib STATIC ${USERLAND_SOURCES})
+target_include_directories(userland_lib PUBLIC ${INCLUDE_DIR})
+target_link_libraries(userland_lib PUBLIC kernel_lib common_lib)

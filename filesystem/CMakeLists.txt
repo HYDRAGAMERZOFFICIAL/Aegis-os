@@ -8,6 +8,6 @@ set(FILESYSTEM_SOURCES
     self_healing.c
 )
 
-add_library(aegis_filesystem STATIC ${FILESYSTEM_SOURCES})
-target_include_directories(aegis_filesystem PUBLIC ${INCLUDE_DIR})
-target_link_libraries(aegis_filesystem PUBLIC aegis_kernel aegis_common)
+add_library(filesystem_lib STATIC ${FILESYSTEM_SOURCES})
+target_include_directories(filesystem_lib PUBLIC ${INCLUDE_DIR})
+target_link_libraries(filesystem_lib PUBLIC kernel_lib common_lib)

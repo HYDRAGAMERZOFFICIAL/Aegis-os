@@ -16,6 +16,6 @@ set(SERVICES_SOURCES
     checkpoint_system.c
 )
 
-add_library(aegis_services STATIC ${SERVICES_SOURCES})
-target_include_directories(aegis_services PUBLIC ${INCLUDE_DIR})
-target_link_libraries(aegis_services PUBLIC aegis_kernel)
+add_library(services_lib STATIC ${SERVICES_SOURCES})
+target_include_directories(services_lib PUBLIC ${INCLUDE_DIR})
+target_link_libraries(services_lib PUBLIC kernel_lib)

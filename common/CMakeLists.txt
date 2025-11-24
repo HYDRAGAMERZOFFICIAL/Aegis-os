@@ -7,5 +7,5 @@ set(COMMON_SOURCES
     crypto.c
 )
 
-add_library(aegis_common STATIC ${COMMON_SOURCES})
-target_include_directories(aegis_common PUBLIC ${INCLUDE_DIR})
+add_library(common_lib STATIC ${COMMON_SOURCES})
+target_include_directories(common_lib PUBLIC ${INCLUDE_DIR})

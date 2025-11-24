@@ -6,8 +6,9 @@ set(DRIVERS_SOURCES
     storage_driver.c
     network_driver.c
     sensor_driver.c
+    driver_manager.c
 )
 
-add_library(aegis_drivers STATIC ${DRIVERS_SOURCES})
-target_include_directories(aegis_drivers PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_compile_options(aegis_drivers PRIVATE -Wall -Wextra -Werror)
+add_library(drivers_lib STATIC ${DRIVERS_SOURCES})
+target_include_directories(drivers_lib PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_compile_options(drivers_lib PRIVATE -Wall -Wextra -Werror)

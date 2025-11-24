@@ -11,6 +11,6 @@ set(SECURITY_SOURCES
     hypervisor_protection.c
 )
 
-add_library(aegis_security STATIC ${SECURITY_SOURCES})
-target_include_directories(aegis_security PUBLIC ${INCLUDE_DIR})
-target_link_libraries(aegis_security PUBLIC aegis_kernel aegis_common)
+add_library(security_lib STATIC ${SECURITY_SOURCES})
+target_include_directories(security_lib PUBLIC ${INCLUDE_DIR})
+target_link_libraries(security_lib PUBLIC kernel_lib common_lib)
