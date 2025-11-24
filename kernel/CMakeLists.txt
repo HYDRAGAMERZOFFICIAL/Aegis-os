@@ -9,6 +9,12 @@ set(KERNEL_SOURCES
     driver.c
     security.c
     main.c
+    adaptive_scheduler.c
+    ram_compression.c
+    gpu_acceleration.c
+    ai_prefetch.c
+    universal_cache.c
+    tiered_storage.c
 )
 
 add_library(aegis_kernel STATIC ${KERNEL_SOURCES})

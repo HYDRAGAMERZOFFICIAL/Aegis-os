@@ -4,6 +4,7 @@ set(USERLAND_SOURCES
     settings_center.c
     aegis_shell.c
     app_store.c
+    aegis_ui_theme.c
 )
 
 add_library(aegis_userland STATIC ${USERLAND_SOURCES})

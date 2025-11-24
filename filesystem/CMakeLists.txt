@@ -5,6 +5,7 @@ set(FILESYSTEM_SOURCES
     access_control.c
     file_indexing.c
     snapshot_versioning.c
+    self_healing.c
 )
 
 add_library(aegis_filesystem STATIC ${FILESYSTEM_SOURCES})

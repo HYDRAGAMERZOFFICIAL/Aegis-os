@@ -5,6 +5,10 @@ set(SECURITY_SOURCES
     secure_boot.c
     app_permissions.c
     syscall_gatekeeper.c
+    microkernel.c
+    immutable_partitions.c
+    aegis_guard.c
+    hypervisor_protection.c
 )
 
 add_library(aegis_security STATIC ${SECURITY_SOURCES})

@@ -8,6 +8,12 @@ set(SERVICES_SOURCES
     logging_service.c
     audit_service.c
     sandbox_manager.c
+    command_palette.c
+    system_troubleshoot.c
+    task_optimizer.c
+    neural_activity_monitor.c
+    voice_commands.c
+    checkpoint_system.c
 )
 
 add_library(aegis_services STATIC ${SERVICES_SOURCES})
