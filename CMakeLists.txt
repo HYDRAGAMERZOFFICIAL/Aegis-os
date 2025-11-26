@@ -38,6 +38,7 @@ add_subdirectory(userland)
 add_subdirectory(filesystem)
 add_subdirectory(drivers)
 add_subdirectory(devapi)
+add_subdirectory(hal)
 
 enable_testing()
 add_subdirectory(tests)
