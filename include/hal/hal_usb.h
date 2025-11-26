@@ -86,10 +86,46 @@ typedef struct {
     const void *data;
 } hal_usb_control_request_t;
 
+typedef struct {
+    uint32_t input_type;
+    uint16_t usage_page;
+    uint16_t usage_id;
+    int32_t value;
+    uint32_t timestamp_us;
+} hal_hid_input_event_t;
+
+typedef struct {
+    uint8_t report_id;
+    uint32_t report_size;
+    uint16_t usage_page;
+    bool in_report;
+    bool out_report;
+    bool feature_report;
+} hal_hid_report_descriptor_t;
+
+typedef struct {
+    uint32_t device_id;
+    uint8_t bus;
+    uint8_t port;
+    uint16_t vendor_id;
+    uint16_t product_id;
+    bool allowed;
+    bool quarantined;
+    uint32_t container_whitelist;
+} hal_usb_passthrough_policy_t;
+
+typedef struct {
+    bool mass_storage_blocked;
+    bool firmware_update_blocked;
+    bool autorun_disabled;
+    bool unknown_devices_quarantine;
+} hal_usb_security_policy_t;
+
 typedef void (*hal_usb_callback_t)(hal_usb_event_type_t event, uint8_t bus, uint8_t device, 
                                     void *context);
 typedef void (*hal_usb_transfer_callback_t)(uint64_t transfer_id, hal_status_t status, 
                                              uint32_t bytes_transferred, void *context);
+typedef void (*hal_hid_input_callback_t)(const hal_hid_input_event_t *event, void *context);
 
 hal_status_t hal_usb_init(void);
 hal_status_t hal_usb_fini(void);
@@ -151,5 +187,23 @@ hal_status_t hal_hid_set_protocol(uint8_t bus, uint8_t device, uint8_t protocol)
 hal_status_t hal_usb_port_get_status(uint8_t bus, uint8_t port, uint16_t *status);
 hal_status_t hal_usb_port_set_feature(uint8_t bus, uint8_t port, uint16_t feature);
 hal_status_t hal_usb_port_clear_feature(uint8_t bus, uint8_t port, uint16_t feature);
+
+hal_status_t hal_hid_parse_report_descriptor(uint8_t bus, uint8_t device, 
+                                             hal_hid_report_descriptor_t *descriptors,
+                                             uint32_t *descriptor_count);
+hal_status_t hal_hid_get_normalized_input(uint8_t bus, uint8_t device, 
+                                          hal_hid_input_event_t *event);
+hal_status_t hal_hid_register_input_callback(uint8_t bus, uint8_t device, 
+                                             hal_hid_input_callback_t callback, void *context);
+hal_status_t hal_hid_unregister_input_callback(uint8_t bus, uint8_t device);
+
+hal_status_t hal_usb_get_passthrough_policy(uint32_t device_id, 
+                                            hal_usb_passthrough_policy_t *policy);
+hal_status_t hal_usb_set_passthrough_policy(uint32_t device_id, 
+                                            const hal_usb_passthrough_policy_t *policy);
+hal_status_t hal_usb_get_security_policy(hal_usb_security_policy_t *policy);
+hal_status_t hal_usb_set_security_policy(const hal_usb_security_policy_t *policy);
+hal_status_t hal_usb_quarantine_device(uint8_t bus, uint8_t device);
+hal_status_t hal_usb_is_device_quarantined(uint8_t bus, uint8_t device, bool *quarantined);
 
 #endif

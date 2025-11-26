@@ -91,9 +91,37 @@ typedef struct {
     bool is_controllable;
 } hal_fan_info_t;
 
+typedef enum {
+    HAL_POWER_PROFILE_BATTERY_SAVER = 0,
+    HAL_POWER_PROFILE_BALANCED = 1,
+    HAL_POWER_PROFILE_PERFORMANCE = 2,
+} hal_power_profile_t;
+
+typedef struct {
+    bool in_transition;
+    hal_power_state_t current_state;
+    hal_power_state_t target_state;
+    uint32_t devices_quiesced;
+    uint32_t total_devices;
+    bool hibernation_image_encrypted;
+} hal_suspend_resume_state_t;
+
+typedef struct {
+    uint32_t wake_sources;
+    bool rtc_enabled;
+    bool usb_enabled;
+    bool power_button_enabled;
+    bool keyboard_enabled;
+    bool mouse_enabled;
+    bool network_enabled;
+    bool disk_enabled;
+} hal_wakeup_sources_t;
+
 typedef void (*hal_power_event_callback_t)(uint32_t event_type, void *context);
 typedef void (*hal_battery_callback_t)(const hal_battery_info_t *battery_info, void *context);
 typedef void (*hal_thermal_callback_t)(const hal_thermal_zone_t *zone, void *context);
+typedef void (*hal_device_quiesce_callback_t)(uint32_t device_id, void *context);
+typedef void (*hal_resume_callback_t)(void *context);
 
 hal_status_t hal_power_init(void);
 hal_status_t hal_power_fini(void);
@@ -148,5 +176,28 @@ hal_status_t hal_power_get_estimated_battery_life(uint32_t *minutes);
 hal_status_t hal_power_enable_power_saving(void);
 hal_status_t hal_power_disable_power_saving(void);
 hal_status_t hal_power_is_power_saving_enabled(bool *enabled);
+
+hal_status_t hal_power_set_profile(hal_power_profile_t profile);
+hal_status_t hal_power_get_profile(hal_power_profile_t *profile);
+
+hal_status_t hal_power_prepare_suspend(hal_power_state_t target_state);
+hal_status_t hal_power_quiesce_device(uint32_t device_id);
+hal_status_t hal_power_quiesce_all_devices(void);
+hal_status_t hal_power_register_quiesce_callback(uint32_t device_id, 
+                                                 hal_device_quiesce_callback_t callback, 
+                                                 void *context);
+hal_status_t hal_power_complete_suspend(hal_power_state_t target_state);
+hal_status_t hal_power_resume_device(uint32_t device_id);
+hal_status_t hal_power_resume_all_devices(void);
+hal_status_t hal_power_register_resume_callback(hal_resume_callback_t callback, void *context);
+hal_status_t hal_power_verify_resume_integrity(bool *valid);
+
+hal_status_t hal_power_get_suspend_state(hal_suspend_resume_state_t *state);
+hal_status_t hal_power_set_wakeup_sources(const hal_wakeup_sources_t *sources);
+hal_status_t hal_power_get_wakeup_sources(hal_wakeup_sources_t *sources);
+
+hal_status_t hal_power_throttle_cpu(uint8_t cpu_id, uint8_t percent);
+hal_status_t hal_power_throttle_gpu(uint8_t gpu_id, uint8_t percent);
+hal_status_t hal_power_unthrottle_device(uint32_t device_id);
 
 #endif

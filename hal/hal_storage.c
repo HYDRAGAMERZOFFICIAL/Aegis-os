@@ -4,11 +4,23 @@
 
 #define MAX_STORAGE_DEVICES 16
 #define MAX_IO_REQUESTS 256
+#define MAX_VOLUMES 32
+#define MAX_PARTITIONS 256
+#define MAX_CONTAINER_QOS 32
 
 typedef struct {
     uint8_t device_count;
     hal_storage_device_t devices[MAX_STORAGE_DEVICES];
     uint64_t request_counter;
+    uint32_t volume_counter;
+    uint32_t partition_counter;
+    uint32_t volume_count;
+    uint32_t partition_count;
+    uint32_t qos_count;
+    hal_storage_volume_t volumes[MAX_VOLUMES];
+    hal_storage_partition_t partitions[MAX_PARTITIONS];
+    hal_storage_container_qos_t qos_list[MAX_CONTAINER_QOS];
+    hal_io_scheduler_t scheduler[MAX_STORAGE_DEVICES];
     bool initialized;
 } storage_hal_state_t;
 
@@ -335,4 +347,348 @@ hal_status_t hal_storage_set_password(uint8_t device_id, const uint8_t *password
     }
     
     return HAL_OK;
+}
+
+hal_status_t hal_storage_create_volume(uint8_t device_id, uint64_t size_sectors, 
+                                        const char *name, uint32_t *volume_id) {
+    if (!name || !volume_id || device_id >= storage_state.device_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    if (storage_state.volume_count >= MAX_VOLUMES) {
+        return HAL_ERR_NO_MEMORY;
+    }
+    
+    hal_storage_volume_t *vol = &storage_state.volumes[storage_state.volume_count];
+    vol->volume_id = ++storage_state.volume_counter;
+    vol->size_sectors = size_sectors;
+    vol->allocated_sectors = 0;
+    vol->encrypted = false;
+    vol->owner_container_id = 0;
+    strncpy(vol->name, name, 63);
+    
+    *volume_id = vol->volume_id;
+    storage_state.volume_count++;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_storage_delete_volume(uint32_t volume_id) {
+    if (volume_id == 0) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.volume_count; i++) {
+        if (storage_state.volumes[i].volume_id == volume_id) {
+            if (i < storage_state.volume_count - 1) {
+                memmove(&storage_state.volumes[i], &storage_state.volumes[i + 1],
+                        (storage_state.volume_count - i - 1) * sizeof(hal_storage_volume_t));
+            }
+            storage_state.volume_count--;
+            return HAL_OK;
+        }
+    }
+    
+    return HAL_ERR_DEVICE_FAILED;
+}
+
+hal_status_t hal_storage_enumerate_volumes(hal_storage_volume_t *volumes, uint32_t *volume_count) {
+    if (!volumes || !volume_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    if (*volume_count < storage_state.volume_count) {
+        *volume_count = storage_state.volume_count;
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    memcpy(volumes, storage_state.volumes, storage_state.volume_count * sizeof(hal_storage_volume_t));
+    *volume_count = storage_state.volume_count;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_storage_get_volume(uint32_t volume_id, hal_storage_volume_t *volume) {
+    if (!volume || volume_id == 0) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.volume_count; i++) {
+        if (storage_state.volumes[i].volume_id == volume_id) {
+            memcpy(volume, &storage_state.volumes[i], sizeof(hal_storage_volume_t));
+            return HAL_OK;
+        }
+    }
+    
+    return HAL_ERR_DEVICE_FAILED;
+}
+
+hal_status_t hal_storage_mount_volume(uint32_t volume_id, uint32_t container_id) {
+    if (volume_id == 0) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.volume_count; i++) {
+        if (storage_state.volumes[i].volume_id == volume_id) {
+            storage_state.volumes[i].owner_container_id = container_id;
+            return HAL_OK;
+        }
+    }
+    
+    return HAL_ERR_DEVICE_FAILED;
+}
+
+hal_status_t hal_storage_unmount_volume(uint32_t volume_id) {
+    if (volume_id == 0) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.volume_count; i++) {
+        if (storage_state.volumes[i].volume_id == volume_id) {
+            storage_state.volumes[i].owner_container_id = 0;
+            return HAL_OK;
+        }
+    }
+    
+    return HAL_ERR_DEVICE_FAILED;
+}
+
+hal_status_t hal_storage_create_partition(uint8_t device_id, uint64_t start_sector, 
+                                          uint64_t size_sectors, const char *label,
+                                          uint32_t *partition_id) {
+    if (!label || !partition_id || device_id >= storage_state.device_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    if (storage_state.partition_count >= MAX_PARTITIONS) {
+        return HAL_ERR_NO_MEMORY;
+    }
+    
+    hal_storage_partition_t *part = &storage_state.partitions[storage_state.partition_count];
+    part->partition_id = ++storage_state.partition_counter;
+    part->device_id = device_id;
+    part->start_sector = start_sector;
+    part->size_sectors = size_sectors;
+    part->partition_type = HAL_PARTITION_TYPE_GPT;
+    part->flags = 0;
+    strncpy(part->label, label, 63);
+    
+    *partition_id = part->partition_id;
+    storage_state.partition_count++;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_storage_delete_partition(uint32_t partition_id) {
+    if (partition_id == 0) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.partition_count; i++) {
+        if (storage_state.partitions[i].partition_id == partition_id) {
+            if (i < storage_state.partition_count - 1) {
+                memmove(&storage_state.partitions[i], &storage_state.partitions[i + 1],
+                        (storage_state.partition_count - i - 1) * sizeof(hal_storage_partition_t));
+            }
+            storage_state.partition_count--;
+            return HAL_OK;
+        }
+    }
+    
+    return HAL_ERR_DEVICE_FAILED;
+}
+
+hal_status_t hal_storage_enumerate_partitions(uint8_t device_id, hal_storage_partition_t *partitions,
+                                              uint32_t *partition_count) {
+    if (!partitions || !partition_count || device_id >= storage_state.device_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    uint32_t count = 0;
+    for (uint32_t i = 0; i < storage_state.partition_count; i++) {
+        if (storage_state.partitions[i].device_id == device_id) {
+            count++;
+        }
+    }
+    
+    if (*partition_count < count) {
+        *partition_count = count;
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    uint32_t idx = 0;
+    for (uint32_t i = 0; i < storage_state.partition_count; i++) {
+        if (storage_state.partitions[i].device_id == device_id) {
+            memcpy(&partitions[idx], &storage_state.partitions[i], sizeof(hal_storage_partition_t));
+            idx++;
+        }
+    }
+    *partition_count = count;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_storage_get_partition_type(uint8_t device_id, hal_partition_type_t *type) {
+    if (!type || device_id >= storage_state.device_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    *type = HAL_PARTITION_TYPE_GPT;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_storage_set_partition_type(uint8_t device_id, hal_partition_type_t type) {
+    if (device_id >= storage_state.device_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_storage_set_io_scheduler(uint8_t device_id, hal_io_scheduler_t scheduler) {
+    if (device_id >= storage_state.device_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    storage_state.scheduler[device_id] = scheduler;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_storage_get_io_scheduler(uint8_t device_id, hal_io_scheduler_t *scheduler) {
+    if (!scheduler || device_id >= storage_state.device_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    *scheduler = storage_state.scheduler[device_id];
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_storage_set_container_qos(const hal_storage_container_qos_t *qos) {
+    if (!qos) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.qos_count; i++) {
+        if (storage_state.qos_list[i].container_id == qos->container_id) {
+            memcpy(&storage_state.qos_list[i], qos, sizeof(hal_storage_container_qos_t));
+            return HAL_OK;
+        }
+    }
+    
+    if (storage_state.qos_count < MAX_CONTAINER_QOS) {
+        memcpy(&storage_state.qos_list[storage_state.qos_count], qos, sizeof(hal_storage_container_qos_t));
+        storage_state.qos_count++;
+        return HAL_OK;
+    }
+    
+    return HAL_ERR_NO_MEMORY;
+}
+
+hal_status_t hal_storage_get_container_qos(uint32_t container_id, 
+                                           hal_storage_container_qos_t *qos) {
+    if (!qos) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.qos_count; i++) {
+        if (storage_state.qos_list[i].container_id == container_id) {
+            memcpy(qos, &storage_state.qos_list[i], sizeof(hal_storage_container_qos_t));
+            return HAL_OK;
+        }
+    }
+    
+    return HAL_ERR_DEVICE_FAILED;
+}
+
+hal_status_t hal_storage_enable_container_throttle(uint32_t container_id) {
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.qos_count; i++) {
+        if (storage_state.qos_list[i].container_id == container_id) {
+            storage_state.qos_list[i].throttle_enabled = true;
+            return HAL_OK;
+        }
+    }
+    
+    return HAL_ERR_DEVICE_FAILED;
+}
+
+hal_status_t hal_storage_disable_container_throttle(uint32_t container_id) {
+    if (!storage_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    for (uint32_t i = 0; i < storage_state.qos_count; i++) {
+        if (storage_state.qos_list[i].container_id == container_id) {
+            storage_state.qos_list[i].throttle_enabled = false;
+            return HAL_OK;
+        }
+    }
+    
+    return HAL_ERR_DEVICE_FAILED;
 }

@@ -388,3 +388,209 @@ hal_status_t hal_power_is_power_saving_enabled(bool *enabled) {
     *enabled = false;
     return HAL_OK;
 }
+
+hal_status_t hal_power_set_profile(hal_power_profile_t profile) {
+    if (profile > HAL_POWER_PROFILE_PERFORMANCE) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_get_profile(hal_power_profile_t *profile) {
+    if (!profile) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    *profile = HAL_POWER_PROFILE_BALANCED;
+    return HAL_OK;
+}
+
+hal_status_t hal_power_prepare_suspend(hal_power_state_t target_state) {
+    if (target_state < HAL_POWER_STATE_S0 || target_state > HAL_POWER_STATE_G3) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_quiesce_device(uint32_t device_id) {
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_quiesce_all_devices(void) {
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_register_quiesce_callback(uint32_t device_id, 
+                                                 hal_device_quiesce_callback_t callback, 
+                                                 void *context) {
+    if (!callback) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_complete_suspend(hal_power_state_t target_state) {
+    if (target_state < HAL_POWER_STATE_S0 || target_state > HAL_POWER_STATE_G3) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    power_state.system_state = target_state;
+    return HAL_OK;
+}
+
+hal_status_t hal_power_resume_device(uint32_t device_id) {
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_resume_all_devices(void) {
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    power_state.system_state = HAL_POWER_STATE_S0;
+    return HAL_OK;
+}
+
+hal_status_t hal_power_register_resume_callback(hal_resume_callback_t callback, void *context) {
+    if (!callback) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_verify_resume_integrity(bool *valid) {
+    if (!valid) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    *valid = true;
+    return HAL_OK;
+}
+
+hal_status_t hal_power_get_suspend_state(hal_suspend_resume_state_t *state) {
+    if (!state) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    state->in_transition = false;
+    state->current_state = power_state.system_state;
+    state->target_state = power_state.system_state;
+    state->devices_quiesced = 0;
+    state->total_devices = 32;
+    state->hibernation_image_encrypted = true;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_set_wakeup_sources(const hal_wakeup_sources_t *sources) {
+    if (!sources) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_get_wakeup_sources(hal_wakeup_sources_t *sources) {
+    if (!sources) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    sources->wake_sources = 0xFF;
+    sources->rtc_enabled = true;
+    sources->usb_enabled = false;
+    sources->power_button_enabled = true;
+    sources->keyboard_enabled = false;
+    sources->mouse_enabled = false;
+    sources->network_enabled = false;
+    sources->disk_enabled = false;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_throttle_cpu(uint8_t cpu_id, uint8_t percent) {
+    if (percent > 100) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_throttle_gpu(uint8_t gpu_id, uint8_t percent) {
+    if (percent > 100) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_power_unthrottle_device(uint32_t device_id) {
+    if (!power_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}

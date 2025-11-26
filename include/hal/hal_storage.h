@@ -15,6 +15,17 @@ typedef enum {
 } hal_storage_type_t;
 
 typedef enum {
+    HAL_IO_SCHEDULER_DEADLINE = 0,
+    HAL_IO_SCHEDULER_CFS = 1,
+    HAL_IO_SCHEDULER_NOOP = 2,
+} hal_io_scheduler_t;
+
+typedef enum {
+    HAL_PARTITION_TYPE_MBR = 0,
+    HAL_PARTITION_TYPE_GPT = 1,
+} hal_partition_type_t;
+
+typedef enum {
     HAL_STORAGE_BUS_UNKNOWN = 0,
     HAL_STORAGE_BUS_ATA,
     HAL_STORAGE_BUS_SATA,
@@ -76,6 +87,34 @@ typedef struct {
     uint16_t device_id;
 } hal_storage_address_t;
 
+typedef struct {
+    uint32_t volume_id;
+    char name[64];
+    uint64_t size_sectors;
+    uint64_t allocated_sectors;
+    bool encrypted;
+    uint8_t encryption_key[32];
+    uint32_t owner_container_id;
+} hal_storage_volume_t;
+
+typedef struct {
+    uint32_t partition_id;
+    uint32_t device_id;
+    uint64_t start_sector;
+    uint64_t size_sectors;
+    uint8_t partition_type;
+    uint32_t flags;
+    char label[64];
+} hal_storage_partition_t;
+
+typedef struct {
+    uint32_t container_id;
+    uint32_t max_iops;
+    uint32_t max_bandwidth_mbps;
+    uint32_t priority;
+    bool throttle_enabled;
+} hal_storage_container_qos_t;
+
 typedef void (*hal_storage_io_callback_t)(uint64_t request_id, hal_status_t status, 
                                            void *context);
 
@@ -133,5 +172,31 @@ hal_status_t hal_storage_unlock_device(uint8_t device_id, const uint8_t *passwor
                                         uint32_t password_len);
 hal_status_t hal_storage_set_password(uint8_t device_id, const uint8_t *password, 
                                        uint32_t password_len);
+
+hal_status_t hal_storage_create_volume(uint8_t device_id, uint64_t size_sectors, 
+                                        const char *name, uint32_t *volume_id);
+hal_status_t hal_storage_delete_volume(uint32_t volume_id);
+hal_status_t hal_storage_enumerate_volumes(hal_storage_volume_t *volumes, uint32_t *volume_count);
+hal_status_t hal_storage_get_volume(uint32_t volume_id, hal_storage_volume_t *volume);
+hal_status_t hal_storage_mount_volume(uint32_t volume_id, uint32_t container_id);
+hal_status_t hal_storage_unmount_volume(uint32_t volume_id);
+
+hal_status_t hal_storage_create_partition(uint8_t device_id, uint64_t start_sector, 
+                                          uint64_t size_sectors, const char *label,
+                                          uint32_t *partition_id);
+hal_status_t hal_storage_delete_partition(uint32_t partition_id);
+hal_status_t hal_storage_enumerate_partitions(uint8_t device_id, hal_storage_partition_t *partitions,
+                                              uint32_t *partition_count);
+hal_status_t hal_storage_get_partition_type(uint8_t device_id, hal_partition_type_t *type);
+hal_status_t hal_storage_set_partition_type(uint8_t device_id, hal_partition_type_t type);
+
+hal_status_t hal_storage_set_io_scheduler(uint8_t device_id, hal_io_scheduler_t scheduler);
+hal_status_t hal_storage_get_io_scheduler(uint8_t device_id, hal_io_scheduler_t *scheduler);
+
+hal_status_t hal_storage_set_container_qos(const hal_storage_container_qos_t *qos);
+hal_status_t hal_storage_get_container_qos(uint32_t container_id, 
+                                           hal_storage_container_qos_t *qos);
+hal_status_t hal_storage_enable_container_throttle(uint32_t container_id);
+hal_status_t hal_storage_disable_container_throttle(uint32_t container_id);
 
 #endif

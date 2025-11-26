@@ -1,0 +1,31 @@
+[package]
+name = "aegis-hal"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "aegis_hal"
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+bitflags = { version = "2.0", default-features = false }
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "hal_benchmarks"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+strip = true
+
+[profile.dev]
+opt-level = 0
+
+[features]
+default = ["std"]
+std = []
+no_std = []

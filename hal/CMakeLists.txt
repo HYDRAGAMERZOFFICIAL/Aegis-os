@@ -2,7 +2,9 @@ add_library(hal
     hal.c
     hal_cpu.c
     hal_firmware.c
+    hal_acpi_uefi.c
     hal_gpu.c
+    hal_gpu_display.c
     hal_audio.c
     hal_storage.c
     hal_usb.c

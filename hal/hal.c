@@ -3,7 +3,9 @@
 #include "../include/hal/hal.h"
 #include "../include/hal/hal_cpu.h"
 #include "../include/hal/hal_firmware.h"
+#include "../include/hal/hal_acpi_uefi.h"
 #include "../include/hal/hal_gpu.h"
+#include "../include/hal/hal_gpu_display.h"
 #include "../include/hal/hal_audio.h"
 #include "../include/hal/hal_storage.h"
 #include "../include/hal/hal_usb.h"
@@ -12,7 +14,9 @@
 typedef struct {
     bool cpu_initialized;
     bool firmware_initialized;
+    bool acpi_uefi_initialized;
     bool gpu_initialized;
+    bool gpu_display_initialized;
     bool audio_initialized;
     bool storage_initialized;
     bool usb_initialized;
@@ -52,11 +56,23 @@ hal_status_t hal_init(void) {
     }
     hal_int_state.firmware_initialized = true;
     
+    status = hal_acpi_uefi_init(0x0000);
+    if (status != HAL_OK) {
+        return status;
+    }
+    hal_int_state.acpi_uefi_initialized = true;
+    
     status = hal_gpu_init();
     if (status != HAL_OK) {
         return status;
     }
     hal_int_state.gpu_initialized = true;
+    
+    status = hal_gpu_display_init();
+    if (status != HAL_OK) {
+        return status;
+    }
+    hal_int_state.gpu_display_initialized = true;
     
     status = hal_audio_init();
     if (status != HAL_OK) {
@@ -104,7 +120,15 @@ hal_status_t hal_fini(void) {
         status |= hal_audio_fini();
     }
     
+    if (hal_int_state.gpu_display_initialized) {
+        status |= hal_gpu_display_fini();
+    }
+    
     if (hal_int_state.gpu_initialized) {
+    }
+    
+    if (hal_int_state.acpi_uefi_initialized) {
+        status |= hal_acpi_uefi_fini();
     }
     
     if (hal_int_state.firmware_initialized) {

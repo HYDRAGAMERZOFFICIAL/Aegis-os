@@ -329,3 +329,150 @@ hal_status_t hal_usb_port_clear_feature(uint8_t bus, uint8_t port, uint16_t feat
     
     return HAL_OK;
 }
+
+hal_status_t hal_hid_parse_report_descriptor(uint8_t bus, uint8_t device, 
+                                             hal_hid_report_descriptor_t *descriptors,
+                                             uint32_t *descriptor_count) {
+    if (!descriptors || !descriptor_count || bus >= usb_state.bus_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    *descriptor_count = 1;
+    descriptors[0].report_id = 1;
+    descriptors[0].report_size = 64;
+    descriptors[0].usage_page = 0x0001;
+    descriptors[0].in_report = true;
+    descriptors[0].out_report = false;
+    descriptors[0].feature_report = false;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_hid_get_normalized_input(uint8_t bus, uint8_t device, 
+                                          hal_hid_input_event_t *event) {
+    if (!event || bus >= usb_state.bus_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    memset(event, 0, sizeof(hal_hid_input_event_t));
+    return HAL_OK;
+}
+
+hal_status_t hal_hid_register_input_callback(uint8_t bus, uint8_t device, 
+                                             hal_hid_input_callback_t callback, void *context) {
+    if (!callback || bus >= usb_state.bus_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_hid_unregister_input_callback(uint8_t bus, uint8_t device) {
+    if (bus >= usb_state.bus_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_usb_get_passthrough_policy(uint32_t device_id, 
+                                            hal_usb_passthrough_policy_t *policy) {
+    if (!policy) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    policy->device_id = device_id;
+    policy->allowed = true;
+    policy->quarantined = false;
+    policy->container_whitelist = 0;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_usb_set_passthrough_policy(uint32_t device_id, 
+                                            const hal_usb_passthrough_policy_t *policy) {
+    if (!policy) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_usb_get_security_policy(hal_usb_security_policy_t *policy) {
+    if (!policy) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    policy->mass_storage_blocked = false;
+    policy->firmware_update_blocked = true;
+    policy->autorun_disabled = true;
+    policy->unknown_devices_quarantine = true;
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_usb_set_security_policy(const hal_usb_security_policy_t *policy) {
+    if (!policy) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_usb_quarantine_device(uint8_t bus, uint8_t device) {
+    if (bus >= usb_state.bus_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    return HAL_OK;
+}
+
+hal_status_t hal_usb_is_device_quarantined(uint8_t bus, uint8_t device, bool *quarantined) {
+    if (!quarantined || bus >= usb_state.bus_count) {
+        return HAL_ERR_INVALID_ARG;
+    }
+    
+    if (!usb_state.initialized) {
+        return HAL_ERR_DEVICE_FAILED;
+    }
+    
+    *quarantined = false;
+    
+    return HAL_OK;
+}
