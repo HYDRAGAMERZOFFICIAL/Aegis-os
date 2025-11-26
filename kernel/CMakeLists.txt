@@ -8,6 +8,9 @@ set(KERNEL_SOURCES
     network.c
     driver.c
     security.c
+    panic.c
+    debugger.c
+    hypervisor.c
     main.c
     system_init.c
     adaptive_scheduler.c
