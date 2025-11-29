@@ -31,6 +31,15 @@ set(KERNEL_SOURCES
     arm_boot.c
     boot_handoff.c
     hal_ffi.c
+    perf_optimize.c
+    security_hardening.c
+    userland_ui.c
+    advanced_features.c
+    services.c
+    bootloader.c
+    wasm_runtime.c
+    container_engine.c
+    integration_layer.c
 )
 
 add_library(kernel_lib STATIC ${KERNEL_SOURCES})

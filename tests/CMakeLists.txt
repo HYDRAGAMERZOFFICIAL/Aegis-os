@@ -18,6 +18,11 @@ set(TEST_SOURCES
     test_integration.c
     test_profiler.c
     test_phase3.c
+    test_phase6_extended.c
+    test_phase7_security.c
+    test_phase8_ui.c
+    test_phase9_advanced.c
+    test_implementation_needed.c
 )
 
 add_executable(aegis_tests ${TEST_SOURCES})
