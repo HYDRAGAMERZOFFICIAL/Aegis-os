@@ -19,6 +19,18 @@ set(KERNEL_SOURCES
     ai_prefetch.c
     universal_cache.c
     tiered_storage.c
+    syscall_gate.c
+    ipc_bus.c
+    event_system.c
+    boot_params.c
+    profiler.c
+    device_tree.c
+    devfs.c
+    sysfs.c
+    multiboot2.c
+    arm_boot.c
+    boot_handoff.c
+    hal_ffi.c
 )
 
 add_library(kernel_lib STATIC ${KERNEL_SOURCES})

@@ -6,6 +6,8 @@ void run_security_tests(void);
 void run_drivers_tests(void);
 void run_filesystem_tests(void);
 void run_devapi_tests(void);
+void test_integration_main(void);
+void run_profiler_tests(void);
 
 int main(void) {
     printf("\n");
@@ -27,6 +29,12 @@ int main(void) {
 
     printf("\n[Phase 5] Running Developer API Tests...\n");
     run_devapi_tests();
+
+    printf("\n[Phase 6] Running Integration Tests...\n");
+    test_integration_main();
+
+    printf("\n[Phase 7] Running Profiler Tests...\n");
+    run_profiler_tests();
 
     printf("\n");
     printf("╔════════════════════════════════════════╗\n");

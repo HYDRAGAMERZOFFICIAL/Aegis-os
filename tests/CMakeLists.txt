@@ -15,6 +15,9 @@ set(TEST_SOURCES
     test_drivers.c
     test_filesystem.c
     test_devapi.c
+    test_integration.c
+    test_profiler.c
+    test_phase3.c
 )
 
 add_executable(aegis_tests ${TEST_SOURCES})
