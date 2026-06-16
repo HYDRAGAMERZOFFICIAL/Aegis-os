@@ -20,4 +20,4 @@ Think of it as:
 
 ✔ Compatibility + UI strength of Windows
 
-✔ Intelligence + automation of modern AI systems
+✔ Intelligence + automation of modern AI systemm
