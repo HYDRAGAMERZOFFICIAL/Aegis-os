@@ -26,7 +26,6 @@ jobs:
   windows-package:
     name: Windows desktop package
     needs: game-tests
-    if: github.event_name == 'push'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
