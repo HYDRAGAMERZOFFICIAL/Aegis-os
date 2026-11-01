@@ -1341,6 +1341,24 @@ Quarantined Threats: ${systemState.securityStatus.quarantinedFiles.length} files
 [PASS] CFS Scheduler & Task Optimizer Affinity
 Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
 
+        // Fictional incident-response commands used by the Aegis training campaign.
+        // These return simulated evidence only; they never execute host commands.
+        case 'capability-audit':
+            return callback('ZERO-TRUST CAPABILITY AUDIT\\n[VALID] aegis_ui_compositor -> CAP_FRAMEBUFFER_WRITE\\n[VALID] neural_monitor -> CAP_KERNEL_TELEMETRY\\n[ANOMALY] kernel_sync_worker -> CAP_NET_RAW_SOCKET (unexpected grant)\\nFinding: TOK-KERNEL-ESCALATED exceeds the component minimum-authority profile.');
+        case 'verify-containment':
+            return callback('CONTAINMENT VERIFICATION\\n[PASS] suspicious worker isolated in the simulated process table\\n[PASS] hostile outbound session no longer established\\n[PASS] trusted desktop services remain available\\nResult: containment verified in the training environment.');
+        case 'verify-root':
+            return callback('MERKLE ROOT VERIFICATION\\n[PASS] checkpoint manifest readable\\n[PASS] affected branch compared against trusted snapshot\\nRoot: ' + (systemState.filesystem.merkleRoot || 'AEGIS-ROOT-VERIFIED') + '\\nResult: simulated integrity verification complete.');
+        case 'quarantine-component':
+            return callback('COMPONENT QUARANTINE\\n[PASS] kernel_sync_worker moved to isolated training namespace\\n[PASS] privileged capability removed from active session\\n[PASS] audit record sealed\\nNo host process was affected.');
+        case 'service-health':
+            return callback('SERVICE HEALTH MATRIX\\n[HEALTHY] identity broker 12ms\\n[HEALTHY] DNS resolver 18ms\\n[DEGRADED] public API gateway queue depth elevated\\n[HEALTHY] priority service edge-02 latency 24ms\\nFinding: preserve priority service path while mitigating ingress.');
+        case 'route-health':
+            return callback('EDGE ROUTE HEALTH\\nedge-route-01: DEGRADED / queue saturation 91%\\nedge-route-02: HEALTHY / queue 28% / priority traffic enabled\\nedge-route-03: HEALTHY / capacity reserve 12%\\nRecommendation: edge-route-02 for critical service traffic.');
+        case 'route-select':
+            if (arg1 !== 'edge-route-02') return callback('Route rejected: select a route with passing health and priority capacity.');
+            return callback('ROUTE CHANGE ACCEPTED\\nCritical service path moved to edge-route-02. Health check passed; priority traffic preserved.');
+
         case 'neural':
             return callback(`Neural Activity Telemetry:
   CPU Usage:       ${systemState.telemetry.cpuUsage}%
