@@ -21,6 +21,10 @@ test('campaign contains three long investigations with evidence and decision gat
   }
   assert.match(campaign, /mission-report-btn/);
   assert.match(campaign, /state\.decision\[m\.id\]===undefined/);
-  assert.match(campaign, /s\[3\]\.every/);
+  assert.match(campaign, /progress\.length===s\[3\]\.length/);
   assert.match(campaign, /evidence\(\)\.length<m\.steps\.filter/);
+  assert.match(campaign, /aegis:authenticated/);
+  assert.match(campaign, /\/api\/campaign\/state/);
+  assert.match(desktop, /desktop-auth\.js/);
+  assert.match(desktop, /aegis-auth-gate/);
 });
