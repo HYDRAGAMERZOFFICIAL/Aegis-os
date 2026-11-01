@@ -1423,6 +1423,7 @@
                         blocks.forEach(b => {
                             b.status = 'HEALTHY';
                             if (b.id === 'blk-4') b.hash = '8f4d92a...';
+                            if (b.id === 'blk-6') b.hash = '4f71c2a...';
                         });
                         renderBlocks();
 
