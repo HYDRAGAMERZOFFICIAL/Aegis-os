@@ -45,7 +45,7 @@
     $('#start-mission').disabled = (!!mission && mission.status === 'active') || !selectedMission || selectedMission.completed;
     $('#start-mission').textContent = mission && mission.status === 'active' ? 'Mission deployed' : 'Deploy selected mission →';
     const objectives = $('#objectives'); objectives.replaceChildren();
-    if (!mission) { const empty = document.createElement('div'); empty.className = 'empty-state'; empty.textContent = 'No active objectives. Deploy Mission 01 to begin.'; objectives.append(empty); }
+    if (!mission) { const empty = document.createElement('div'); empty.className = 'empty-state'; empty.textContent = 'No active objectives. Select a campaign mission and deploy when ready.'; objectives.append(empty); }
     else mission.objectives.forEach((objective, index) => {
       const row = document.createElement('div'); row.className = 'objective' + (objective.completed ? ' done' : (!mission.objectives.slice(0,index).some(item => !item.completed) && mission.status === 'active' ? ' active' : ''));
       const number = document.createElement('span'); number.className = 'objective-index'; number.textContent = String(index + 1).padStart(2,'0');
@@ -95,8 +95,9 @@
     try { const result = await api('/api/game/research',{nodeId}); log('Research unlocked: ' + result.node.name,'success'); render(result.state); }
     catch (error) { log(error.message,'warning'); }
   };
+  $('#mission-select').addEventListener('change', (event) => { selectedMissionId = event.target.value; refresh().catch(error => log(error.message,'warning')); });
   $('#start-mission').addEventListener('click', async () => {
-    try { const result = await api('/api/game/start',{missionId:'mission-01'}); log('Mission deployed: The Silent Intrusion','success'); render(result.state); }
+    try { const result = await api('/api/game/start',{missionId:selectedMissionId}); log('Mission deployed: ' + result.mission.title,'success'); render(result.state); }
     catch (error) { $('#mission-feedback').textContent = error.message; log(error.message,'warning'); }
   });
   $('#save').addEventListener('click', async () => { try { const result = await api('/api/game/save',{slot:'profile'}); log('Local campaign saved at ' + result.savedAt,'success'); } catch(error) { log(error.message,'warning'); } });
