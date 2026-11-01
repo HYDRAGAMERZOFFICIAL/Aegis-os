@@ -42,7 +42,7 @@ test("recovery cannot occur before containment and integrity verification",()=>{
   assert.equal(premature.ok,true);
   const restore=game.perform("restore");
   assert.equal(restore.ok,false);
-  assert.match(restore.message,/integrity/i);
+  assert.match(restore.message,/sequence/i);
 });
 test("campaign progress survives engine recreation",()=>{
   const first=new AegisGameEngine();
