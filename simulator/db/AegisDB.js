@@ -571,3 +571,4 @@ class AegisDB {
 }
 
 module.exports = AegisDB;
+

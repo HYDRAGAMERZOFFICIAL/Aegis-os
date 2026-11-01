@@ -136,3 +136,4 @@ test('Terminal supports db command for in-memory database queries and table audi
     assert.ok(cmdRes.output.includes('users'));
     assert.ok(cmdRes.output.includes('user_case_files'));
 });
+

@@ -429,3 +429,180 @@
   border-color: #00ff80;
   opacity: 0.7;
 }
+
+
+/* Clue Grid & Cards */
+.aegis-clue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.aegis-clue-card {
+  background: rgba(12, 22, 36, 0.9);
+  border: 1px solid rgba(0, 243, 255, 0.25);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aegis-clue-card:hover {
+  border-color: #00f3ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 243, 255, 0.2);
+}
+.aegis-clue-card.is-unlocked {
+  border-left: 3px solid #00f3ff;
+}
+.aegis-clue-card.is-locked {
+  opacity: 0.6;
+  border-left: 3px solid #ff5577;
+}
+.clue-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.clue-cat-tag {
+  font-size: 9px;
+  font-family: var(--font-mono, monospace);
+  color: #00f3ff;
+  background: rgba(0, 243, 255, 0.12);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+.clue-status-tag {
+  font-size: 9px;
+  font-family: var(--font-mono, monospace);
+  color: #00ff80;
+}
+.aegis-clue-card h4 {
+  margin: 0;
+  font-size: 13px;
+  color: #fff;
+}
+.clue-snippet-preview {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  color: #00ff80;
+  background: rgba(4, 8, 14, 0.8);
+  padding: 6px 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.clue-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+.clue-badge-ioc {
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  color: var(--text-muted);
+}
+
+/* Step Guides */
+.step-guide-wrap {
+  margin-top: 6px;
+}
+.btn-step-guide-toggle {
+  background: transparent;
+  border: none;
+  color: #00f3ff;
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  cursor: pointer;
+  padding: 2px 0;
+}
+.btn-step-guide-toggle:hover {
+  text-decoration: underline;
+}
+.step-guide-content {
+  background: rgba(10, 18, 30, 0.7);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-top: 4px;
+}
+.step-guide-text {
+  margin: 0 0 4px 0;
+  font-size: 11px;
+  color: var(--text-main);
+}
+.step-guide-action {
+  margin: 0 0 6px 0;
+  font-size: 10px;
+  color: #00ff80;
+  font-family: var(--font-mono, monospace);
+}
+.btn-step-jump {
+  color: #00f3ff;
+  border-color: #00f3ff;
+}
+
+/* Closed Cases */
+.closed-section {
+  margin-top: 14px;
+}
+.closed-sec-title {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-family: var(--font-mono, monospace);
+  color: #00f3ff;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+  padding-bottom: 4px;
+}
+.closed-case-card {
+  background: rgba(10, 18, 28, 0.85);
+  border: 1px solid rgba(0, 255, 128, 0.25);
+  border-left: 3px solid #00ff80;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.closed-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.closed-tag-badge {
+  font-size: 9px;
+  font-family: var(--font-mono, monospace);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.tag-operation { background: rgba(0, 243, 255, 0.15); color: #00f3ff; }
+.tag-sidequest { background: rgba(157, 0, 255, 0.15); color: #bf55ec; }
+.tag-incident { background: rgba(255, 165, 0, 0.15); color: #ffa500; }
+.closed-grade-badge, .closed-status-badge, .closed-reward-badge {
+  font-size: 9px;
+  font-family: var(--font-mono, monospace);
+  color: #00ff80;
+  font-weight: 600;
+}
+.closed-case-card h4 {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: #fff;
+}
+.closed-case-card p {
+  margin: 0 0 4px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.closed-meta {
+  font-size: 9px;
+  font-family: var(--font-mono, monospace);
+  color: #6a829a;
+}
