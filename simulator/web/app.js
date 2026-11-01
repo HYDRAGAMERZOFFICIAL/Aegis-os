@@ -203,8 +203,14 @@
         open(appId, title, width = 740, height = 500) {
             if (this.windows.has(appId)) {
                 const win = this.windows.get(appId);
-                win.classList.remove('minimized');
-                this.bringToFront(win);
+                if (win.classList.contains('minimized')) {
+                    win.classList.remove('minimized');
+                    this.bringToFront(win);
+                } else if (win.classList.contains('active')) {
+                    win.classList.add('minimized');
+                } else {
+                    this.bringToFront(win);
+                }
                 return;
             }
 
@@ -232,9 +238,9 @@
                         <span>${title}</span>
                     </div>
                     <div class="win-controls">
-                        <button class="win-btn win-btn-min" title="Minimize"></button>
-                        <button class="win-btn win-btn-max" title="Maximize"></button>
-                        <button class="win-btn win-btn-close" title="Close"></button>
+                        <button class="win-btn win-btn-min" title="Minimize" aria-label="Minimize"></button>
+                        <button class="win-btn win-btn-max" title="Maximize" aria-label="Maximize"></button>
+                        <button class="win-btn win-btn-close" title="Close" aria-label="Close"></button>
                     </div>
                 </div>
                 <div class="win-body"></div>
@@ -247,16 +253,26 @@
 
             this.updateDockState(appId, true);
 
+            const winControls = win.querySelector('.win-controls');
+            winControls.addEventListener('mousedown', (e) => e.stopPropagation());
+
             win.querySelector('.win-btn-close').addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.close(appId);
             });
             win.querySelector('.win-btn-min').addEventListener('click', (e) => {
                 e.stopPropagation();
+                if ('speechSynthesis' in window) {
+                    try { window.speechSynthesis.cancel(); } catch (err) { }
+                }
                 win.classList.add('minimized');
             });
             win.querySelector('.win-btn-max').addEventListener('click', (e) => {
                 e.stopPropagation();
+                win.classList.toggle('maximized');
+            });
+            win.querySelector('.win-header').addEventListener('dblclick', (e) => {
+                if (e.target.closest('.win-controls')) return;
                 win.classList.toggle('maximized');
             });
 
@@ -628,8 +644,8 @@
 
                     AudioEngine.playChime('success');
 
-                    // Voice output if available
-                    if ('speechSynthesis' in window) {
+                    // Voice output if available - only if AI window is still open
+                    if (WM.windows.has('ai') && !WM.windows.get('ai').classList.contains('minimized') && 'speechSynthesis' in window) {
                         try {
                             const utter = new SpeechSynthesisUtterance(data.reply.split('\n')[0]);
                             utter.rate = 1.05;
@@ -1835,7 +1851,7 @@
     // ==========================================
     // 17. SYSTEM INITIALIZATION
     // ==========================================
-    window.addEventListener('DOMContentLoaded', () => {
+    function initSystem() {
         Wallpaper.init();
         Notifications.init();
         WM.init();
@@ -1911,6 +1927,11 @@
             WM.open('files', 'Files & Storage Manager', 800, 510);
             Notifications.show('AegisOS 2.0 Ready', 'Aegis Mind AI online. Tiered storage & Cybersecurity Arsenal active.', 'success', 5000);
         }, 400);
-    });
+    }
 
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSystem);
+    } else {
+        initSystem();
+    }
 })();

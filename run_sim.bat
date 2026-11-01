@@ -2,14 +2,20 @@
 title AegisOS Simulator Launcher
 echo ========================================================================
 echo    *   AEGIS OS - HYBRID SECURE INTELLIGENCE OPERATING SYSTEM   *
-echo    *   Kernel v2.0-Alpha ^| Dual-Kernel Hybrid ^| AI Self-Healing  *
+echo    *   Kernel v2.0-Alpha [Dual-Kernel Hybrid] [AI Self-Healing]    *
 echo ========================================================================
 echo.
+
+if "%1"=="web" goto web_sim
+if "%1"=="cli" goto cli_sim
+if "%1"=="demo" goto demo_sim
+if "%1"=="test" goto test_suite
+
 echo Choose simulator mode:
 echo   [1] Launch Interactive Web GUI Desktop Simulator (Recommended)
 echo   [2] Launch Native C CLI Simulator (Interactive Console)
-echo   [3] Run Automated 8-Point Architecture Demo
-echo   [4] Run Full Test Suite (84 Core Integration Tests)
+echo   [3] Run Automated Architecture Demo
+echo   [4] Run Full Test Suite
 echo.
 set choice=1
 set /p choice="Enter choice [1-4] (default: 1): "

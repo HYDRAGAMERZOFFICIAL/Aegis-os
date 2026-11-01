@@ -24,6 +24,7 @@ const SIM_EXE = path.join(__dirname, '..', 'aegis_sim.exe');
 // IN-MEMORY SIMULATION STATE
 // ==========================================
 const systemState = {
+    version: "2.0.0-Alpha",
     kernelVersion: "2.0.0-Alpha",
     architecture: "Dual-Kernel Microkernel (Aegis Core + Linux ABI)",
     startTime: Date.now(),
@@ -612,7 +613,7 @@ function handleApi(req, res, pathname, url) {
     // ----------------------------------------------------
     // 6. AGENTIC AI ASSISTANT ("Aegis Mind")
     // ----------------------------------------------------
-    if (pathname === '/api/ai/execute' && req.method === 'POST') {
+    if ((pathname === '/api/ai/execute' || pathname === '/api/ai/chat') && req.method === 'POST') {
         parseBody(req, (err, data) => {
             if (err || !data.prompt) return sendJson(res, 400, { error: 'Prompt required' });
             const prompt = data.prompt.trim();
@@ -946,6 +947,50 @@ function executeShellCommand(cmd, callback) {
             targetWrite.sizeStr = `${Math.max(1, Math.round(writeContent.length / 1024))} KB`;
             targetWrite.modified = new Date().toISOString().substring(0, 16).replace('T', ' ');
             return callback(`Wrote ${writeContent.length} bytes to ${targetWrite.path}`);
+
+        case 'echo':
+            const fullEcho = parts.slice(1).join(' ');
+            if (fullEcho.includes('>')) {
+                const isAppend = fullEcho.includes('>>');
+                const sep = isAppend ? '>>' : '>';
+                const echoTokens = fullEcho.split(sep);
+                const text = echoTokens[0].trim().replace(/^["']|["']$/g, '');
+                const targetFile = echoTokens[1].trim();
+                let f = systemState.filesystem.files.find(x => x.path === targetFile || x.name === targetFile);
+                if (!f) {
+                    const fname = path.basename(targetFile);
+                    f = {
+                        id: `f-${Date.now()}`,
+                        name: fname,
+                        path: targetFile.startsWith('/') ? targetFile : `/userland/data/${targetFile}`,
+                        size: Buffer.byteLength(text, 'utf8'),
+                        sizeStr: `${Math.max(1, Math.round(Buffer.byteLength(text, 'utf8') / 1024))} KB`,
+                        perm: "rw-r--r--",
+                        ring: "Ring 3",
+                        encrypted: false,
+                        hash: Math.random().toString(16).substring(2, 10) + "...",
+                        modified: new Date().toISOString().substring(0, 16).replace('T', ' '),
+                        type: "text",
+                        content: text
+                    };
+                    systemState.filesystem.files.push(f);
+                    return callback(`Created and wrote to ${f.path}`);
+                } else {
+                    f.content = isAppend ? (f.content + '\n' + text) : text;
+                    f.size = Buffer.byteLength(f.content, 'utf8');
+                    f.sizeStr = `${Math.max(1, Math.round(f.size / 1024))} KB`;
+                    f.modified = new Date().toISOString().substring(0, 16).replace('T', ' ');
+                    return callback(`Wrote ${f.size} bytes to ${f.path}`);
+                }
+            }
+            return callback(parts.slice(1).join(' ').replace(/^["']|["']$/g, ''));
+
+        case 'pwd':
+            return callback(`/userland/data`);
+
+        case 'mkdir':
+            if (!arg1) return callback(`mkdir: missing operand`);
+            return callback(`Created directory ${arg1.startsWith('/') ? arg1 : '/userland/data/' + arg1}`);
 
         case 'rm':
             if (!arg1) return callback(`rm: missing operand`);
