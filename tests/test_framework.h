@@ -13,7 +13,7 @@ typedef struct {
     char* current_test;
 } test_context_t;
 
-static test_context_t test_ctx = {0, 0, 0, NULL};
+extern test_context_t test_ctx;
 
 #define TEST_SUITE(name) \
     void name(void); \

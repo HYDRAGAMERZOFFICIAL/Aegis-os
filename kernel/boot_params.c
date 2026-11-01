@@ -2,7 +2,20 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-char *strtok_r(char *str, const char *delim, char **saveptr);
+static char *my_strtok_r(char *str, const char *delim, char **saveptr) {
+    if (!str && !(str = *saveptr)) return NULL;
+    str += strspn(str, delim);
+    if (!*str) return *saveptr = NULL;
+    char *end = str + strcspn(str, delim);
+    if (*end) {
+        *end = '\0';
+        *saveptr = end + 1;
+    } else {
+        *saveptr = NULL;
+    }
+    return str;
+}
+#define strtok_r my_strtok_r
 
 typedef struct {
     uint32_t mem_lower;

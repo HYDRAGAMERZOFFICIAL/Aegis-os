@@ -150,3 +150,25 @@ int crypto_derive_key(void *password, int plen, void *salt, void *derived_key) {
   memcpy(derived_key, password, plen > 32 ? 32 : plen);
   return 0;
 }
+
+int crypto_init(void) {
+    return crypto_engine_init();
+}
+
+int crypto_aes_encrypt(void* data, int len, void* key) {
+    if (!data || !key) return -1;
+    u64 clen = 0;
+    cipher_context_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    memcpy(ctx.key, key, 32);
+    return crypto_encrypt(&ctx, (const u8*)data, (u64)len, (u8*)data, &clen);
+}
+
+int crypto_aes_decrypt(void* data, int len, void* key) {
+    if (!data || !key) return -1;
+    u64 plen = 0;
+    cipher_context_t ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    memcpy(ctx.key, key, 32);
+    return crypto_decrypt(&ctx, (const u8*)data, (u64)len, (u8*)data, &plen);
+}

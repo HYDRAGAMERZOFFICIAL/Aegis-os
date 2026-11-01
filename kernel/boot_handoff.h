@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define BOOT_HANDOFF_MAGIC 0xAEG15000
+#define BOOT_HANDOFF_MAGIC 0xAE615000
 #define BOOT_HANDOFF_VERSION 2
 #define BOOT_MAX_BOOT_MODULES 64
 #define BOOT_MAX_MEMORY_REGIONS 128

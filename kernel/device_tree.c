@@ -182,7 +182,7 @@ dt_tree_t *dt_parse_blob(const void *blob, size_t size) {
         }
     }
     
-parse_done:
+parse_done: ;
     uint64_t *rsvmap = (uint64_t *)mem_rsvmap;
     for (size_t i = 0; i < DT_MAX_RESERVED_ENTRIES; i++) {
         uint64_t addr = be64_to_cpu(rsvmap[i * 2]);

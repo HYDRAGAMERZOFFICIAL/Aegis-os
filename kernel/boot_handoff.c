@@ -87,7 +87,7 @@ boot_status_t boot_parse_multiboot2(const void *mbi, uint32_t magic, boot_handof
     
     const char *cmdline = multiboot2_get_boot_cmdline(mbi);
     if (cmdline) {
-        strncpy(handoff->boot_cmdline, cmdline, 1023);
+        strncpy(handoff->device_info.boot_cmdline, cmdline, 1023);
     }
     
     const multiboot2_framebuffer_info_tag_t *fb = multiboot2_get_framebuffer_info(mbi);

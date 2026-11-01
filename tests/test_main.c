@@ -1,6 +1,8 @@
 #include "test_framework.h"
 #include <kernel/types.h>
 
+test_context_t test_ctx = {0, 0, 0, NULL};
+
 void run_kernel_tests(void);
 void run_security_tests(void);
 void run_drivers_tests(void);

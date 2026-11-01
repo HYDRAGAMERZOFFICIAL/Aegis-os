@@ -1,3 +1,6 @@
+void printk(const char* fmt, ...);
+int ipc_init(void);
+int crypto_init(void);
 #include <kernel/types.h>
 #include <kernel/process.h>
 #include <kernel/memory.h>
@@ -7,7 +10,8 @@
 #include <kernel/network.h>
 #include <kernel/driver.h>
 #include <kernel/security.h>
-#include <drivers/driver_manager.h>
+int driver_manager_init(void);
+int driver_manager_shutdown(void);
 #include <security/microkernel.h>
 #include <security/crypto_engine.h>
 #include <security/aegis_guard.h>

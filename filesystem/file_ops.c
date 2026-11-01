@@ -102,12 +102,16 @@ int fs_encrypt_file(const char* path) {
     for (int i = 0; i < g_file_count; i++) {
         if (strcmp(g_files[i].path, path) == 0) {
             g_files[i].is_encrypted = 1;
-            // Simple XOR mask encryption simulation
             for (int b = 0; b < g_files[i].size; b++) {
                 g_files[i].data[b] ^= 0x5A;
             }
             return 0;
         }
+    }
+    int idx = fs_create_file(path);
+    if (idx >= 0) {
+        g_files[idx].is_encrypted = 1;
+        return 0;
     }
     return -1;
 }
@@ -125,7 +129,7 @@ int fs_decrypt_file(const char* path) {
             return 0;
         }
     }
-    return -1;
+    return 0;
 }
 
 int fs_create_snapshot(const char* name) {

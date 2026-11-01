@@ -6,6 +6,7 @@
 
 TEST_SUITE(kernel) {
     printf("\n=== Kernel Module Tests ===\n");
+    mmgr_init();
 
     TEST_CASE(process_creation) {
         process_t *proc = pmgr_create_process("test_process", NULL, 10);
@@ -41,8 +42,10 @@ TEST_SUITE(kernel) {
     } TEST_END();
 
     TEST_CASE(aslr_enable) {
-        int result = mmgr_enable_aslr(NULL);
+        address_space_t *as = mmgr_create_address_space();
+        int result = mmgr_enable_aslr(as);
         ASSERT_EQUAL(result, 0);
+        mmgr_destroy_address_space(as);
     } TEST_END();
 
     TEST_CASE(scheduler_initialization) {
