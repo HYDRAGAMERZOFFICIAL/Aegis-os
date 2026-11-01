@@ -31,7 +31,7 @@ class MissionManager {
     return [...this.missions.values()].map(item => {
       const previous = [...this.missions.values()].filter(candidate => (candidate.chapter || 0) < (item.chapter || 0)).sort((a, b) => (b.chapter || 0) - (a.chapter || 0))[0];
       const unlocked = !previous || this.completed.has(previous.id);
-      return { id: item.id, chapter: item.chapter || 1, title: item.title, description: item.description, briefing: item.briefing || '', difficulty: item.difficulty || 'standard', objectiveCount: item.objectives.length, completed: this.completed.has(item.id), unlocked };
+      return { id: item.id, chapter: item.chapter || 1, title: item.title, description: item.description, briefing: item.briefing || '', difficulty: item.difficulty || 'standard', objectiveCount: item.objectives.length, objectives: item.objectives.map(objective => ({ id: objective.id, title: objective.title, description: objective.description })), completed: this.completed.has(item.id), unlocked };
     });
   }
   serialize() { return { current: this.getCurrent(), completed: [...this.completed] }; }
