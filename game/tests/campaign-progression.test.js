@@ -7,6 +7,8 @@ test('campaign operations unlock sequentially after the previous operation is se
   const game = new GameManager();
   assert.throws(() => game.startMission('mission-02'), /Complete The Silent Intrusion/);
   game.startMission('mission-01');
+  assert.equal(game.performAction('trace_origin', { answer: '10.0.0.8' }).ok, false, 'incorrect intelligence must not advance the mission');
+  assert.equal(game.getState().currentMission.objectives[1].completed, false);
   const steps = [
     ['inspect_process', {}], ['trace_origin', { answer: '185.220.101.5' }],
     ['configure_firewall', { answer: 'deny-untrusted' }], ['quarantine_process', {}],
