@@ -191,7 +191,7 @@ module.exports = async function handler(req, res) {
 
     if (pathname === '/api/auth/login' && req.method === 'POST') {
       const data = await readBody(req);
-      const email = String(data.email || '').trim().toLowerCase();
+      const email = String(data.email || data.username || '').trim().toLowerCase();
       const password = String(data.password || '');
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 1 || password.length > 128) {
         return send(res, 400, { error: 'Enter your registered email and password.' });
