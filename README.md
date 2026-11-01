@@ -449,6 +449,6 @@ A Linux AppImage build target is also configured with `npm run dist:linux`.
 
 The first development branch introduces a modular campaign engine, ordered mission objectives, simulated threat lifecycle, resource economy, research progression, local save/load, a dedicated command interface, and an Electron desktop launcher.
 
-**Current milestone:** playable first-mission foundation. Steamworks achievements, Cloud Saves, leaderboards, SteamPipe depots, final artwork, and release QA remain future work. The current build is not yet a Steam release candidate.
+**Current milestone:** playable three-mission playable campaign foundation. Steamworks achievements, Cloud Saves, leaderboards, SteamPipe depots, final artwork, and release QA remain future work. The current build is not yet a Steam release candidate.
 
 All game threats and recovery actions are simulated. The game does not execute malware or operate on the player's real network or host files.
