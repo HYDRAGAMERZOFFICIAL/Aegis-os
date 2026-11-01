@@ -92,6 +92,7 @@ class AuthManager {
   login(input, address) {
     const username = String(input.username || '').trim().toLowerCase();
     const password = String(input.password || '');
+    if (password.length > 128) throw new Error('Username or password is incorrect.');
     const key = this._checkRateLimit(username, address);
     const account = this.accounts.find(item => item.username === username);
     // A fixed dummy derivation keeps unknown usernames from being an instant timing oracle.
@@ -131,7 +132,13 @@ class AuthManager {
     if (session) this.sessions.delete(session.token);
   }
 
-  unlock(userId, password) { return this.verifyPassword(userId, password); }
+  unlock(userId, password, address) {
+    const key = this._checkRateLimit(userId, address);
+    const valid = typeof password === 'string' && password.length <= 128 && this.verifyPassword(userId, password);
+    if (!valid) { this._recordFailure(key); return false; }
+    this.failedAttempts.delete(key);
+    return true;
+  }
 }
 
 module.exports = AuthManager;
