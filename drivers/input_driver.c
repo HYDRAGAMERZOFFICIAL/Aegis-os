@@ -26,3 +26,5 @@ int input_disable_low_latency_mode(input_device_t *dev) { return 0; }
 
 uint32_t input_get_pending_events(input_device_t *dev) { return 0; }
 int input_flush_events(input_device_t *dev) { return 0; }
+
+int input_driver_enumerate_devices(void) { return 1; }

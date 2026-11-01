@@ -38,3 +38,5 @@ int gpu_disable_vsync(gpu_device_t *dev) { return 0; }
 
 uint64_t gpu_get_memory_usage(gpu_device_t *dev) { return 0; }
 int gpu_profile_performance(gpu_context_t *ctx, char *result, uint32_t max_len) { return 0; }
+
+int gpu_driver_set_mode(int width, int height, int bpp) { (void)width; (void)height; (void)bpp; return 0; }

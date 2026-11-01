@@ -46,3 +46,5 @@ int network_flush_rx_queue(network_interface_t *iface) { return 0; }
 
 int network_set_power_mode(network_interface_t *iface, uint8_t power_state) { return 0; }
 int network_get_link_speed(network_interface_t *iface, uint32_t *speed_mbps) { return 0; }
+
+int network_driver_connect(const char* ssid) { (void)ssid; return 0; }

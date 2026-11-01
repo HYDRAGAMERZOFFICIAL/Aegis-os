@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+char *strtok_r(char *str, const char *delim, char **saveptr);
 
 typedef struct {
     uint32_t mem_lower;

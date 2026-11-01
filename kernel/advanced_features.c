@@ -451,19 +451,30 @@ int memory_tagging_init(void) {
     return 0;
 }
 
+typedef struct { void* ptr; uint8_t tag; } TagEntry;
+static TagEntry g_tag_entries[256];
+static int g_tag_count = 0;
+
 int memory_tag_allocate(void** ptr, size_t size, uint8_t tag) {
-    if (!ptr || size == 0) {
-        return -1;
-    }
+    if (!ptr || size == 0) return -1;
     *ptr = malloc(size);
-    return *ptr != NULL ? 0 : -1;
+    if (!*ptr) return -1;
+    if (g_tag_count < 256) {
+        g_tag_entries[g_tag_count].ptr = *ptr;
+        g_tag_entries[g_tag_count].tag = tag;
+        g_tag_count++;
+    }
+    return 0;
 }
 
 int memory_check_tag(void* ptr, uint8_t expected_tag) {
-    if (!ptr) {
-        return -1;
+    if (!ptr) return -1;
+    for (int i = 0; i < g_tag_count; i++) {
+        if (g_tag_entries[i].ptr == ptr) {
+            return (g_tag_entries[i].tag == expected_tag) ? 0 : -1;
+        }
     }
-    return 0;
+    return -1;
 }
 
 int isolation_create_domain(uint32_t* domain_id) {

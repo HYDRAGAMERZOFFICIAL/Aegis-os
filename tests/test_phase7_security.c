@@ -247,6 +247,7 @@ TEST_SUITE(multi_user_security_tests) {
     int cross_verify = auth_verify("user1", "pass2");
     log_test("auth_cross_verify_fail", !cross_verify);
     
+    cap_revoke(1, CAP_NET_ADMIN);
     cap_grant(1, CAP_SYS_ADMIN);
     cap_grant(2, CAP_NET_ADMIN);
     

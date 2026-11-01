@@ -270,28 +270,28 @@ void test_integration_main(void)
 {
     printf("\n=== Kernel Integration Tests ===\n");
     
-    TEST_SUITE("Syscall Gate", setup_syscall_test, teardown_syscall_test,
+    RUN_INTEG_SUITE("Syscall Gate", setup_syscall_test, teardown_syscall_test,
         TEST(test_syscall_register),
         TEST(test_syscall_unregister),
         TEST(test_syscall_validate_privilege),
         TEST(test_syscall_get_count)
     );
     
-    TEST_SUITE("IPC Bus", setup_ipc_test, teardown_ipc_test,
+    RUN_INTEG_SUITE("IPC Bus", setup_ipc_test, teardown_ipc_test,
         TEST(test_ipc_register_route),
         TEST(test_ipc_send_receive_message),
         TEST(test_ipc_queue_overflow),
         TEST(test_ipc_clear_queue)
     );
     
-    TEST_SUITE("Event System", setup_event_test, NULL,
+    RUN_INTEG_SUITE("Event System", setup_event_test, NULL,
         TEST(test_event_subscribe_publish),
         TEST(test_event_unsubscribe),
         TEST(test_event_multiple_subscribers),
         TEST(test_event_get_count)
     );
     
-    TEST_SUITE("Boot Parameters", NULL, NULL,
+    RUN_INTEG_SUITE("Boot Parameters", NULL, NULL,
         TEST(test_boot_params_memory),
         TEST(test_boot_params_cmdline),
         TEST(test_boot_params_bootloader)

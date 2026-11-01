@@ -41,3 +41,5 @@ int storage_cancel_io(storage_device_t *dev, uint64_t io_id) { return 0; }
 
 int storage_smart_get_health(storage_device_t *dev, char *health_data, uint32_t max_len) { return 0; }
 int storage_smart_enable_monitoring(storage_device_t *dev) { return 0; }
+
+int storage_driver_enumerate_devices(void) { return 1; }

@@ -63,7 +63,7 @@ void run_profiler_tests(void)
 {
     printf("\n=== Profiler Tests ===\n");
     
-    TEST_SUITE("Profiler", setup_profiler_test, NULL,
+    RUN_INTEG_SUITE("Profiler", setup_profiler_test, NULL,
         TEST(test_profiler_record_event),
         TEST(test_profiler_get_average),
         TEST(test_profiler_get_max_min),

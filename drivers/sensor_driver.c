@@ -51,3 +51,5 @@ int sensor_calibrate_device(sensor_device_t *dev) { return 0; }
 int sensor_reset_device(sensor_device_t *dev) { return 0; }
 
 int sensor_get_data_buffered(sensor_device_t *dev, void *buffer, uint32_t buffer_size, uint32_t *data_read) { return 0; }
+
+int sensor_driver_request_permission(int sensor_type) { (void)sensor_type; return 0; }
