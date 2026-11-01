@@ -1,0 +1,1 @@
+(function(root){root.AegisLiveMissions=[]})(typeof window!=='undefined'?window:globalThis);
