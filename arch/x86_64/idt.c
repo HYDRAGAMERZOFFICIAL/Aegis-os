@@ -142,25 +142,10 @@ void x86_64_init_idt(void)
     x86_64_set_idt_gate(19, (void *)isr_stub_19, 0, IDT_TYPE_TRAP);
     x86_64_set_idt_gate(20, (void *)isr_stub_20, 0, IDT_TYPE_TRAP);
     x86_64_set_idt_gate(21, (void *)isr_stub_21, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(22, (void *)isr_stub_22, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(23, (void *)isr_stub_23, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(24, (void *)isr_stub_24, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(25, (void *)isr_stub_25, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(26, (void *)isr_stub_26, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(27, (void *)isr_stub_27, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(28, (void *)isr_stub_28, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(29, (void *)isr_stub_29, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(30, (void *)isr_stub_30, 0, IDT_TYPE_TRAP);
-    x86_64_set_idt_gate(31, (void *)isr_stub_31, 0, IDT_TYPE_TRAP);
 
     // Install Hardware IRQs 32 (Timer) and 33 (Keyboard)
     x86_64_set_idt_gate(32, (void *)isr_stub_32, 0, IDT_TYPE_INTERRUPT);
     x86_64_set_idt_gate(33, (void *)isr_stub_33, 0, IDT_TYPE_INTERRUPT);
-}
-
-u32 x86_64_get_idt_gate_count(void)
-{
-    return 34; // 32 CPU exceptions + 2 hardware IRQs
 }
 
 void x86_64_load_idt(void)

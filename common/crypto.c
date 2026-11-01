@@ -153,13 +153,6 @@ void sha256_final(void *ctx, u8 digest[32])
     }
 }
 
-void crypto_sha256(const u8 *data, u64 len, u8 *hash)
-{
-    sha256_init(NULL);
-    sha256_update(NULL, data, len);
-    sha256_final(NULL, hash);
-}
-
 // Forward declaration from security/crypto_engine.c
 extern int crypto_aes_encrypt(void* data, int len, void* key);
 extern int crypto_aes_decrypt(void* data, int len, void* key);

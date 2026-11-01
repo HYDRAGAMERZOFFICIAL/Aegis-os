@@ -1662,9 +1662,6 @@
             { title: "Switch Layout: Windows Mode", sub: "Bottom taskbar with start menu and system tray", action: () => setLayout('windows'), icon: "layout" },
             { title: "Switch Layout: Aegis Hybrid", sub: "Floating dock with universal top HUD bar", action: () => setLayout('hybrid'), icon: "layout" }
         ],
-            { title: "Switch Layout: Windows Mode", sub: "Bottom taskbar with start menu and system tray", action: () => setLayout('windows'), icon: "layout" },
-            { title: "Switch Layout: Aegis Hybrid", sub: "Floating dock with universal top HUD bar", action: () => setLayout('hybrid'), icon: "layout" }
-        ],
 
         init() {
             this.overlay = document.getElementById('palette-overlay');
