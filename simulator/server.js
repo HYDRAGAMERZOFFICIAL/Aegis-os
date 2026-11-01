@@ -1049,6 +1049,13 @@ function executeShellCommand(cmd, callback) {
   storage [info|opt]      - Inspect tiered storage & run TRIM
   opt [game|work|stream]  - Switch Task Optimizer profile
   checkpoint [list|heal]  - Rollback to cryptographic snapshot
+  capability-audit        - Inspect simulated Zero-Trust grants
+  verify-containment      - Verify simulated process and network isolation
+  verify-root             - Compare Merkle root with trusted checkpoint
+  quarantine-component    - Quarantine a simulated training component
+  service-health          - Inspect simulated service dependency health
+  route-health            - Compare simulated edge route health
+  route-select <edge>     - Select a simulated resilient edge route
   ai <instruction>        - Dispatch autonomous task to Aegis Mind
   theme [cyan|amber|dark] - Switch Adaptive UI visual theme
   clear                   - Clear screen`);
