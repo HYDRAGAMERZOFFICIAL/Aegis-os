@@ -1,30 +1,44 @@
-# AegisOS Game Foundation
+# AegisOS Native Operations Campaign
 
-This directory contains the modular campaign layer for the AegisOS cyberwarfare strategy simulation. It is integrated with the existing AegisOS desktop simulator; the original desktop interface remains the primary OS environment.
+The campaign is part of the original AegisOS desktop. There is no separate game launcher, desktop icon, or campaign window. The player investigates incidents through the OS's existing applications and a compact Operations panel.
 
-## Current game systems
-- Event bus for decoupled game-system events.
-- Resource economy with validated transactions.
-- Research tree with prerequisite and point checks.
-- Threat lifecycle: spawn, detect, contain and turn-based pressure.
-- Three sequential campaign operations with briefings, objectives, tactical decisions, completion rewards and unlock progression.
-- Versioned, atomic local save files, scoped to each player profile.
-- Local player authentication using salted Node.js scrypt password hashes and HttpOnly, SameSite session cookies.
-- Boot sequence, player sign-in/profile creation, session lock and password unlock screens.
+## Player experience
+
+- The desktop boots behind an account gate. Each operator signs in or creates a profile.
+- Incidents arrive through the native AegisOS notification system.
+- Neural Monitor, Terminal, Files, Aegis Mind, CyberSecurity Arsenal, Aegis Shield, Merkle Filesystem and Task Optimizer are the investigation tools.
+- Opening an application only records one part of a multi-source objective. Objectives that require multiple sources track each source independently.
+- The Operations panel records clues, partial evidence, field notes, hints and objective progress.
+- Strategic decisions remain locked until the investigation milestones preceding the decision are complete.
+- Each operation ends with a deduction report. The player must enter answers derived from the collected evidence before the report can be sealed.
+- Choices affect the outcome, command score, grade, XP, credits and research rewards.
 
 ## Campaign operations
-1. **The Silent Intrusion** — investigate a suspicious process, trace the hostile relay, configure Aegis Shield, quarantine the process, restore a clean checkpoint and submit the incident report.
-2. **Ghost in the Kernel** — inspect a privilege anomaly, revoke the compromised capability, apply a verified training patch, quarantine the process and audit kernel integrity. Unlocked after Operation 1.
-3. **Blackout Protocol** — analyse a simulated traffic flood, apply adaptive ingress limits, reroute critical traffic, restore the API gateway and submit the recovery report. Unlocked after Operation 2.
 
-Selected mission steps require the player to choose the correct evidence, policy, patch, checkpoint or recovery option. Incorrect choices do not advance the objective.
+### 01 — The Silent Intrusion
+Reconstruct an unauthorised service restart, identify the staged persistence artefact, correlate the outbound beacon, choose a containment strategy, apply a narrow firewall policy, verify containment, inspect Merkle integrity and restore the trusted checkpoint. Final deductions identify the remote endpoint and event sequence.
 
-## Local profile data
-The local simulator stores player profiles in `~/.aegis-os/accounts.json` and per-player campaign saves in `~/.aegis-os/saves/`. Passwords are never stored in plaintext. Session tokens are held in memory and expire after seven days; restarting the local server requires the player to sign in again.
+### 02 — Ghost in the Kernel
+Investigate an unexpected capability grant to a trusted component. Correlate Neural Monitor telemetry, Zero-Trust token grants, process ownership, binary provenance and Merkle state. Choose a least-privilege response, verify the training patch, quarantine the simulated component and prove kernel trust. Final deductions identify the anomalous token and component.
 
-This is local game authentication, not Steam account authentication or a cloud identity service. Steamworks integration remains a separate release task.
+### 03 — Blackout Protocol
+Investigate a simulated traffic flood without disrupting legitimate priority traffic. Compare system load, packet distribution, service dependencies and edge health. Choose a mitigation profile, apply the Aegis Shield policy, select a resilient route, verify service recovery and submit a post-mortem. Final deductions identify the degraded and healthy edge routes.
+
+Each operation contains 11 milestones. Progress is evidence-driven, not a simple button sequence. The fictional training commands are documented in Terminal's `help` output, including `capability-audit`, `verify-containment`, `verify-root`, `quarantine-component`, `service-health`, `route-health` and `route-select`.
+
+## Player accounts and saves
+
+The desktop authenticates against the local AegisOS account service. Passwords are stored as scrypt hashes; the session cookie is HttpOnly and SameSite. Native campaign state is stored server-side in a separate save file for each authenticated operator under:
+
+- `~/.aegis-os/accounts.json` — local operator accounts
+- `~/.aegis-os/campaigns/<operator-id>.json` — native campaign progress, evidence, decisions, deductions and rewards
+
+The browser's local storage is only a cache; the authenticated server-side campaign slot is authoritative. For hosted deployment, the Node.js backend must use a persistent volume or a database for these files. A stateless/ephemeral server filesystem is not suitable for durable player accounts and saves.
+
+This is AegisOS player authentication, not Steamworks authentication. Steam account linking, cloud achievements and Steam Cloud remain separate release tasks.
 
 ## Run and test
+
 From the repository root:
 
 ```bash
@@ -32,14 +46,14 @@ npm install
 npm start
 ```
 
-Open `http://127.0.0.1:3000/game`. The first launch prompts you to create a local player profile.
+Open `http://127.0.0.1:3000/`. The first launch prompts you to create an operator profile. The legacy `/game` route resolves to the native desktop.
 
-Run all automated tests and syntax checks:
+Run the campaign and game engine tests:
 
 ```bash
-npm run check:game
 npm run test:game
 ```
 
 ## Safety boundary
-All threats, attacks, files, endpoints and recovery operations are fictional game-state objects. The game layer does not execute malware, scan external networks or modify host files.
+
+All threats, packet traces, files, endpoints, process states and remediation commands are fictional simulation data. The campaign commands do not execute host shell commands, attack external networks, or modify real system files.
