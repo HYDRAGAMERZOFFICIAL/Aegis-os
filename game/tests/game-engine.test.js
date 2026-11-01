@@ -14,11 +14,11 @@ test('mission starts and progresses only through valid objectives', () => {
   assert.equal(mission.objectives.length, 6);
   assert.equal(game.performAction('not-a-real-action').ok, false);
   assert.equal(game.performAction('inspect_process').ok, true);
-  assert.equal(game.performAction('trace_origin').ok, true);
-  assert.equal(game.performAction('configure_firewall').ok, true);
+  assert.equal(game.performAction('trace_origin', { answer: '185.220.101.5' }).ok, true);
+  assert.equal(game.performAction('configure_firewall', { answer: 'deny-untrusted' }).ok, true);
   assert.equal(game.performAction('quarantine_process').ok, true);
-  assert.equal(game.performAction('restore_files').ok, true);
-  const result = game.performAction('submit_report');
+  assert.equal(game.performAction('restore_files', { answer: 'chkpt-0003' }).ok, true);
+  const result = game.performAction('submit_report', { answer: 'critical-contained' });
   assert.equal(result.progress.completed, true);
   assert.equal(game.getState().resources.credits, 750);
   assert.equal(game.getState().resources.research, 50);
@@ -52,13 +52,30 @@ test('research enforces prerequisites and spends points once', () => {
 test('three campaign missions can be completed with their dedicated action sequences', () => {
   const game = new GameManager();
   assert.equal(game.getState().missions.length, 3);
+  game.startMission('mission-01');
+  const chapterOne = [
+    ['inspect_process', {}], ['trace_origin', { answer: '185.220.101.5' }],
+    ['configure_firewall', { answer: 'deny-untrusted' }], ['quarantine_process', {}],
+    ['restore_files', { answer: 'chkpt-0003' }], ['submit_report', { answer: 'critical-contained' }]
+  ];
+  for (const [action, payload] of chapterOne) assert.equal(game.performAction(action, payload).ok, true, action);
   game.startMission('mission-02');
-  for (const action of ['inspect_memory','revoke_token','apply_patch','quarantine_process','audit_kernel']) assert.equal(game.performAction(action).ok, true, action);
+  const chapterTwo = [
+    ['inspect_memory', {}], ['revoke_token', { answer: 'TOK-KERNEL-ESCALATED' }],
+    ['apply_patch', { answer: 'AEGIS-KERNEL-2.0.4' }], ['quarantine_process', {}],
+    ['audit_kernel', { answer: 'AEGIS-ROOT-VERIFIED' }]
+  ];
+  for (const [action, payload] of chapterTwo) assert.equal(game.performAction(action, payload).ok, true, action);
   assert.equal(game.getState().currentMission.status, 'completed');
   game.startMission('mission-03');
-  for (const action of ['analyze_traffic','rate_limit','reroute_traffic','restore_service','submit_report']) assert.equal(game.performAction(action).ok, true, action);
+  const chapterThree = [
+    ['analyze_traffic', {}], ['rate_limit', { answer: 'adaptive-750' }],
+    ['reroute_traffic', { answer: 'edge-route-02' }], ['restore_service', { answer: 'api-gateway' }],
+    ['submit_report', { answer: 'availability-restored' }]
+  ];
+  for (const [action, payload] of chapterThree) assert.equal(game.performAction(action, payload).ok, true, action);
   assert.equal(game.getState().currentMission.status, 'completed');
-  assert.equal(game.getState().missions.filter(item => item.completed).length, 2);
+  assert.equal(game.getState().missions.filter(item => item.completed).length, 3);
 });
 
 test('save manager round-trips game state and rejects unsafe slots', () => {
