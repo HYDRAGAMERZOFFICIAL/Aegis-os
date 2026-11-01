@@ -8,6 +8,7 @@
   const app = $('#game-app');
   let currentUser = null;
   let authMode = 'login';
+  let storageMode = 'local';
 
   const request = async (path, body) => {
     const response = await fetch(path, {
@@ -36,7 +37,7 @@
     $('#lock-avatar').textContent = initials(user.displayName || user.username);
     app.hidden = false;
     showOnly(null);
-    window.dispatchEvent(new CustomEvent('aegis:authenticated', { detail: { user } }));
+    window.dispatchEvent(new CustomEvent('aegis:authenticated', { detail: { user, storageMode } }));
   };
   const showAuth = (needsProfile) => {
     app.hidden = true;
@@ -81,6 +82,7 @@
     }
     try {
       const session = await request('/api/auth/me');
+      storageMode = session.storageMode || 'local';
       if (session.authenticated) enterGame(session.user);
       else showAuth(!!session.needsProfile);
     } catch (error) {
@@ -157,6 +159,7 @@
 
   window.AegisAuth = {
     get user() { return currentUser; },
+    get storageMode() { return storageMode; },
     lock() { $('#lock-session').click(); }
   };
 
