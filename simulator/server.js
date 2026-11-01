@@ -768,7 +768,10 @@ function handleApi(req, res, pathname, url) {
         if (!session || !session.user) return sendJson(res, 401, { error: 'Operator authentication required to sync database vault.' });
         
         parseBody(req, (err, data) => {
-            if (err || !data) return sendJson(res, 400, { error: 'Invalid vault payload.' });
+            if (err || !data) {
+                console.error('[VAULT SYNC ERROR]', err, data);
+                return sendJson(res, 400, { error: 'Invalid vault payload: ' + (err ? err.message : 'no data') });
+            }
             const userId = session.user.id;
             const safeUserId = String(userId).replace(/[^a-zA-Z0-9_-]/g, '');
 

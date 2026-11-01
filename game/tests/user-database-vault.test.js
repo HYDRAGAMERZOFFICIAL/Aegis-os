@@ -157,3 +157,4 @@ test('Campaign defines at least 8 major operations with multi-stage progression 
     assert.match(campaignJs, /elab-proc/);
     assert.match(campaignJs, /elab-bg/);
 });
+
