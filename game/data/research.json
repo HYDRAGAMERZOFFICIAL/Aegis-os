@@ -1,0 +1,37 @@
+[
+  {
+    "id": "network-hardening",
+    "name": "Network Hardening",
+    "description": "Improve defensive network policy and reduce intrusion impact.",
+    "cost": 40,
+    "prerequisites": []
+  },
+  {
+    "id": "behavioral-analysis",
+    "name": "Behavioral Analysis",
+    "description": "Unlock deeper process and anomaly investigation tools.",
+    "cost": 60,
+    "prerequisites": [
+      "network-hardening"
+    ]
+  },
+  {
+    "id": "rapid-recovery",
+    "name": "Rapid Recovery",
+    "description": "Improve resilience after filesystem incidents.",
+    "cost": 75,
+    "prerequisites": [
+      "network-hardening"
+    ]
+  },
+  {
+    "id": "adaptive-defense",
+    "name": "Adaptive Defense",
+    "description": "Combine behavioral signals with automated defensive recommendations.",
+    "cost": 120,
+    "prerequisites": [
+      "behavioral-analysis",
+      "rapid-recovery"
+    ]
+  }
+]
