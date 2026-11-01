@@ -9,7 +9,7 @@
     "sim:native": ".\\aegis_sim.exe --demo",
     "test": ".\\aegis_tests.exe",
     "start:desktop": "electron .",
-    "test:game": "node --test game/tests",
+    "test:game": "node --test game/tests/game-engine.test.js",
     "dist:win": "electron-builder --win nsis --x64",
     "dist:linux": "electron-builder --linux AppImage --x64"
   },
