@@ -89,10 +89,11 @@
     select.value = selectedMissionId;
 
     const selected = state.missions.find(item => item.id === selectedMissionId);
-    const activeMission = state.currentMission && state.currentMission.status === 'active' ? state.currentMission : null;
+    const activeMission = state.currentMission && state.currentMission.id === selectedMissionId ? state.currentMission : null;
+    const missionInProgress = !!activeMission && activeMission.status === 'active';
     const displayed = activeMission || selected;
     $('#mission-title').textContent = displayed ? displayed.title : 'Awaiting deployment';
-    $('#mission-status').textContent = activeMission ? 'OPERATION IN PROGRESS' : selected && selected.completed ? 'OPERATION SECURED' : selected && selected.unlocked ? 'READY FOR DEPLOYMENT' : 'ACCESS LOCKED';
+    $('#mission-status').textContent = missionInProgress ? 'OPERATION IN PROGRESS' : activeMission && activeMission.status === 'completed' ? 'OPERATION SECURED' : selected && selected.completed ? 'OPERATION SECURED' : selected && selected.unlocked ? 'READY FOR DEPLOYMENT' : 'ACCESS LOCKED';
     $('#mission-copy').textContent = displayed ? displayed.description : 'Select an available operation.';
     $('#briefing').textContent = displayed ? (displayed.briefing || 'Review the objectives and deploy when ready.') : '';
     $('#briefing').classList.toggle('hidden', !displayed);
@@ -105,7 +106,7 @@
     if (!objectiveItems.length) objectives.append(addText('div', 'empty-state', 'No mission objectives are available.'));
     objectiveItems.forEach((objective, index) => {
       const completed = !!objective.completed;
-      const isNext = activeMission && !completed && !activeMission.objectives.slice(0, index).some(item => !item.completed);
+      const isNext = missionInProgress && !completed && !activeMission.objectives.slice(0, index).some(item => !item.completed);
       const row = document.createElement('div');
       row.className = 'objective' + (completed ? ' done' : isNext ? ' active' : '');
       const number = addText('span', 'objective-index', String(index + 1).padStart(2, '0'));
@@ -122,8 +123,8 @@
       objectives.append(row);
     });
     const selectedMeta = state.missions.find(item => item.id === selectedMissionId);
-    $('#start-mission').disabled = !!activeMission || !selectedMeta || selectedMeta.completed || !selectedMeta.unlocked;
-    $('#start-mission').textContent = activeMission ? 'Operation in progress' : selectedMeta && selectedMeta.completed ? 'Operation secured' : 'Deploy operation →';
+    $('#start-mission').disabled = missionInProgress || !selectedMeta || selectedMeta.completed || !selectedMeta.unlocked;
+    $('#start-mission').textContent = missionInProgress ? 'Operation in progress' : selectedMeta && selectedMeta.completed ? 'Operation secured' : 'Deploy operation →';
 
     const threats = $('#threats'); threats.replaceChildren();
     const activeThreats = state.threats.filter(item => item.status === 'active');
