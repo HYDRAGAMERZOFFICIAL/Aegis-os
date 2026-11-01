@@ -1,6 +1,7 @@
 'use strict';
 (() => {
   const $ = (selector) => document.querySelector(selector);
+  let selectedMissionId = 'mission-01';
   const api = async (endpoint, body) => {
     const response = await fetch(endpoint, { method: body ? 'POST' : 'GET', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
     const data = await response.json();
@@ -27,14 +28,22 @@
     );
     $('#posture').textContent = r.stability >= 70 ? 'OPERATIONAL' : r.stability >= 35 ? 'DEGRADED' : 'CRITICAL';
     $('#posture').style.color = r.stability >= 70 ? 'var(--green)' : r.stability >= 35 ? 'var(--amber)' : 'var(--red)';
+    const missionSelect = $('#mission-select');
+    if (missionSelect.options.length !== state.missions.length) {
+      missionSelect.replaceChildren();
+      state.missions.forEach(item => { const option = document.createElement('option'); option.value = item.id; option.textContent = 'Mission ' + item.id.slice(-2) + ' — ' + item.title + (item.completed ? ' (COMPLETE)' : ''); missionSelect.append(option); });
+    }
+    if (!state.missions.some(item => item.id === selectedMissionId) || (state.currentMission && state.currentMission.status === 'active')) selectedMissionId = state.currentMission ? state.currentMission.id : (state.missions.find(item => !item.completed) || state.missions[0]).id;
+    missionSelect.value = selectedMissionId;
+    const selectedMission = state.missions.find(item => item.id === selectedMissionId);
     const mission = state.currentMission;
     $('#mission-title').textContent = mission ? mission.title : 'Awaiting deployment';
     $('#mission-status').textContent = mission ? mission.status.toUpperCase() : 'NO ACTIVE MISSION';
     $('#mission-copy').textContent = mission ? mission.description : 'Aegis Command is standing by. Begin the first operation to receive your briefing and objectives.';
     $('#briefing').textContent = mission ? mission.briefing : '';
     $('#briefing').classList.toggle('hidden', !mission || !mission.briefing);
-    $('#start-mission').disabled = !!mission && mission.status === 'active';
-    $('#start-mission').textContent = mission ? (mission.status === 'completed' ? 'Mission completed' : 'Mission deployed') : 'Deploy Mission 01 →';
+    $('#start-mission').disabled = (!!mission && mission.status === 'active') || !selectedMission || selectedMission.completed;
+    $('#start-mission').textContent = mission && mission.status === 'active' ? 'Mission deployed' : 'Deploy selected mission →';
     const objectives = $('#objectives'); objectives.replaceChildren();
     if (!mission) { const empty = document.createElement('div'); empty.className = 'empty-state'; empty.textContent = 'No active objectives. Deploy Mission 01 to begin.'; objectives.append(empty); }
     else mission.objectives.forEach((objective, index) => {
