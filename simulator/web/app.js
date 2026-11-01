@@ -187,6 +187,8 @@
             }, duration);
         }
     };
+    // Expose the original OS notification surface to native campaign events.
+    window.AegisSystemNotify = (title, desc, type = 'info') => { if (!Notifications.container) Notifications.container = document.getElementById('toast-container'); if (Notifications.container) Notifications.show(title, desc, type); };
 
     // ==========================================
     // 4. WINDOW MANAGER (WM)
@@ -201,6 +203,7 @@
         },
 
         open(appId, title, width = 740, height = 500) {
+            window.dispatchEvent(new CustomEvent('aegis:wm-open', { detail: { app: appId, title } }));
             if (this.windows.has(appId)) {
                 const win = this.windows.get(appId);
                 if (win.classList.contains('minimized')) {
@@ -574,6 +577,7 @@
 
             const executePrompt = async (promptText) => {
                 if (!promptText) return;
+                document.dispatchEvent(new CustomEvent('aegis:ai-prompt', { detail: { prompt: promptText } }));
 
                 // Append user message
                 const userMsg = document.createElement('div');
@@ -1109,6 +1113,7 @@
                     if (!cmd) return;
 
                     commandHistory.push(cmd);
+                    document.dispatchEvent(new CustomEvent('aegis:terminal-command', { detail: { command: cmd } }));
                     historyIndex = commandHistory.length;
 
                     const line = document.createElement('div');
@@ -1266,7 +1271,9 @@
                 { id: 3, name: "Allow HTTPS Web Traffic", proto: "TCP", port: 443, dir: "OUTBOUND", action: "ALLOW", enabled: true },
                 { id: 4, name: "Block Outbound Tor Relays", proto: "TCP", port: 9001, dir: "OUTBOUND", action: "DENY", enabled: true },
                 { id: 5, name: "Zero-Trust Kernel IPC Gate", proto: "IPC", port: 0, dir: "INTERNAL", action: "ALLOW", enabled: true },
-                { id: 6, name: "Block Unverified DNS over HTTP", proto: "UDP", port: 853, dir: "OUTBOUND", action: "DENY", enabled: true }
+                { id: 6, name: "Block Unverified DNS over HTTP", proto: "UDP", port: 853, dir: "OUTBOUND", action: "DENY", enabled: true },
+                { id: 7, name: "Block Suspected C2 Endpoint (185.220.101.5:8443)", proto: "TCP", port: 8443, dir: "OUTBOUND", action: "DENY", enabled: false },
+                { id: 8, name: "Adaptive Ingress Shaping (Priority Edge)", proto: "TCP", port: 443, dir: "INBOUND", action: "RATE-LIMIT", enabled: false }
             ];
 
             tbody.innerHTML = rules.map(r => `
