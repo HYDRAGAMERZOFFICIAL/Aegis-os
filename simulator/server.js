@@ -251,12 +251,7 @@ const MIME_TYPES = {
 };
 
 function sendJson(res, statusCode, data) {
-    res.writeHead(statusCode, {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-    });
+    res.writeHead(statusCode, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(data));
 }
 
@@ -276,11 +271,7 @@ function parseBody(req, callback) {
 // Request Server
 const server = http.createServer((req, res) => {
     if (req.method === 'OPTIONS') {
-        res.writeHead(204, {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        });
+        res.writeHead(204);
         return res.end();
     }
 
@@ -1250,12 +1241,13 @@ Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
     }
 }
 
-server.listen(PORT, () => {
+const HOST = process.env.HOST || '127.0.0.1';
+server.listen(PORT, HOST, () => {
     console.log(`========================================================================`);
     console.log(`   *  AEGIS OS WEB SIMULATOR SERVER ONLINE  *`);
     console.log(`========================================================================`);
-    console.log(`   Dashboard: http://localhost:${PORT}`);
-    console.log(`   Direct API: http://localhost:${PORT}/api/system/status`);
+    console.log(`   Dashboard: http://127.0.0.1:${PORT}`);
+    console.log(`   Direct API: http://127.0.0.1:${PORT}/api/system/status`);
     console.log(`========================================================================`);
 });
 
