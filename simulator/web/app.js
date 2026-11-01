@@ -1223,6 +1223,13 @@
                 { type: 'ZT_GATE', desc: 'Kernel broker verified ephemeral token', status: 'ALLOW' },
                 { type: 'HEURISTIC', desc: 'Guard scan: Entropy score 0.89 normal', status: 'ALLOW' }
             ];
+            const campaignSnapshot = window.AegisCampaign && window.AegisCampaign.state;
+            if (campaignSnapshot && campaignSnapshot.index === 0 && campaignSnapshot.started) {
+                eventPool.unshift({ type: 'PROC_SPAWN', desc: 'svc-sync-worker PID 4482 | parent=/tmp/.cache/launcher | unsigned startup chain', status: 'FLAGGED' });
+            }
+            if (campaignSnapshot && campaignSnapshot.index === 1 && campaignSnapshot.started) {
+                eventPool.unshift({ type: 'ZT_CAPABILITY', desc: 'kernel_sync_worker PID 5112 | requested CAP_NET_RAW_SOCKET | unexpected authority', status: 'FLAGGED' });
+            }
 
             const addEvent = () => {
                 if (!document.body.contains(win)) {
