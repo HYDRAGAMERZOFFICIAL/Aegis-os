@@ -2,7 +2,9 @@
 const THREATS = [
   { id: 'intrusion-probe', name: 'Credential reconnaissance', severity: 'medium', pressure: { stability: -3, reputation: -1 } },
   { id: 'ransomware-stager', name: 'Ransomware staging activity', severity: 'critical', pressure: { stability: -8, memory: -5 } },
-  { id: 'data-exfiltration', name: 'Unusual outbound transfer', severity: 'high', pressure: { reputation: -5, bandwidth: -8 } }
+  { id: 'data-exfiltration', name: 'Unusual outbound transfer', severity: 'high', pressure: { reputation: -5, bandwidth: -8 } },
+  { id: 'privilege-escalation', name: 'Privileged memory access anomaly', severity: 'critical', pressure: { stability: -6, memory: -7 } },
+  { id: 'ddos-flood', name: 'Coordinated traffic flood', severity: 'critical', pressure: { stability: -4, bandwidth: -12 } }
 ];
 class ThreatEngine {
   constructor(eventBus, resources) { this.events = eventBus; this.resources = resources; this.active = []; this.sequence = 0; this.turn = 0; }
