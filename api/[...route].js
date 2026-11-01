@@ -147,7 +147,7 @@ async function gameFor(user, token) {
 function validateRegistration(data) {
   const displayName = String(data.displayName || '').trim();
   const username = String(data.username || '').trim().toLowerCase();
-  const email = String(data.email || '').trim().toLowerCase();
+  const email = String(data.email || data.username || '').trim().toLowerCase();
   const password = String(data.password || '');
   if (!/^[a-z0-9_-]{3,20}$/.test(username)) throw new Error('Operator ID must be 3–20 characters using letters, numbers, _ or -.');
   if (displayName.length < 2 || displayName.length > 32) throw new Error('Display name must be 2–32 characters.');
