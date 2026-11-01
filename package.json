@@ -1,0 +1,22 @@
+{
+  "name": "aegis-os",
+  "version": "2.0.0-alpha",
+  "description": "AegisOS - Hybrid Secure Intelligence Operating System Simulator & Environment",
+  "main": "simulator/server.js",
+  "scripts": {
+    "start": "node simulator/server.js",
+    "sim": "node simulator/server.js",
+    "sim:native": ".\\aegis_sim.exe --demo",
+    "test": "node -e \"console.log('Use ./aegis_sim.exe --demo to run architecture tests')\""
+  },
+  "keywords": [
+    "operating-system",
+    "microkernel",
+    "security",
+    "zero-trust",
+    "merkle-tree",
+    "simulator"
+  ],
+  "author": "AegisOS Team",
+  "license": "Apache-2.0"
+}
