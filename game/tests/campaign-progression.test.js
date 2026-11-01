@@ -24,4 +24,19 @@ test('campaign operations unlock sequentially after the previous operation is se
   assert.equal(missions[2].unlocked, false);
   game.startMission('mission-02');
   assert.equal(game.getState().currentMission.id, 'mission-02');
+  const chapterTwo = [
+    ['inspect_memory', {}], ['revoke_token', { answer: 'TOK-KERNEL-ESCALATED' }],
+    ['apply_patch', { answer: 'AEGIS-KERNEL-2.0.4' }], ['quarantine_process', {}],
+    ['audit_kernel', { answer: 'AEGIS-ROOT-VERIFIED' }], ['submit_report', { answer: 'privilege-contained' }]
+  ];
+  for (const [action, payload] of chapterTwo) assert.equal(game.performAction(action, payload).ok, true, action);
+  assert.equal(game.getState().missions[2].unlocked, true);
+  game.startMission('mission-03');
+  const chapterThree = [
+    ['analyze_traffic', {}], ['rate_limit', { answer: 'adaptive-750' }],
+    ['reroute_traffic', { answer: 'edge-route-02' }], ['restore_service', { answer: 'api-gateway' }],
+    ['submit_report', { answer: 'availability-restored' }]
+  ];
+  for (const [action, payload] of chapterThree) assert.equal(game.performAction(action, payload).ok, true, action);
+  assert.equal(game.getState().missions.every(mission => mission.completed), true);
 });
