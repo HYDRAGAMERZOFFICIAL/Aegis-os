@@ -24,6 +24,14 @@ test('mission starts and progresses only through valid objectives', () => {
   assert.equal(game.getState().resources.research, 50);
 });
 
+test('actions cannot mutate game state before mission deployment or out of order', () => {
+  const game = new GameManager();
+  assert.equal(game.performAction('inspect_process').ok, false);
+  game.startMission();
+  assert.equal(game.performAction('quarantine_process').ok, false);
+  assert.equal(game.getState().threats[0].detected, false);
+});
+
 test('threat lifecycle requires detection before containment', () => {
   const game = new GameManager();
   const threat = game.spawnThreat('ransomware-stager');
