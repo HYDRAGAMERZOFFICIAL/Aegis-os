@@ -34,6 +34,7 @@ test('campaign contains three long investigations with evidence and decision gat
   assert.match(server, /case 'capability-audit'/);
   assert.match(server, /case 'route-select'/);
   assert.match(server, /svc-sync-cache\.bin/);
+  assert.match(server, /pathname === '\/game' \|\| pathname === '\/game\.html'/);
   assert.match(desktop, /desktop-auth\.js/);
   assert.match(desktop, /aegis-auth-gate/);
   assert.match(desktop, /desktop-auth\.css/);
