@@ -97,23 +97,25 @@ async function profileFor(user, token) {
 
 async function currentSession(req, res) {
   const jar = cookies(req);
-  let access = jar[COOKIE_ACCESS];
+  const access = jar[COOKIE_ACCESS];
   const refresh = jar[COOKIE_REFRESH];
-  if (!access) return null;
-  try {
-    const user = await supabase('/auth/v1/user', { token: access });
-    return { user, access };
-  } catch (error) {
-    if (!refresh) return null;
+  if (access) {
     try {
-      const session = await supabase('/auth/v1/token?grant_type=refresh_token', { method: 'POST', body: { refresh_token: refresh } });
-      if (!session.access_token || !session.refresh_token) return null;
-      setSessionCookies(res, session);
-      return { user: session.user, access: session.access_token };
+      const user = await supabase('/auth/v1/user', { token: access });
+      return { user, access };
     } catch (_) {
-      clearSessionCookies(res);
-      return null;
+      // Expired access tokens are renewed below using the HttpOnly refresh cookie.
     }
+  }
+  if (!refresh) return null;
+  try {
+    const session = await supabase('/auth/v1/token?grant_type=refresh_token', { method: 'POST', body: { refresh_token: refresh } });
+    if (!session.access_token || !session.refresh_token) return null;
+    setSessionCookies(res, session);
+    return { user: session.user, access: session.access_token };
+  } catch (_) {
+    clearSessionCookies(res);
+    return null;
   }
 }
 
