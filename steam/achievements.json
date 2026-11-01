@@ -1,0 +1,22 @@
+[
+  {
+    "id": "FIRST_RESPONSE",
+    "name": "First Response",
+    "description": "Complete The Silent Intrusion."
+  },
+  {
+    "id": "EYES_OPEN",
+    "name": "Eyes Open",
+    "description": "Detect your first simulated threat."
+  },
+  {
+    "id": "DEFENCE_IN_DEPTH",
+    "name": "Defence in Depth",
+    "description": "Unlock Network Hardening."
+  },
+  {
+    "id": "RESEARCHER",
+    "name": "Aegis Researcher",
+    "description": "Unlock four research technologies."
+  }
+]
