@@ -115,3 +115,4 @@ if (!html.includes('id="tmpl-database"')) {
 
 fs.writeFileSync(htmlFile, html, 'utf8');
 console.log('Successfully patched index.html with AegisDB desktop icon and template!');
+

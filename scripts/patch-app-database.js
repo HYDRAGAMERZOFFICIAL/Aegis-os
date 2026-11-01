@@ -210,3 +210,4 @@ if (!code.includes('const DatabaseApp = {')) {
 
 fs.writeFileSync(appFile, code, 'utf8');
 console.log('Successfully patched simulator/web/app.js with DatabaseApp controller!');
+

@@ -253,3 +253,4 @@ if (!code.includes("case 'db':")) {
 
 fs.writeFileSync(serverFile, code, 'utf8');
 console.log('Successfully patched simulator/server.js with AegisDB and static caching!');
+

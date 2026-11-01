@@ -385,3 +385,4 @@ fs.writeFileSync(path.resolve('simulator/web/native-campaign.css'), fs.readFileS
 
 fs.writeFileSync(file, code, 'utf8');
 console.log('Successfully updated native-campaign.js with operations 4-6, side quests, and real-time timed attacks!');
+
