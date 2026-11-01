@@ -19,7 +19,8 @@ const os = require('os');
 const GameManager = require('../game/core/GameManager');
 const SaveManager = require('../game/saves/SaveManager');
 const AuthManager = require('../game/auth/AuthManager');
-const aegisDataDir = path.join(os.homedir(), '.aegis-os');
+const isVercel = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const aegisDataDir = isVercel ? path.join(os.tmpdir(), '.aegis-os') : path.join(os.homedir(), '.aegis-os');
 const authManager = new AuthManager(aegisDataDir);
 const gameSaves = new SaveManager(path.join(aegisDataDir, 'saves'));
 const campaignDataDir = path.join(aegisDataDir, 'campaigns');
@@ -1410,19 +1411,52 @@ Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
   Network Rate:    ${systemState.telemetry.networkKbps} KB/s
   Events Logged:   ${systemState.telemetry.totalEventsLogged}`);
 
+        case 'achievements':
+            return callback('AEGIS OPERATOR ACHIEVEMENTS & MEDALS:\n' +
+              '  [1]  🛡️ First Line of Defense        - Contain first security breach\n' +
+              '  [2]  ⏱️ Crisis Responder             - Neutralize a time-critical attack\n' +
+              '  [3]  ⚡ Sub-60s SecOps               - Neutralize incident under 60 seconds\n' +
+              '  [4]  🔐 Zero-Trust Sentinel          - Revoke unauthorized capability token\n' +
+              '  [5]  🧬 Merkle Restorer              - Perform atomic Merkle rollback\n' +
+              '  [6]  📡 Traffic Forensics            - Correlate external C2 beacon relay\n' +
+              '  [7]  🧠 Forensic Deduction Master    - Submit 100% correct case report\n' +
+              '  [8]  💻 Ring-0 Operator              - Execute 8 security shell commands\n' +
+              '  [9]  🌐 Ephemeral Airgap             - Browse via isolated Ghost RAM sandbox\n' +
+              '  [10] 📁 Cryptographic Custody        - Encrypt evidence file in AegisFS\n' +
+              '  [11] 🏆 Grade S Commander            - Secure operational case with Grade S\n' +
+              '  [12] 👑 Cyber Fortress Vanguard      - Complete all 3 cases and repel APT\n\n' +
+              'Check active progress in the Case Dossier HUD (Hotkey: F4).');
+
+        case 'drill':
+        case 'simulate-attack':
+            return callback('[EMERGENCY SEC-OPS DRILL TRIGGERED]\n' +
+              'Alarm initialized: Dynamic time-critical incident launched.\n' +
+              'Consult Aegis Mind Copilot and deploy defensive countermeasures before expiration!');
+
+        case 'emergency-status':
+            return callback('EMERGENCY INCIDENT SYSTEM STATUS:\n' +
+              'Real-time intrusion detector: ARMED (Zero-Trust Heuristics)\n' +
+              'Automated drill dispatch: READY\n' +
+              'Issue \'drill\' or \'simulate-attack\' to trigger a live emergency scenario.');
+
         default:
             return callback(`Command '${root}' executed in Aegis Shell environment.`);
     }
 }
 
 const HOST = process.env.HOST || '127.0.0.1';
-server.listen(PORT, HOST, () => {
+if (require.main === module && !process.env.VERCEL) {
+    server.listen(PORT, HOST, () => {
     console.log(`========================================================================`);
     console.log(`   *  AEGIS OS WEB SIMULATOR SERVER ONLINE  *`);
     console.log(`========================================================================`);
     console.log(`   Dashboard: http://127.0.0.1:${PORT}`);
     console.log(`   Direct API: http://127.0.0.1:${PORT}/api/system/status`);
     console.log(`========================================================================`);
-});
+    });
+}
 
 module.exports = server;
+
+
+

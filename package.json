@@ -5,6 +5,7 @@
   "main": "launcher/electron-main.js",
   "scripts": {
     "start": "node simulator/server.js",
+    "build": "node -e \"const fs=require('fs'); fs.cpSync('simulator/web','public',{recursive:true});\"",
     "sim": "node simulator/server.js",
     "sim:native": ".\\aegis_sim.exe --demo",
     "test": ".\\aegis_tests.exe",

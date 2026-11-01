@@ -1,0 +1,344 @@
+#aegis-mission-hud{position:fixed;right:18px;top:82px;z-index:99990;color:#eaf8ff;font-family:inherit}
+.aegis-mission-toggle{display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #00f3ff55;border-radius:9px;background:#050d18e8;color:#dffaff;box-shadow:0 8px 28px #0008;backdrop-filter:blur(14px);font:700 10px var(--font-mono,monospace);letter-spacing:1.2px;cursor:pointer;transition:all .2s ease}
+.aegis-mission-toggle:hover{border-color:#00f3ff;box-shadow:0 0 16px rgba(0,243,255,.3)}
+.aegis-mission-toggle.has-pulse{box-shadow:0 0 24px rgba(0,243,255,.6);border-color:#00f3ff}
+.aegis-mission-toggle b{color:#00f3ff}
+.mission-pulse{width:7px;height:7px;border-radius:50%;background:#00f3ff;box-shadow:0 0 12px #00f3ff;animation:missionPulse 1.8s infinite}
+@keyframes missionPulse{50%{opacity:.35;transform:scale(1.2)}}
+.aegis-mission-panel{position:absolute;right:0;top:44px;width:min(440px,calc(100vw - 28px));max-height:calc(100vh - 145px);overflow:auto;border:1px solid #00f3ff3d;border-radius:12px;background:#050b14f7;box-shadow:0 24px 70px #000b;backdrop-filter:blur(20px)}
+.aegis-mission-panel[hidden]{display:none}
+.aegis-mission-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#091522;border-bottom:1px solid #ffffff14}
+.aegis-mission-head small,.mission-kicker{display:block;color:#00d9e8;font:9px var(--font-mono,monospace);letter-spacing:1px}
+.aegis-mission-head strong{display:block;margin-top:5px;font-size:13px}
+.aegis-head-actions{display:flex;align-items:center;gap:10px}
+.mission-audio-toggle{border:1px solid #ffffff22;background:rgba(255,255,255,.05);color:#8debf0;border-radius:5px;padding:4px 8px;font-size:11px;cursor:pointer;transition:all .15s}
+.mission-audio-toggle:hover{border-color:#00f3ff;background:rgba(0,243,255,.1)}
+.aegis-mission-close{border:0;background:none;color:#8aa2b5;font-size:24px;cursor:pointer;padding:0 4px}
+.aegis-mission-close:hover{color:#fff}
+.aegis-mission-body{padding:16px}
+.mission-operation-top h2{margin:9px 0;font-size:19px;letter-spacing:-.3px}
+.mission-operation-top p{font-size:12px;line-height:1.6;color:#a9bdca}
+.mission-operation-top .mission-pressure{padding:10px;border-left:2px solid #e6a23b;background:#e6a23b10;color:#e7c78f}
+.mission-comm-dispatch{margin:12px 0;padding:10px 12px;border-left:2px solid #00f3ff;background:rgba(0,243,255,.05);border-radius:0 6px 6px 0}
+.mission-comm-dispatch small{display:block;font:700 8px var(--font-mono,monospace);color:#00f3ff;letter-spacing:1.2px;margin-bottom:4px}
+.mission-comm-dispatch span{font-size:11px;line-height:1.55;color:#cde6f5;font-style:italic;display:block}
+.mission-progress-label{margin:12px 0 6px;color:#90a8b8;font:10px var(--font-mono,monospace)}
+.mission-progress-native{height:5px;background:#ffffff13;border-radius:8px;overflow:hidden}
+.mission-progress-native i{display:block;height:100%;background:linear-gradient(90deg,#00a9bc,#00f3ff);transition:width .3s ease}
+.mission-objectives{list-style:none;padding:0;margin:16px 0}
+.mission-objective{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:9px 0;border-bottom:1px solid #ffffff10;transition:background .2s}
+.mission-step{font:10px var(--font-mono,monospace);color:#668396}
+.mission-objective-copy{font-size:12px;font-weight:700;color:#c7d8e3}
+.mission-objective small{grid-column:2;color:#829aaa;font-size:10px;line-height:1.5}
+.mission-objective.is-done .mission-step,.mission-objective.is-done .mission-objective-copy{color:#42d8ae}
+.mission-objective.is-done .mission-step:after{content:' ✓'}
+.mission-objective.is-progress .mission-objective-copy{color:#f0ca7a}
+.mission-fragment-note{color:#f0ca7a!important}
+.mission-choice{padding:12px;margin:12px 0;background:#ffffff08;border:1px solid #ffffff15;border-radius:8px}
+.mission-choice h3,.mission-log h3{margin:0 0 7px;font-size:12px}
+.mission-choice p{font-size:11px;line-height:1.5;color:#8fa8b8}
+.mission-choice-btn{display:block;width:100%;text-align:left;margin:7px 0;padding:10px;border:1px solid #ffffff1b;border-radius:6px;background:#0d1c2a;color:#dff7ff;cursor:pointer;transition:all .18s}
+.mission-choice-btn:hover:not(:disabled){border-color:#00d9e8;background:#102538;transform:translateX(2px)}
+.mission-choice-btn strong,.mission-choice-btn small{display:block}
+.mission-choice-btn strong{font-size:11px}
+.mission-choice-btn small{margin-top:4px;color:#91a9b8;font-size:10px}
+.mission-choice-btn:disabled{opacity:.35;cursor:not-allowed;border-color:#ffffff12}
+.mission-choice-lock{display:block;margin-top:8px;color:#e6b66b;font-size:10px;line-height:1.5}
+.mission-report-btn{width:100%;padding:12px;border:1px solid #00b9c9;border-radius:6px;background:#06343d;color:#b9fbff;font:700 10px var(--font-mono,monospace);cursor:pointer;transition:all .18s}
+.mission-report-btn:hover:not(:disabled){background:#094c59;box-shadow:0 0 18px rgba(0,243,255,.25)}
+.mission-report-btn:disabled{opacity:.35;cursor:not-allowed}
+.mission-report-note{display:block;margin-top:8px;color:#8ba5b4;font-size:10px;line-height:1.5}
+.mission-quiz{display:grid;gap:12px;margin:14px 0;padding:13px;border:1px solid #00d9e833;border-radius:8px;background:#00d9e809}
+.mission-quiz h3{margin:0;color:#8debf0;font:700 10px var(--font-mono,monospace);letter-spacing:1px}
+.mission-quiz-label{display:grid;gap:6px;color:#c5d9e4;font-size:11px;line-height:1.4}
+.mission-quiz-input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ffffff24;border-radius:5px;background:#030a12;color:#e8fbff;font:11px var(--font-mono,monospace);outline:none;transition:border-color .15s}
+.mission-quiz-input:focus{border-color:#00d9e8;box-shadow:0 0 8px rgba(0,217,232,.25)}
+.mission-quiz-label small{color:#7d9cac;font-size:10px;line-height:1.5}
+.mission-meta{margin-top:10px;padding:8px 9px;border:1px solid #ffffff12;border-radius:6px;background:#ffffff06;color:#7fa9bb;font:9px var(--font-mono,monospace);letter-spacing:.4px;line-height:1.5}
+.mission-log{margin-top:16px;padding-top:12px;border-top:1px solid #ffffff15}
+.mission-log p{margin:5px 0;color:#7f9aaa;font:10px var(--font-mono,monospace)}
+.mission-hint{margin-top:12px;color:#8aa7b7;font-size:11px}
+.mission-hint summary{cursor:pointer;color:#00cbd9;font-weight:700}
+.mission-hint p{line-height:1.5;margin-top:6px}
+
+/* TOAST NOTIFICATIONS (Positioned at bottom of screen) */
+.aegis-native-toast{position:fixed;right:24px;bottom:24px;z-index:99999;display:grid;gap:4px;max-width:340px;padding:12px 15px;border:1px solid #00d9e855;border-radius:8px;background:#071522f2;color:#e9fbff;box-shadow:0 10px 35px #0009;animation:toastSlideIn .25s ease-out}
+@keyframes toastSlideIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.aegis-native-toast b{font-size:11px;color:#00e5ef;display:flex;align-items:center;gap:6px}
+.aegis-native-toast span{font-size:11px;line-height:1.4;color:#a8bfcc}
+.mission-grade-badge{display:inline-block;padding:2px 8px;border-radius:4px;font:700 9px var(--font-mono,monospace);letter-spacing:1px;margin-left:6px}
+.grade-s{background:#00f3ff22;color:#00f3ff;border:1px solid #00f3ff}
+.grade-a{background:#42d8ae22;color:#42d8ae;border:1px solid #42d8ae}
+.grade-c{background:#e6b66b22;color:#e6b66b;border:1px solid #e6b66b}
+.grade-d{background:#ff647c22;color:#ff647c;border:1px solid #ff647c}
+
+/* ========================================================
+   AEGIS MIND // TACTICAL CASE COPILOT DIALOGUE POPUP
+   ======================================================== */
+#aegis-ai-copilot-popup{position:fixed;bottom:24px;left:24px;z-index:99995;width:min(440px,calc(100vw - 48px));max-height:480px;background:linear-gradient(135deg,rgba(6,17,28,.97),rgba(3,10,18,.98));border:1px solid rgba(0,243,255,.45);border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.75),0 0 24px rgba(0,243,255,.15);backdrop-filter:blur(20px);display:flex;flex-direction:column;overflow:hidden;animation:copilotSlideUp .3s cubic-bezier(0.16,1,0.3,1);font-family:inherit;color:#eaf8ff}
+#aegis-ai-copilot-popup[hidden]{display:none!important}
+#aegis-ai-copilot-popup.is-minimized{max-height:46px;width:auto;cursor:pointer}
+#aegis-ai-copilot-popup.is-minimized .ai-copilot-body,#aegis-ai-copilot-popup.is-minimized .ai-copilot-responses{display:none}
+@keyframes copilotSlideUp{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+.ai-copilot-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(0,243,255,.09);border-bottom:1px solid rgba(0,243,255,.22)}
+.ai-copilot-brand{display:flex;align-items:center;gap:8px}
+.ai-copilot-waveform{width:12px;height:12px;border-radius:50%;background:#00f3ff;box-shadow:0 0 10px #00f3ff;animation:aiWavePulse 1.6s ease-in-out infinite}
+@keyframes aiWavePulse{0%,100%{transform:scale(.85);opacity:.6}50%{transform:scale(1.25);opacity:1;box-shadow:0 0 18px #00f3ff}}
+.ai-copilot-title{font:700 9px var(--font-mono,monospace);letter-spacing:1.2px;color:#00f3ff}
+.ai-copilot-badge{font:600 8px var(--font-mono,monospace);color:#f0ca7a;background:rgba(240,202,122,.15);border:1px solid rgba(240,202,122,.3);padding:2px 6px;border-radius:4px;margin-left:6px}
+.ai-copilot-controls{display:flex;align-items:center;gap:6px}
+.ai-copilot-ctrl-btn{border:none;background:transparent;color:#8aa2b5;font-size:14px;cursor:pointer;padding:2px 6px;border-radius:4px;line-height:1}
+.ai-copilot-ctrl-btn:hover{color:#fff;background:rgba(255,255,255,.1)}
+
+.ai-copilot-body{padding:14px;overflow-y:auto;max-height:260px;display:flex;flex-direction:column;gap:10px}
+.ai-dialogue-msg{display:flex;flex-direction:column;gap:4px}
+.ai-msg-sender{font:700 8px var(--font-mono,monospace);letter-spacing:1px;color:#00d9e8}
+.ai-msg-sender.user-sender{color:#79c0ff;align-self:flex-end}
+.ai-msg-text{font-size:11.5px;line-height:1.6;color:#d8edf8;background:rgba(0,243,255,.05);border:1px solid rgba(0,243,255,.14);border-radius:0 8px 8px 8px;padding:10px 12px}
+.ai-dialogue-msg.from-user .ai-msg-text{align-self:flex-end;background:rgba(121,192,255,.12);border-color:rgba(121,192,255,.3);border-radius:8px 0 8px 8px;color:#f0f6fc}
+
+.ai-copilot-responses{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08);background:rgba(2,8,14,.65);display:flex;flex-wrap:wrap;gap:6px}
+.ai-suggested-pill{padding:7px 11px;border:1px solid rgba(0,243,255,.35);border-radius:14px;background:rgba(0,243,255,.08);color:#c0f4ff;font:600 10px var(--font-mono,monospace);cursor:pointer;transition:all .16s ease;text-align:left}
+.ai-suggested-pill:hover{background:rgba(0,243,255,.24);border-color:#00f3ff;transform:translateY(-1px);box-shadow:0 2px 10px rgba(0,243,255,.25)}
+
+.ai-minimized-orb{position:fixed;bottom:24px;left:24px;z-index:99995;display:flex;align-items:center;gap:8px;padding:9px 14px;background:#061524f4;border:1px solid #00f3ff66;border-radius:20px;color:#eaf8ff;font:700 10px var(--font-mono,monospace);box-shadow:0 8px 25px rgba(0,0,0,.6),0 0 16px rgba(0,243,255,.3);cursor:pointer;transition:all .2s ease;backdrop-filter:blur(14px)}
+.ai-minimized-orb:hover{transform:translateY(-2px);border-color:#00f3ff;box-shadow:0 10px 30px rgba(0,0,0,.7),0 0 24px rgba(0,243,255,.5)}
+.ai-minimized-orb[hidden]{display:none!important}
+
+@media(max-width:700px){
+  #aegis-mission-hud{right:10px;top:68px}
+  #aegis-ai-copilot-popup{left:12px;bottom:12px;width:calc(100vw - 24px)}
+  .aegis-mission-panel{max-height:calc(100vh - 120px)}
+  .aegis-native-toast{right:12px;bottom:12px}
+}
+
+/* DOSSIER NAVIGATION TABS */
+.aegis-dossier-nav {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 8px;
+  gap: 6px;
+}
+.aegis-dossier-tab {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #8da6b8;
+  font: 700 10px var(--font-mono, monospace);
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+}
+.aegis-dossier-tab:hover {
+  color: #eaf8ff;
+  background: rgba(255, 255, 255, 0.05);
+}
+.aegis-dossier-tab.active {
+  color: #00f3ff;
+  background: rgba(0, 243, 255, 0.12);
+  border-color: rgba(0, 243, 255, 0.35);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
+}
+
+/* ACHIEVEMENT TOAST */
+.aegis-native-toast.achievement-toast {
+  border-color: #f0ca7a;
+  background: linear-gradient(135deg, rgba(22, 18, 7, 0.96), rgba(8, 20, 28, 0.98));
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(240, 202, 122, 0.3);
+}
+.aegis-native-toast.achievement-toast b {
+  color: #f0ca7a;
+}
+
+/* ACHIEVEMENTS GRID IN DOSSIER */
+.aegis-achievement-summary {
+  padding: 12px;
+  background: rgba(240, 202, 122, 0.07);
+  border: 1px solid rgba(240, 202, 122, 0.25);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.aegis-achievement-summary h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #f0ca7a;
+}
+.aegis-achievement-summary p {
+  margin: 0;
+  font-size: 11px;
+  color: #c9dbe6;
+}
+.aegis-achievement-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.achievement-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.achievement-card.is-unlocked {
+  background: rgba(0, 243, 255, 0.06);
+  border-color: rgba(0, 243, 255, 0.3);
+}
+.achievement-card.is-unlocked .achievement-icon {
+  filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.6));
+}
+.achievement-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.achievement-info {
+  flex: 1;
+}
+.achievement-info strong {
+  display: block;
+  font-size: 11.5px;
+  color: #e6f7ff;
+}
+.achievement-card.is-unlocked .achievement-info strong {
+  color: #00f3ff;
+}
+.achievement-info small {
+  display: block;
+  font-size: 10px;
+  color: #8da4b5;
+  margin-top: 2px;
+}
+.achievement-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.achievement-status-badge {
+  font: 700 8.5px var(--font-mono, monospace);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.status-unlocked {
+  background: rgba(66, 216, 174, 0.2);
+  color: #42d8ae;
+  border: 1px solid #42d8ae;
+}
+.status-locked {
+  background: rgba(255, 255, 255, 0.06);
+  color: #6a8292;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* TIMED EMERGENCY ATTACK BANNER */
+#aegis-emergency-banner {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99998;
+  width: min(680px, calc(100vw - 32px));
+  background: linear-gradient(135deg, rgba(35, 7, 7, 0.98), rgba(20, 4, 4, 0.98));
+  border: 2px solid #ff4757;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(255, 71, 87, 0.4), 0 0 20px rgba(0, 0, 0, 0.8);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  animation: emergencyPulse 1.2s infinite alternate ease-in-out;
+  backdrop-filter: blur(16px);
+  color: #fff;
+  font-family: inherit;
+}
+@keyframes emergencyPulse {
+  from { border-color: #ff4757; box-shadow: 0 0 18px rgba(255, 71, 87, 0.3); }
+  to { border-color: #ff6b81; box-shadow: 0 0 32px rgba(255, 107, 129, 0.65); }
+}
+.emergency-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.emergency-kicker {
+  font: 700 9px var(--font-mono, monospace);
+  color: #ff6b81;
+  letter-spacing: 1.5px;
+}
+.emergency-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+}
+.emergency-timer-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 71, 87, 0.4);
+}
+.emergency-clock {
+  font: 800 16px var(--font-mono, monospace);
+  color: #ff4757;
+  letter-spacing: 1px;
+}
+.emergency-action-btn {
+  padding: 8px 12px;
+  background: #ff4757;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font: 700 10px var(--font-mono, monospace);
+  cursor: pointer;
+  transition: all 0.16s;
+  white-space: nowrap;
+}
+.emergency-action-btn:hover {
+  background: #ff6b81;
+  box-shadow: 0 0 14px rgba(255, 107, 129, 0.6);
+}
+
+/* DRILLS TAB */
+.aegis-drill-card {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+.aegis-drill-card h4 {
+  margin: 0 0 4px;
+  font-size: 12.5px;
+  color: #eaf8ff;
+}
+.aegis-drill-card p {
+  margin: 0 0 8px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #92aab9;
+}
+.aegis-drill-launch-btn {
+  padding: 8px 12px;
+  border: 1px solid #ff4757;
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff8493;
+  border-radius: 6px;
+  font: 700 10px var(--font-mono, monospace);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.aegis-drill-launch-btn:hover {
+  background: #ff4757;
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255, 71, 87, 0.4);
+}

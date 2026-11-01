@@ -1039,15 +1039,16 @@ body.layout-linux .dock-app-btn:hover {
     cursor: pointer;
 }
 
-/* 6. TOAST NOTIFICATIONS */
+/* 6. TOAST NOTIFICATIONS (Positioned at bottom of screen) */
 #toast-container {
     position: fixed;
-    top: 60px;
-    right: 20px;
-    z-index: 800;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 10px;
+    pointer-events: none;
 }
 
 .toast {
@@ -1060,12 +1061,13 @@ body.layout-linux .dock-app-btn:hover {
     display: flex;
     align-items: flex-start;
     gap: 10px;
+    pointer-events: auto;
     animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes toastIn {
-    from { opacity: 0; transform: translateX(50px); }
-    to { opacity: 1; transform: translateX(0); }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .toast.toast-success { border-left: 4px solid var(--status-ok); }
