@@ -1,0 +1,18 @@
+# Node / Electron
+node_modules/
+dist/
+release/
+*.log
+npm-debug.log*
+
+# Local game saves and runtime state
+.aegis-os/
+game/saves/profiles/
+*.save.tmp
+
+# Local environment
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
