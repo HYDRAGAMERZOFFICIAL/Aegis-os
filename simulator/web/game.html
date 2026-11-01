@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#07111b">
+  <meta name="description" content="AegisOS tactical cyber-defence campaign simulation. Create an account and continue your cloud-saved operations across devices.">
   <title>AEGIS // Command</title>
   <link rel="stylesheet" href="/game.css">
 </head>
@@ -18,7 +19,7 @@
       <p class="boot-subtitle">TACTICAL DEFENCE SIMULATION</p>
       <div class="boot-progress"><div id="boot-progress-fill"></div></div>
       <div class="boot-status"><span id="boot-status">INITIALISING SECURE KERNEL</span><b id="boot-percent">00%</b></div>
-      <div class="boot-checks"><span>UEFI <b>READY</b></span><span>AEGIS CORE <b>LOADING</b></span><span>ZERO TRUST <b>STANDBY</b></span></div>
+      <div class="boot-checks"><span>IDENTITY <b>VERIFYING</b></span><span>CLOUD SAVE <b>READY</b></span><span>ZERO TRUST <b>ACTIVE</b></span></div>
     </div>
 
     <div id="auth-screen" class="gate-screen auth-screen hidden">
@@ -26,9 +27,9 @@
       <div class="auth-panel">
         <p class="eyebrow">SECURE PLAYER ACCESS</p>
         <h2 id="auth-title">Welcome back, Operator.</h2>
-        <p id="auth-description" class="gate-copy">Authenticate to resume your Aegis defence campaign.</p>
+        <p id="auth-description" class="gate-copy">Authenticate to restore your cloud campaign and return to operations.</p>
         <form id="login-form" class="auth-form">
-          <label>Operator ID<input name="username" autocomplete="username" minlength="3" maxlength="20" required placeholder="your_operator_id"></label>
+          <label>Email address / Operator ID<input name="username" type="text" autocomplete="username" required placeholder="operator@example.com or operator_id"></label>
           <label>Access phrase<input name="password" type="password" autocomplete="current-password" required placeholder="Enter your password"></label>
           <button class="button button-primary gate-submit" type="submit">Authenticate <span>→</span></button>
           <p id="login-error" class="form-error" role="alert"></p>
@@ -36,14 +37,15 @@
         <form id="register-form" class="auth-form hidden">
           <label>Display name<input name="displayName" autocomplete="name" minlength="2" maxlength="32" required placeholder="Operator display name"></label>
           <label>Operator ID<input name="username" autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_-]{3,20}" required placeholder="choose_operator_id"></label>
+          <label>Email address<input name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com"></label>
           <label>Create access phrase<input name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="At least 10 characters"></label>
           <button class="button button-primary gate-submit" type="submit">Create player profile <span>→</span></button>
           <p id="register-error" class="form-error" role="alert"></p>
         </form>
         <div class="auth-switch"><span id="auth-switch-copy">New to Aegis?</span><button id="auth-switch" type="button">Create player profile</button></div>
-        <p class="auth-footnote">LOCAL PLAYER PROFILE · PASSWORD HASHED ON THIS DEVICE · NO CLOUD ACCOUNT</p>
+        <p class="auth-footnote">CLOUD PLAYER ACCOUNT · ENCRYPTED AUTH SESSION · INDIVIDUAL CAMPAIGN SAVE</p>
       </div>
-      <div class="gate-corner">AEGIS COMMAND / BUILD 2.0-ALPHA</div>
+      <div class="gate-corner">AEGIS COMMAND / CLOUD BUILD</div>
     </div>
 
     <div id="lock-screen" class="gate-screen lock-screen hidden">
@@ -66,13 +68,13 @@
     <header class="topbar">
       <a class="brand" href="/" aria-label="Return to AegisOS simulator"><span class="crest">A</span><span>AEGIS<span class="muted"> // COMMAND</span></span></a>
       <div class="top-meta"><span class="live-dot"></span><span>SIMULATION ENVIRONMENT</span><span class="divider">/</span><span id="connection">CONNECTING</span></div>
-      <div class="top-actions"><span class="operator-chip"><span id="operator-avatar">OP</span><span id="operator-name">Operator</span></span><button class="button button-quiet" id="save">Save</button><button class="button button-quiet" id="load">Load</button><button class="button button-quiet" id="lock-session">Lock</button><a class="button button-quiet" href="/">OS Desktop ↗</a></div>
+      <div class="top-actions"><span class="operator-chip"><span id="operator-avatar">OP</span><span id="operator-name">Operator</span></span><button class="button button-quiet" id="save">Cloud save</button><button class="button button-quiet" id="load">Restore</button><button class="button button-quiet" id="lock-session">Lock</button><a class="button button-quiet" href="/">OS Desktop ↗</a></div>
     </header>
 
     <main class="layout">
       <section class="hero">
         <div><p class="eyebrow">AEGIS DEFENCE NETWORK <span>•</span> OPERATIONS CENTRE</p><h1>Command the<br><em>defence.</em></h1><p class="intro">Investigate hostile activity, protect critical systems and keep the network operational. Every operation runs inside a fictional, isolated simulation.</p></div>
-        <div class="hero-status"><div class="radar"><div class="radar-ring"></div><div class="radar-ring ring-two"></div><div class="radar-sweep"></div><i></i><b></b></div><div><span class="eyebrow">DEFENCE POSTURE</span><strong id="posture">STANDBY</strong><small>AEGIS CORE / LOCAL INSTANCE</small></div></div>
+        <div class="hero-status"><div class="radar"><div class="radar-ring"></div><div class="radar-ring ring-two"></div><div class="radar-sweep"></div><i></i><b></b></div><div><span class="eyebrow">DEFENCE POSTURE</span><strong id="posture">STANDBY</strong><small>AEGIS CORE / CLOUD PROFILE</small></div></div>
       </section>
 
       <section class="campaign-panel panel">
@@ -97,8 +99,8 @@
           <article class="panel research-panel"><div class="panel-head"><div><p class="eyebrow">TECHNOLOGY TREE</p><h2>Research &amp; upgrades</h2></div><span class="counter">R&amp;D</span></div><div id="research" class="research-list"></div></article>
         </aside>
       </section>
-      <section class="panel event-panel"><div class="panel-head"><div><p class="eyebrow">COMMAND LOG</p><h2>Operational feed</h2></div><span class="status-pill">LOCAL EVENT STREAM</span></div><div id="event-log" class="event-log" aria-live="polite"><p><time>BOOT</time> Aegis Command interface initialized.</p></div></section>
-      <footer><span>AEGISOS GAME FOUNDATION / ALPHA</span><span>NO HOST FILES • NO REAL NETWORK ACTIONS • SIMULATION ONLY</span></footer>
+      <section class="panel event-panel"><div class="panel-head"><div><p class="eyebrow">COMMAND LOG</p><h2>Operational feed</h2></div><span class="status-pill">SESSION EVENT STREAM</span></div><div id="event-log" class="event-log" aria-live="polite"><p><time>BOOT</time> Aegis Command interface initialized.</p></div></section>
+      <footer><span>AEGISOS GAME FOUNDATION / CLOUD ALPHA</span><span>NO HOST FILES • NO REAL NETWORK ACTIONS • SIMULATION ONLY</span></footer>
     </main>
   </div>
   <script src="/auth.js" defer></script>
