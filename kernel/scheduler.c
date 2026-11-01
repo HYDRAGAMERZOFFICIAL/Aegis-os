@@ -1,6 +1,9 @@
 #include <kernel/scheduler.h>
+#include <kernel/process.h>
 #include <string.h>
 #include <stdlib.h>
+
+extern void x86_64_switch_context(thread_t *prev, thread_t *next);
 
 typedef struct {
     sched_entity_t **entities;
@@ -98,7 +101,7 @@ void scheduler_tick(u32 cpu_id)
 
     for (u32 i = 0; i < sched_state.entity_count; i++) {
         sched_entity_t *entity = sched_state.entities[i];
-        if (entity->thread->state == PROCESS_STATE_RUNNING) {
+        if (entity->thread && entity->thread->state == PROCESS_STATE_RUNNING) {
             entity->thread->time_slice_remaining--;
             entity->ctx.cfs.sum_exec_runtime++;
 
@@ -119,7 +122,7 @@ void scheduler_tick(u32 cpu_id)
 int scheduler_set_class(u64 tid, sched_class_t sched_class)
 {
     for (u32 i = 0; i < sched_state.entity_count; i++) {
-        if (sched_state.entities[i]->thread->tid == tid) {
+        if (sched_state.entities[i]->thread && sched_state.entities[i]->thread->tid == tid) {
             sched_state.entities[i]->sched_class = sched_class;
             return 0;
         }
@@ -164,8 +167,11 @@ int scheduler_balance_load(void)
 
 void scheduler_switch_context(thread_t *prev, thread_t *next)
 {
-    if (!prev || !next) return;
+    if (!next) return;
 
-    prev->state = PROCESS_STATE_READY;
+    if (prev) {
+        prev->state = PROCESS_STATE_READY;
+    }
     next->state = PROCESS_STATE_RUNNING;
+    x86_64_switch_context(prev, next);
 }

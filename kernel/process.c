@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+extern void x86_64_setup_thread_stack(thread_t *thread, void *entry_point, void *arg);
+
 typedef struct {
     process_t *processes[MAX_PROCESSES];
     u32 process_count;
@@ -48,6 +50,11 @@ process_t *pmgr_create_process(const char *name, void *entry_point, u32 priority
         pmgr_state.processes[pmgr_state.process_count++] = proc;
     }
 
+    // Automatically create primary execution thread if entry_point provided
+    if (entry_point) {
+        pmgr_create_thread(proc->pid, entry_point, NULL);
+    }
+
     return proc;
 }
 
@@ -59,8 +66,12 @@ int pmgr_destroy_process(u64 pid)
     while (proc->threads) {
         thread_t *thread = proc->threads;
         proc->threads = thread->next;
-        free(thread->kernel_stack);
-        free(thread->user_stack);
+        if (thread->kernel_stack) {
+            mmgr_free_pages(thread->kernel_stack, 2);
+        }
+        if (thread->user_stack) {
+            mmgr_free_pages(thread->user_stack, 4);
+        }
         free(thread);
     }
 
@@ -100,6 +111,9 @@ thread_t *pmgr_create_thread(u64 pid, void *entry_point, void *arg)
     thread->user_stack = mmgr_alloc_pages(4);
     thread->next = NULL;
 
+    // Initialize real x86-64 thread stack frame & registers (AMD64 System V ABI)
+    x86_64_setup_thread_stack(thread, entry_point, arg);
+
     if (proc->thread_count < MAX_THREADS_PER_PROCESS) {
         thread->next = proc->threads;
         proc->threads = thread;
@@ -123,8 +137,12 @@ int pmgr_destroy_thread(u64 tid)
                 } else {
                     proc->threads = thread->next;
                 }
-                free(thread->kernel_stack);
-                free(thread->user_stack);
+                if (thread->kernel_stack) {
+                    mmgr_free_pages(thread->kernel_stack, 2);
+                }
+                if (thread->user_stack) {
+                    mmgr_free_pages(thread->user_stack, 4);
+                }
                 free(thread);
                 proc->thread_count--;
                 return 0;

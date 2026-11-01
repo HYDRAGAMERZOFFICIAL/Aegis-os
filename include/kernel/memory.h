@@ -21,6 +21,7 @@ typedef enum {
 
 typedef struct {
     u64 phys_addr;
+    void *virt_addr;
     u64 flags;
     u32 ref_count;
 } page_info_t;

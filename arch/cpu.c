@@ -58,10 +58,14 @@ void cpu_init(u32 num_cpus)
 
 void cpu_halt(void)
 {
+#if defined(__x86_64__) && !defined(_WIN32)
     asm volatile("hlt");
+#endif
 }
 
 void cpu_pause(void)
 {
+#if defined(__x86_64__) && !defined(_WIN32)
     asm volatile("pause");
+#endif
 }
