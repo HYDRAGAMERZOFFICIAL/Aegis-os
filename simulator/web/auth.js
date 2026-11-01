@@ -29,11 +29,11 @@
   };
   const enterGame = (user) => {
     currentUser = user;
-    $('#operator-name').textContent = user.displayName;
-    $('#operator-avatar').textContent = initials(user.displayName);
-    $('#lock-display-name').textContent = user.displayName;
-    $('#lock-username').textContent = '@' + user.username;
-    $('#lock-avatar').textContent = initials(user.displayName);
+    $('#operator-name').textContent = user.displayName || user.username || 'Operator';
+    $('#operator-avatar').textContent = initials(user.displayName || user.username);
+    $('#lock-display-name').textContent = user.displayName || user.username || 'Operator';
+    $('#lock-username').textContent = '@' + (user.username || 'operator');
+    $('#lock-avatar').textContent = initials(user.displayName || user.username);
     app.hidden = false;
     showOnly(null);
     window.dispatchEvent(new CustomEvent('aegis:authenticated', { detail: { user } }));
@@ -49,7 +49,9 @@
     $('#login-form').classList.toggle('hidden', registering);
     $('#register-form').classList.toggle('hidden', !registering);
     $('#auth-title').textContent = registering ? 'Create your operator profile.' : 'Welcome back, Operator.';
-    $('#auth-description').textContent = registering ? 'Establish a local identity to begin your Aegis campaign.' : 'Authenticate to resume your Aegis defence campaign.';
+    $('#auth-description').textContent = registering
+      ? 'Create your Aegis identity. Your campaign progress will follow your account across devices.'
+      : 'Authenticate to restore your cloud campaign and return to operations.';
     $('#auth-switch-copy').textContent = registering ? 'Already have a profile?' : 'New to Aegis?';
     $('#auth-switch').textContent = registering ? 'Sign in' : 'Create player profile';
     $('#login-error').textContent = '';
@@ -66,8 +68,8 @@
     const stages = [
       [8, 'INITIALISING SECURE KERNEL'],
       [24, 'VERIFYING AEGIS CORE'],
-      [43, 'MOUNTING SIMULATION ENVIRONMENT'],
-      [67, 'LOADING DEFENCE INTELLIGENCE'],
+      [43, 'CONNECTING PLAYER IDENTITY'],
+      [67, 'RESTORING CLOUD CAMPAIGN'],
       [86, 'STARTING ZERO-TRUST SESSION'],
       [100, 'SYSTEM READY']
     ];
@@ -75,14 +77,14 @@
       $('#boot-progress-fill').style.width = progress + '%';
       $('#boot-percent').textContent = String(progress).padStart(2, '0') + '%';
       $('#boot-status').textContent = label;
-      await new Promise(resolve => setTimeout(resolve, 260));
+      await new Promise(resolve => setTimeout(resolve, 220));
     }
     try {
       const session = await request('/api/auth/me');
       if (session.authenticated) enterGame(session.user);
-      else showAuth(session.needsProfile);
+      else showAuth(!!session.needsProfile);
     } catch (error) {
-      $('#boot-status').textContent = 'AUTHENTICATION SERVICE UNAVAILABLE';
+      $('#boot-status').textContent = 'CLOUD AUTHENTICATION UNAVAILABLE';
       showAuth(false);
       $('#login-error').textContent = error.message;
     }
@@ -112,6 +114,11 @@
     try {
       const result = await request('/api/auth/register', values(form));
       form.reset();
+      if (result.confirmationRequired) {
+        setMode('login');
+        $('#login-error').textContent = result.message || 'Verify your email, then sign in.';
+        return;
+      }
       enterGame(result.user);
     } catch (error) {
       $('#register-error').textContent = error.message;
