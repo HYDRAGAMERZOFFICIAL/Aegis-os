@@ -12,7 +12,8 @@
     "test:game": "node --test",
     "dist:win": "electron-builder --win nsis --x64",
     "dist:linux": "electron-builder --linux AppImage --x64",
-    "check:game": "node --check game/auth/AuthManager.js && node --check simulator/server.js && node --check simulator/web/auth.js && node --check simulator/web/game.js && node --check launcher/electron-main.js"
+    "check:game": "node --check game/auth/AuthManager.js && node --check simulator/server.js && node --check simulator/web/auth.js && node --check simulator/web/game.js && node --check launcher/electron-main.js && node --check \"api/[...route].js\"",
+    "check:cloud": "node --check \"api/[...route].js\""
   },
   "keywords": [
     "operating-system",
