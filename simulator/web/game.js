@@ -308,7 +308,7 @@
     $('#mission-feedback').textContent = '';
     refresh().then(() => log('Authenticated player profile loaded. Welcome to Aegis Command.', 'success')).catch(error => {
       $('#connection').textContent = 'OFFLINE';
-      setCloudStatus('CLOUD OFFLINE', false);
+      setCloudStatus(isCloudProfile() ? 'CLOUD OFFLINE' : 'LOCAL SERVICE OFFLINE', false);
       log(error.message, 'warning');
     });
   });
