@@ -19,10 +19,15 @@ This directory contains the modular campaign layer for the AegisOS cyberwarfare 
 
 Selected mission steps require the player to choose the correct evidence, policy, patch, checkpoint or recovery option. Incorrect choices do not advance the objective.
 
-## Local profile data
-The local simulator stores player profiles in `~/.aegis-os/accounts.json` and per-player campaign saves in `~/.aegis-os/saves/`. Passwords are never stored in plaintext. Session tokens are held in memory and expire after seven days; restarting the local server requires the player to sign in again.
+## Player identity and save storage
 
-This is local game authentication, not Steam account authentication or a cloud identity service. Steamworks integration remains a separate release task.
+### Vercel cloud deployment
+The Vercel build uses Supabase Auth for email/password identity and Postgres for campaign persistence. Player profiles are keyed to `auth.users.id`; every campaign save is keyed by the same UUID. Row-level security restricts profile and save access to `auth.uid()`. Successful mission actions and research purchases are validated by the server-side GameManager and persisted automatically.
+
+Apply `supabase/migrations/20261101000000_aegis_cloud_players.sql` and follow [VERCEL_DEPLOYMENT.md](../VERCEL_DEPLOYMENT.md) before deploying.
+
+### Local desktop mode
+The Electron/local Node simulator stores player profiles in `~/.aegis-os/accounts.json` and per-player campaign saves in `~/.aegis-os/saves/`. Passwords are stored as salted scrypt hashes. This local profile store is separate from the Vercel cloud identity service and is not Steam authentication.
 
 ## Run and test
 From the repository root:
