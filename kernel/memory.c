@@ -47,7 +47,11 @@ static mmgr_state_t mmgr_state = {0};
 
 int mmgr_init(void)
 {
-    mmgr_state.total_pages = 0x10000; // 65536 frames = 256 MB initial pool
+    if (mmgr_state.pages != NULL && mmgr_state.page_bitmap != NULL) {
+        return 0; // Already initialized cleanly
+    }
+
+    mmgr_state.total_pages = 4096; // 4096 frames = 16 MB pool
     mmgr_state.free_pages = mmgr_state.total_pages;
     mmgr_state.lock = 0;
 
@@ -58,11 +62,13 @@ int mmgr_init(void)
     mmgr_state.page_bitmap = (u8 *)calloc(bitmap_bytes, sizeof(u8));
     if (!mmgr_state.page_bitmap) {
         free(mmgr_state.pages);
+        mmgr_state.pages = NULL;
         return -1;
     }
 
     for (u64 i = 0; i < mmgr_state.total_pages; i++) {
         mmgr_state.pages[i].phys_addr = i * PAGE_SIZE;
+        mmgr_state.pages[i].virt_addr = NULL;
         mmgr_state.pages[i].ref_count = 0;
         mmgr_state.pages[i].flags = 0;
     }
@@ -75,6 +81,10 @@ int mmgr_init(void)
 
 void *mmgr_alloc_page(void)
 {
+    if (!mmgr_state.pages || !mmgr_state.page_bitmap) {
+        if (mmgr_init() != 0) return NULL;
+    }
+
     for (u64 i = 0; i < mmgr_state.total_pages; i++) {
         u32 byte_idx = (u32)(i / 8);
         u32 bit_idx = (u32)(i % 8);
@@ -117,6 +127,10 @@ void *mmgr_alloc_pages(u32 count)
 {
     if (count == 0) return NULL;
     if (count > 4096) return NULL;
+
+    if (!mmgr_state.pages || !mmgr_state.page_bitmap) {
+        if (mmgr_init() != 0) return NULL;
+    }
 
     void *contiguous = calloc(count, PAGE_SIZE);
     if (!contiguous) return NULL;
