@@ -33,6 +33,7 @@
       missionSelect.replaceChildren();
       state.missions.forEach(item => { const option = document.createElement('option'); option.value = item.id; option.textContent = 'Mission ' + item.id.slice(-2) + ' — ' + item.title + (item.completed ? ' (COMPLETE)' : ''); missionSelect.append(option); });
     }
+    state.missions.forEach((item, index) => { const option = missionSelect.options[index]; if (option) option.textContent = 'Mission ' + item.id.slice(-2) + ' — ' + item.title + (item.completed ? ' (COMPLETE)' : ''); });
     if (!state.missions.some(item => item.id === selectedMissionId) || (state.currentMission && state.currentMission.status === 'active')) selectedMissionId = state.currentMission ? state.currentMission.id : (state.missions.find(item => !item.completed) || state.missions[0]).id;
     missionSelect.value = selectedMissionId;
     const selectedMission = state.missions.find(item => item.id === selectedMissionId);
