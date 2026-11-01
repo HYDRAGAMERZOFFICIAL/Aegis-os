@@ -3,6 +3,72 @@
   const $ = (selector) => document.querySelector(selector);
   let selectedMissionId = 'mission-01';
   let latestState = null;
+  let activeChallenge = null;
+  const challenges = {
+    'mission-01': {
+      trace_origin: { title: 'Trace the intrusion source', prompt: 'Packet correlation found three candidate addresses. Which source matches the hostile relay signature?', options: [
+        { label: '10.0.0.8', detail: 'Internal Aegis resolver', answer: '10.0.0.8' },
+        { label: '185.220.101.5', detail: 'Untrusted external relay / anomalous beacon', answer: '185.220.101.5' },
+        { label: '172.16.0.3', detail: 'Backup telemetry node', answer: '172.16.0.3' }
+      ] },
+      configure_firewall: { title: 'Configure Aegis Shield', prompt: 'Choose the defensive rule that blocks the intrusion without disabling trusted internal services.', options: [
+        { label: 'Allow all inbound traffic', detail: 'Leaves the attack surface exposed', answer: 'allow-all' },
+        { label: 'Deny untrusted inbound traffic', detail: 'Default-deny policy for suspicious ingress', answer: 'deny-untrusted' },
+        { label: 'Disable the firewall', detail: 'Removes the defensive boundary', answer: 'disable-firewall' }
+      ] },
+      restore_files: { title: 'Select a recovery checkpoint', prompt: 'Choose the verified clean restore point created before the intrusion.', options: [
+        { label: 'chkpt-0001', detail: 'Clean boot baseline', answer: 'chkpt-0001' },
+        { label: 'chkpt-0002', detail: 'Snapshot captured during pre-update maintenance', answer: 'chkpt-0002' },
+        { label: 'chkpt-0003', detail: 'Verified clean alpha restore point', answer: 'chkpt-0003' }
+      ] },
+      submit_report: { title: 'Classify the incident', prompt: 'The intrusion was contained and files were restored. Submit the matching incident classification.', options: [
+        { label: 'Low / no impact', detail: 'Does not reflect the detected ransomware activity', answer: 'low' },
+        { label: 'Critical / contained', detail: 'Critical incident, containment and recovery verified', answer: 'critical-contained' },
+        { label: 'Uncontained compromise', detail: 'Contradicts the completed recovery actions', answer: 'uncontained' }
+      ] }
+    },
+    'mission-02': {
+      revoke_token: { title: 'Identify the compromised capability', prompt: 'Which token belongs to the process attempting unauthorised kernel access?', options: [
+        { label: 'TOK-UI-FRAMEBUFFER', detail: 'Expected display capability', answer: 'TOK-UI-FRAMEBUFFER' },
+        { label: 'TOK-KERNEL-ESCALATED', detail: 'Unexpected elevated kernel capability', answer: 'TOK-KERNEL-ESCALATED' },
+        { label: 'TOK-TELEMETRY-READ', detail: 'Read-only monitoring capability', answer: 'TOK-TELEMETRY-READ' }
+      ] },
+      apply_patch: { title: 'Verify the kernel patch', prompt: 'Select the signed training patch approved for this Aegis kernel build.', options: [
+        { label: 'AEGIS-KERNEL-2.0.4', detail: 'Verified security patch / signature valid', answer: 'AEGIS-KERNEL-2.0.4' },
+        { label: 'AEGIS-KERNEL-0.9.1', detail: 'Legacy build / unsupported', answer: 'AEGIS-KERNEL-0.9.1' },
+        { label: 'UNKNOWN-BINARY', detail: 'Unverified package / signature missing', answer: 'UNKNOWN-BINARY' }
+      ] },
+      audit_kernel: { title: 'Validate the trust root', prompt: 'Choose the integrity result that matches the trusted Aegis root record.', options: [
+        { label: 'AEGIS-ROOT-VERIFIED', detail: 'Trusted root hash and kernel state match', answer: 'AEGIS-ROOT-VERIFIED' },
+        { label: 'ROOT-MISMATCH', detail: 'Integrity divergence detected', answer: 'ROOT-MISMATCH' }
+      ] },
+      submit_report: { title: 'Submit the kernel incident report', prompt: 'Choose the final status after revoking the token, patching and auditing the kernel.', options: [
+        { label: 'Privilege escalation contained', detail: 'All defensive actions verified', answer: 'privilege-contained' },
+        { label: 'Kernel trust still compromised', detail: 'Does not match the completed audit', answer: 'trust-compromised' }
+      ] }
+    },
+    'mission-03': {
+      rate_limit: { title: 'Tune ingress protection', prompt: 'Choose the adaptive rate profile that protects priority services while containing the flood.', options: [
+        { label: 'Unlimited ingress', detail: 'No traffic control', answer: 'unlimited' },
+        { label: 'Adaptive 750 requests', detail: 'Adaptive ingress threshold with priority queues', answer: 'adaptive-750' },
+        { label: 'Block all traffic', detail: 'Would also deny trusted service traffic', answer: 'block-all' }
+      ] },
+      reroute_traffic: { title: 'Select the resilient route', prompt: 'Which route remains healthy and has sufficient reserved capacity?', options: [
+        { label: 'Edge route 01', detail: 'High packet loss / degraded', answer: 'edge-route-01' },
+        { label: 'Edge route 02', detail: 'Healthy / reserved capacity available', answer: 'edge-route-02' },
+        { label: 'Direct origin route', detail: 'Currently saturated', answer: 'direct-origin' }
+      ] },
+      restore_service: { title: 'Restore the affected service', prompt: 'Select the service endpoint whose health check failed during the flood.', options: [
+        { label: 'Aegis API gateway', detail: 'Primary affected service', answer: 'api-gateway' },
+        { label: 'Telemetry archive', detail: 'Healthy / unaffected', answer: 'telemetry-archive' },
+        { label: 'Identity vault', detail: 'Healthy / unaffected', answer: 'identity-vault' }
+      ] },
+      submit_report: { title: 'Close the blackout incident', prompt: 'Choose the verified outcome after mitigation and service restoration.', options: [
+        { label: 'Availability restored', detail: 'Service health checks pass', answer: 'availability-restored' },
+        { label: 'Outage ongoing', detail: 'Does not match the completed recovery', answer: 'outage-ongoing' }
+      ] }
+    }
+  };
 
   const api = async (endpoint, body) => {
     const response = await fetch(endpoint, {
@@ -122,6 +188,26 @@
       }
       objectives.append(row);
     });
+    const consolePanel = $('#mission-console');
+    if (activeChallenge && (!missionInProgress || activeChallenge.missionId !== activeMission.id)) activeChallenge = null;
+    consolePanel.replaceChildren();
+    if (activeChallenge && missionInProgress) {
+      consolePanel.classList.remove('hidden');
+      consolePanel.append(addText('p', 'eyebrow', 'TACTICAL DECISION / ' + activeChallenge.title.toUpperCase()));
+      consolePanel.append(addText('p', 'challenge-prompt', activeChallenge.prompt));
+      const choices = document.createElement('div'); choices.className = 'challenge-choices';
+      activeChallenge.options.forEach(option => {
+        const choice = document.createElement('button'); choice.type = 'button'; choice.className = 'challenge-choice';
+        choice.append(addText('strong', '', option.label), addText('small', '', option.detail));
+        choice.addEventListener('click', () => execute(activeChallenge.action, { answer: option.answer }));
+        choices.append(choice);
+      });
+      consolePanel.append(choices);
+      const cancel = addText('button', 'text-button challenge-cancel', 'Close tactical console'); cancel.type = 'button';
+      cancel.addEventListener('click', () => { activeChallenge = null; render(latestState); });
+      consolePanel.append(cancel);
+    } else consolePanel.classList.add('hidden');
+
     const selectedMeta = state.missions.find(item => item.id === selectedMissionId);
     $('#start-mission').disabled = missionInProgress || !selectedMeta || selectedMeta.completed || !selectedMeta.unlocked;
     $('#start-mission').textContent = missionInProgress ? 'Operation in progress' : selectedMeta && selectedMeta.completed ? 'Operation secured' : 'Deploy operation →';
@@ -156,9 +242,10 @@
     const state = await api('/api/game/state');
     render(state);
   };
-  const execute = async (action) => {
+  const execute = async (action, payload = {}) => {
     try {
-      const result = await api('/api/game/action', { action });
+      const result = await api('/api/game/action', { action, payload });
+      activeChallenge = null;
       log(result.detail || action, 'success');
       if (result.progress && result.progress.completed) log('OPERATION SECURED — campaign rewards transferred to your profile.', 'success');
       render(result.state);
