@@ -7,6 +7,7 @@
   const registerForm = $('#aegis-register-form');
   let mode = 'login';
   let user = null;
+  let vaultData = null;
 
   // Universal Custom Cyberpunk Dialog
   window.AegisDialog = {
@@ -102,6 +103,212 @@
     return data;
   };
 
+  // ----------------------------------------------------
+  // OPERATOR DATA VAULT & USER DATABASE SYSTEM
+  // ----------------------------------------------------
+  const loadUserVault = async () => {
+    try {
+      const res = await request('/api/user/vault');
+      if (res && res.success) {
+        vaultData = res.vault;
+        if (vaultData && vaultData.notes) {
+          try {
+            localStorage.setItem('aegis_case_notes', vaultData.notes);
+            const textarea = document.querySelector('#notepad-textarea');
+            if (textarea && (!textarea.value || textarea.value.trim() === '')) {
+              textarea.value = vaultData.notes;
+            }
+          } catch (_) {}
+        }
+        return vaultData;
+      }
+    } catch (err) {
+      console.warn('Could not load user database vault:', err);
+    }
+    return null;
+  };
+
+  const syncUserVault = async () => {
+    try {
+      const textarea = document.querySelector('#notepad-textarea');
+      const currentNotes = textarea ? textarea.value : (localStorage.getItem('aegis_case_notes') || '');
+      let campaignState = null;
+      try {
+        const raw = localStorage.getItem('aegis.nativeCampaign.v1');
+        if (raw) campaignState = JSON.parse(raw);
+      } catch (_) {}
+
+      const syncPayload = {
+        notes: currentNotes,
+        campaign: campaignState,
+        profile: {
+          xp: campaignState && campaignState.stats ? campaignState.stats.xp : 0,
+          credits: campaignState && campaignState.stats ? campaignState.stats.credits : 0,
+          completedMissions: campaignState && campaignState.done ? campaignState.done.length : 0
+        }
+      };
+
+      const res = await request('/api/user/vault/sync', syncPayload);
+      if (res && res.success) {
+        await window.AegisDialog.alert(res.message || 'Operator database synchronized successfully.', 'DATABASE SYNC COMPLETE');
+        await loadUserVault();
+        updateVaultUI();
+      }
+    } catch (err) {
+      await window.AegisDialog.alert(err.message, 'DATABASE SYNC ERROR');
+    }
+  };
+
+  const updateVaultUI = () => {
+    if (!vaultData) return;
+    const { user, profile, campaign, notes, auditLogs } = vaultData;
+
+    // Profile Tab
+    if ($('#vault-op-name')) $('#vault-op-name').textContent = 'OPERATOR // ' + (user.displayName || user.username).toUpperCase();
+    if ($('#vault-op-clearance')) $('#vault-op-clearance').textContent = user.clearanceLevel || 'LEVEL_5_COSMIC';
+    if ($('#vault-op-role')) $('#vault-op-role').textContent = user.role || 'SECURITY_DIRECTOR';
+    if ($('#vault-op-rank')) $('#vault-op-rank').textContent = profile ? profile.rank : 'Field Specialist';
+    if ($('#vault-op-meta')) $('#vault-op-meta').textContent = 'Account provisioned: ' + new Date(user.createdAt || Date.now()).toLocaleDateString() + ' • Status: ACTIVE / ENCLAVE-BACKED';
+
+    const score = campaign && campaign.stats ? campaign.stats.score : (profile ? profile.score || 0 : 0);
+    const xp = campaign && campaign.stats ? campaign.stats.xp : (profile ? profile.xp || 0 : 0);
+    const credits = campaign && campaign.stats ? campaign.stats.credits : (profile ? profile.credits || 0 : 0);
+    const opsDone = campaign && campaign.done ? campaign.done.length : (profile ? profile.completedMissions || 0 : 0);
+
+    if ($('#vault-stat-score')) $('#vault-stat-score').textContent = score;
+    if ($('#vault-stat-xp')) $('#vault-stat-xp').textContent = xp;
+    if ($('#vault-stat-credits')) $('#vault-stat-credits').textContent = credits;
+    if ($('#vault-stat-ops')) $('#vault-stat-ops').textContent = opsDone + ' / 8';
+
+    // Campaign Tab
+    const campEl = $('#vault-campaign-details');
+    if (campEl) {
+      if (campaign) {
+        campEl.innerHTML = `
+          <div style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08);"><strong>Active Theater:</strong> Operation #${campaign.index + 1}</div>
+          <div style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08);"><strong>Secured Cases:</strong> ${campaign.done && campaign.done.length > 0 ? campaign.done.join(', ') : 'None yet (Active case ongoing)'}</div>
+          <div style="padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08);"><strong>Recorded Forensics:</strong> ${campaign.log ? campaign.log.length : 0} events in session log</div>
+          <div style="padding: 6px 0;"><strong>Earned Achievements:</strong> ${campaign.achievements ? campaign.achievements.length : 0} badges recorded</div>
+        `;
+      } else {
+        campEl.innerHTML = '<div style="color: var(--text-muted);">No active campaign save found. Launch a case from the top bar!</div>';
+      }
+    }
+
+    // Notes Tab
+    const notesEl = $('#vault-notes-display');
+    if (notesEl) {
+      notesEl.textContent = notes || 'No case notes currently recorded in database. Open Case Notes (dock/desktop) to record forensic indicators!';
+    }
+
+    // Tables Tab
+    const tablesEl = $('#vault-tables-container');
+    if (tablesEl) {
+      const tableNames = ['users', 'user_profiles', 'user_sessions', 'user_case_files', 'user_achievements', 'user_audit_logs', 'user_side_quests', 'system_cache'];
+      tablesEl.innerHTML = tableNames.map(name => `
+        <div class="vault-table-item">
+          <strong>${name}</strong>
+          <span>SYNCHRONIZED (IN-MEMORY)</span>
+        </div>
+      `).join('');
+    }
+
+    // Audit Tab
+    const auditEl = $('#vault-audit-container');
+    if (auditEl) {
+      if (auditLogs && auditLogs.length > 0) {
+        auditEl.innerHTML = auditLogs.map(log => `
+          <div class="vault-audit-row">
+            <span>[${new Date(log.timestamp).toLocaleTimeString()}] ${log.action} - ${log.details}</span>
+            <span style="color: #00ff80;">${log.status}</span>
+          </div>
+        `).join('');
+      } else {
+        auditEl.innerHTML = '<div class="vault-audit-row"><span>No security audit entries recorded yet.</span></div>';
+      }
+    }
+
+    if ($('#vault-sync-label')) $('#vault-sync-label').textContent = 'Last Synced: ' + new Date().toLocaleTimeString();
+  };
+
+  const openUserVault = async () => {
+    const modal = $('#aegis-user-vault-modal');
+    if (!modal) return;
+    await loadUserVault();
+    updateVaultUI();
+    modal.classList.remove('hidden');
+  };
+
+  const closeUserVault = () => {
+    const modal = $('#aegis-user-vault-modal');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  const initVaultModalEvents = () => {
+    $('#vault-modal-close')?.addEventListener('click', closeUserVault);
+
+    document.querySelectorAll('.vault-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.vault-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.vault-tab-content').forEach(c => c.classList.add('hidden'));
+        btn.classList.add('active');
+        const targetId = btn.dataset.vtab;
+        if (targetId) $(`#${targetId}`)?.classList.remove('hidden');
+      });
+    });
+
+    $('#vault-btn-sync')?.addEventListener('click', syncUserVault);
+
+    $('#vault-btn-restore')?.addEventListener('click', async () => {
+      const ok = await window.AegisDialog.confirm('Restore all campaign progress and case notes from AegisDB database?', 'RESTORE FROM DATABASE');
+      if (!ok) return;
+      await loadUserVault();
+      updateVaultUI();
+      await window.AegisDialog.alert('User database records re-synchronized successfully.', 'RESTORE COMPLETE');
+    });
+
+    $('#vault-btn-open-notepad')?.addEventListener('click', () => {
+      closeUserVault();
+      window.dispatchEvent(new CustomEvent('aegis:wm-open', { detail: { app: 'notepad' } }));
+    });
+
+    $('#vault-btn-export')?.addEventListener('click', () => {
+      if (!vaultData) return;
+      const json = JSON.stringify(vaultData, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `aegis_user_vault_${vaultData.user.username}_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    $('#vault-btn-signout')?.addEventListener('click', async () => {
+      closeUserVault();
+      const ok = await window.AegisDialog.confirm('Sign out of this AegisOS operator profile?', 'OPERATOR SIGN-OUT');
+      if (!ok) return;
+      try {
+        await request('/api/auth/logout', {});
+      } catch (error) {
+        await window.AegisDialog.alert(error.message, 'SIGN-OUT ERROR');
+        return;
+      }
+      user = null;
+      vaultData = null;
+      root.classList.add('aegis-locked');
+      gate.hidden = false;
+      showMode('login');
+    });
+
+    // Delegate open vault from Settings Center
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'btn-settings-open-vault') {
+        openUserVault();
+      }
+    });
+  };
+
   const showMode = (next) => {
     mode = next;
     loginForm.hidden = mode !== 'login';
@@ -133,24 +340,23 @@
         badge.id = 'aegis-operator-badge';
         badge.type = 'button';
         badge.className = 'aegis-operator-badge';
+        badge.title = 'Open Operator Profile & User Database Vault';
         $('#top-bar .top-right')?.appendChild(badge);
-        badge.addEventListener('click', async () => {
-          const ok = await window.AegisDialog.confirm('Sign out of this AegisOS operator profile?', 'OPERATOR SIGN-OUT');
-          if (!ok) return;
-          try {
-            await request('/api/auth/logout', {});
-          } catch (error) {
-            await window.AegisDialog.alert(error.message, 'SIGN-OUT ERROR');
-            return;
-          }
-          user = null;
-          root.classList.add('aegis-locked');
-          gate.hidden = false;
-          showMode('login');
-        });
+        badge.addEventListener('click', openUserVault);
       }
-      badge.textContent = 'OPERATOR // ' + (account.displayName || account.username) + '  ↗';
-      window.AegisAuth = { get user() { return user; }, logout: () => badge.click() };
+      badge.textContent = '💾 OPERATOR VAULT // ' + (account.displayName || account.username).toUpperCase();
+      window.AegisAuth = {
+        get user() { return user; },
+        logout: () => $('#vault-btn-signout')?.click()
+      };
+      window.AegisVault = {
+        open: openUserVault,
+        sync: syncUserVault,
+        restore: loadUserVault
+      };
+
+      // Automatically hydrate user data from database upon login!
+      loadUserVault();
       document.dispatchEvent(new CustomEvent('aegis:authenticated', { detail: { user: account } }));
     };
 
@@ -163,7 +369,7 @@
         '[  0.035000] Loading Microkernel ASLR & Page Table Isolation...',
         '[  0.082000] Mounting AegisDB In-Memory Relational Engine...',
         '[  0.145000] Initializing High-Speed Memory Cache Subsystem (100% Hit Target)...',
-        '[  0.210000] Establishing Zero-Trust Capability Token Registry...',
+        '[  0.210000] Restoring Operator Database Vault & Session Credentials...',
         '[  0.280000] Mounting Cryptographic Merkle Root Filesystem (Self-Healing)...',
         '[  0.355000] Welcome to your virtual system, Operator ' + (account.displayName || account.username).toUpperCase() + '!'
       ];
@@ -220,6 +426,8 @@
     event.preventDefault();
     submit(registerForm, '/api/auth/register', '#aegis-register-error');
   });
+
+  initVaultModalEvents();
 
   (async () => {
     try {
