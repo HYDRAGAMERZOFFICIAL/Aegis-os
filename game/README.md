@@ -14,6 +14,8 @@ Open `http://localhost:3000`. The **Last Firewall** launcher appears among the A
 
 ## Current playable slice
 
+The game engine has a Node.js test suite. Run it with `npm run test:game`.
+
 - Five fictional incident-response missions across three campaign chapters.
 - Objective sequence: inspect → contain → verify integrity → recover.
 - Persistent player profile with XP, credits, research points, level and service record.
