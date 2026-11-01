@@ -54,3 +54,4 @@ test('vercel deployment configuration routes static and API endpoints cleanly', 
   assert.ok(fs.existsSync(path.join(publicDir, 'index.html')), 'public/index.html must exist to prevent Vercel 404');
   assert.ok(fs.existsSync(path.join(__dirname, '..', '..', 'api', 'index.js')), 'api/index.js must exist for serverless requests');
 });
+

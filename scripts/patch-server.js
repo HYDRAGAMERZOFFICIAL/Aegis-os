@@ -44,3 +44,4 @@ if (idx !== -1) {
   console.error('Could not find default: in server.js');
   process.exit(1);
 }
+

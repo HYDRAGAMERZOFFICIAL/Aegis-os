@@ -237,7 +237,6 @@ html, body {
 .aegis-window.active {
     border-color: var(--accent);
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 0 22px var(--accent-glow);
-    z-index: 100 !important;
 }
 
 .aegis-window.minimized {

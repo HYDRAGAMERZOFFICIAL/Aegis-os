@@ -447,3 +447,4 @@ fs.writeFileSync(srcPath, src, 'utf8');
 const destPublic = path.join(__dirname, '..', 'public', 'native-campaign.js');
 fs.writeFileSync(destPublic, src, 'utf8');
 console.log('Saved native-campaign.js to both simulator/web and public.');
+
