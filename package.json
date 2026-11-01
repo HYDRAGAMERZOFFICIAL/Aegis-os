@@ -10,9 +10,9 @@
     "test": ".\\aegis_tests.exe",
     "start:desktop": "electron .",
     "test:game": "node --test",
-    "dist:win": "electron-builder --win nsis --x64",
-    "dist:linux": "electron-builder --linux AppImage --x64",
-    "check:game": "node --check game/auth/AuthManager.js && node --check simulator/server.js && node --check simulator/web/auth.js && node --check simulator/web/game.js && node --check launcher/electron-main.js && node --check simulator/web/native-campaign.js"
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "dist:linux": "electron-builder --linux AppImage --x64 --publish never",
+    "check:game": "node --check game/auth/AuthManager.js && node --check simulator/server.js && node --check simulator/web/auth.js && node --check simulator/web/game.js && node --check simulator/web/app.js && node --check simulator/web/desktop-auth.js && node --check simulator/web/native-campaign.js && node --check launcher/electron-main.js"
   },
   "keywords": [
     "operating-system",
