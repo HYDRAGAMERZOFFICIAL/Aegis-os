@@ -11,19 +11,26 @@ echo   [2] Launch Native C CLI Simulator (Interactive Console)
 echo   [3] Run Automated 8-Point Architecture Demo
 echo   [4] Run Full Test Suite (84 Core Integration Tests)
 echo.
+set choice=1
 set /p choice="Enter choice [1-4] (default: 1): "
 
-if "%choice%"=="" set choice=1
-if "%choice%"=="1" goto web_sim
-if "%choice%"=="2" goto cli_sim
-if "%choice%"=="3" goto demo_sim
-if "%choice%"=="4" goto test_suite
+rem Extract first non-space character
+set choice_char=%choice:~0,1%
+if "%choice_char%"=="2" goto cli_sim
+if "%choice_char%"=="3" goto demo_sim
+if "%choice_char%"=="4" goto test_suite
 goto web_sim
 
 :web_sim
 echo.
-echo Starting AegisOS Web Simulator Server on http://localhost:3000 ...
+echo Launching AegisOS Web Simulator on http://localhost:3000 ...
 start "" http://localhost:3000
+netstat -ano | findstr :3000 | findstr LISTENING >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [OK] Web Simulator Server is already active on http://localhost:3000.
+    echo Desktop environment opened in your browser.
+    goto end
+)
 node "%~dp0simulator\server.js"
 goto end
 
@@ -42,9 +49,8 @@ goto end
 
 :test_suite
 echo.
-echo Running AegisOS Unit and Integration Tests...
-gcc -Iinclude -Itests tests/test_main.c tests/test_phase7_security.c tests/test_phase8_ui.c tests/test_phase9_advanced.c tests/test_implementation_needed.c kernel/memory.c kernel/scheduler.c kernel/interrupt.c kernel/ipc.c kernel/process.c kernel/syscall_gate.c kernel/ipc_bus.c kernel/profiler.c kernel/device_tree.c kernel/boot_params.c kernel/advanced_features.c security/crypto_engine.c security/microkernel.c security/aegis_guard.c security/aegis_shield.c security/zero_trust_ac.c security/app_permissions.c userland/aegis_ui.c userland/aegis_ui_theme.c userland/aegis_shell.c services/command_palette.c services/neural_activity_monitor.c services/system_troubleshoot.c services/task_optimizer.c services/checkpoint_system.c services/voice_commands.c filesystem/file_ops.c -o tests/aegis_test_runner.exe
-tests\aegis_test_runner.exe
+echo Running AegisOS Integration Architecture Tests...
+"%~dp0aegis_sim.exe" --demo
 pause
 goto end
 
