@@ -44,9 +44,9 @@ var missions=[
 ],choices:['Adaptive ingress shaping','Global ingress block','No rate control'],outcomes:['Adaptive shaping preserved the critical path while reducing the flood.','Gateway recovered, but global block caused a severe legitimate-user outage.','Service degradation continued. Availability was not restored in the operation window.']}
 ];
 function fresh(){return {v:1,index:0,started:false,done:[],evidence:{},fragments:{},decision:{},log:[]};}
-var state=fresh(),authenticated=false,syncing=false;
+var state=fresh(),authenticated=false,syncing=false,saveTimer=null;
 if(!state||state.v!==1)state=fresh();
-function save(){if(!authenticated)return;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}fetch('/api/campaign/state',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:state})}).catch(function(){});}
+function save(){if(!authenticated)return;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(function(){fetch('/api/campaign/state',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:state})}).catch(function(){});},250);}
 function mission(){return missions[Math.min(state.index,missions.length-1)];}
 function evidence(){var m=mission();return state.evidence[m.id]||(state.evidence[m.id]=[]);}
 function fragments(){var m=mission();if(!state.fragments)state.fragments={};return state.fragments[m.id]||(state.fragments[m.id]={});}
