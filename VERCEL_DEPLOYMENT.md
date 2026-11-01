@@ -34,7 +34,7 @@ The anon key is designed for client-facing use; this implementation keeps it on 
 
 ### 5. Deploy
 
-Import the GitHub repository into Vercel and deploy the branch. The Vercel configuration serves the existing simulator web assets, routes `/game` to the campaign, and exposes the cloud API under `/api`.
+Import the GitHub repository into Vercel and deploy the branch. The `public/` directory contains the Vercel static build of the simulator UI. The `/game` rewrite opens the campaign, while `api/[...route].js` provides the cloud API under `/api`.
 
 ### 6. Verify the release
 
