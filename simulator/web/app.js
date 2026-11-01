@@ -1231,12 +1231,14 @@
                 eventPool.unshift({ type: 'ZT_CAPABILITY', desc: 'kernel_sync_worker PID 5112 | requested CAP_NET_RAW_SOCKET | unexpected authority', status: 'FLAGGED' });
             }
 
+            let missionCluePending = !!(campaignSnapshot && (campaignSnapshot.index === 0 || campaignSnapshot.index === 1) && campaignSnapshot.started);
             const addEvent = () => {
                 if (!document.body.contains(win)) {
                     clearInterval(timer);
                     return;
                 }
-                const ev = eventPool[Math.floor(Math.random() * eventPool.length)];
+                const ev = missionCluePending ? eventPool[0] : eventPool[Math.floor(Math.random() * eventPool.length)];
+                missionCluePending = false;
                 const row = document.createElement('div');
                 row.className = 'event-row';
                 row.innerHTML = `
