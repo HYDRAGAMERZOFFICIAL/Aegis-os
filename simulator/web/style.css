@@ -3641,10 +3641,6 @@ body.system-breached-critical {
     margin: 0;
     overflow-x: auto;
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
 
 /* ====================================================
    17. AEGIS DIALOG POPUP & CLUE CARD INSPECTOR MODAL
@@ -3823,8 +3819,302 @@ body.system-breached-critical {
     max-width: 440px;
     line-height: 1.4;
 }
-<<<<<<< HEAD
-=======
->>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
-=======
->>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
+
+
+/* ============================================================
+   AEGIS OPERATOR DATA VAULT & USER DATABASE MODAL STYLES
+   ============================================================ */
+.aegis-vault-box {
+    width: 680px;
+    max-width: 94vw;
+    background: rgba(8, 14, 24, 0.98);
+    border: 1px solid #00f3ff;
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.25);
+    border-radius: 8px;
+    overflow: hidden;
+    animation: zoomIn 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.vault-status-ribbon {
+    background: rgba(0, 243, 255, 0.08);
+    border-bottom: 1px solid rgba(0, 243, 255, 0.15);
+    padding: 6px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    font-family: var(--font-mono, monospace);
+    color: var(--text-muted);
+}
+.vault-db-indicator {
+    color: #00ff80;
+    font-weight: 600;
+}
+.vault-db-engine {
+    color: #00f3ff;
+}
+.vault-sync-status {
+    color: #a4b3c6;
+}
+
+.vault-tabs {
+    display: flex;
+    background: rgba(4, 8, 14, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-x: auto;
+    padding: 4px 10px 0 10px;
+    gap: 4px;
+}
+.vault-tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+.vault-tab-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.04);
+}
+.vault-tab-btn.active {
+    color: #00f3ff;
+    border-bottom-color: #00f3ff;
+    background: rgba(0, 243, 255, 0.06);
+    font-weight: 600;
+}
+
+.vault-body {
+    padding: 16px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.vault-subheading {
+    font-size: 10px;
+    font-family: var(--font-mono, monospace);
+    color: #00f3ff;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.vault-profile-card {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    background: rgba(14, 24, 38, 0.7);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+.vault-avatar {
+    font-size: 36px;
+    background: rgba(0, 243, 255, 0.1);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.vault-profile-info {
+    flex: 1;
+}
+.vault-profile-info h3 {
+    margin: 0 0 6px 0;
+    color: #fff;
+    font-size: 16px;
+    font-family: var(--font-mono, monospace);
+    letter-spacing: 0.5px;
+}
+.vault-badge-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+.vault-badge {
+    background: rgba(0, 243, 255, 0.1);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    color: #00f3ff;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono, monospace);
+}
+.vault-meta {
+    margin: 0;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.vault-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.vault-stat-card {
+    background: rgba(10, 18, 30, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+.vstat-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00f3ff;
+    font-family: var(--font-mono, monospace);
+}
+.vstat-lbl {
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+
+.vault-notes-preview {
+    background: rgba(4, 8, 14, 0.95);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 6px;
+    padding: 12px;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    color: #a4e5ff;
+    max-height: 220px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    margin: 0 0 10px 0;
+}
+
+.vault-tables-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+.vault-table-item {
+    background: rgba(12, 20, 32, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-family: var(--font-mono, monospace);
+}
+.vault-table-item strong {
+    color: #00f3ff;
+}
+.vault-table-item span {
+    color: #00ff80;
+    font-size: 10px;
+}
+
+.vault-audit-stream {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 240px;
+    overflow-y: auto;
+}
+.vault-audit-row {
+    background: rgba(10, 18, 30, 0.6);
+    border-left: 2px solid #00f3ff;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-family: var(--font-mono, monospace);
+    color: #c9d6e4;
+    display: flex;
+    justify-content: space-between;
+}
+
+.vault-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+    background: rgba(4, 8, 14, 0.7);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px 16px;
+}
+
+/* ============================================================
+   MULTI-STAGE OBJECTIVE PROGRESS & ELABORATED STEP GUIDES
+   ============================================================ */
+.step-stage-track {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+.stage-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-family: var(--font-mono, monospace);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(14, 22, 34, 0.8);
+    color: var(--text-muted);
+}
+.stage-pill.is-stage-done {
+    background: rgba(0, 255, 128, 0.12);
+    border-color: rgba(0, 255, 128, 0.4);
+    color: #00ff80;
+}
+.stage-pill.is-stage-active {
+    background: rgba(0, 243, 255, 0.15);
+    border-color: #00f3ff;
+    color: #00f3ff;
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.2);
+    animation: pulseGlow 1.8s infinite alternate;
+}
+@keyframes pulseGlow {
+    from { box-shadow: 0 0 4px rgba(0, 243, 255, 0.2); }
+    to { box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); }
+}
+
+.step-elaborated-box {
+    background: rgba(10, 18, 30, 0.85);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.step-elaborated-box .elab-ioc {
+    font-size: 11px;
+    font-family: var(--font-mono, monospace);
+    color: #00f3ff;
+}
+.step-elaborated-box .elab-proc {
+    font-size: 11px;
+    color: #e0e8f0;
+    line-height: 1.45;
+}
+.step-elaborated-box .elab-bg {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-style: italic;
+    border-left: 2px solid rgba(0, 243, 255, 0.4);
+    padding-left: 8px;
+}
