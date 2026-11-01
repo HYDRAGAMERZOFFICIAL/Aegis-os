@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisOS - Hybrid Secure Intelligence Operating System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="desktop-auth.css">
+    <link rel="stylesheet" href="native-campaign.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><polygon points=%2250,5 95,25 95,75 50,95 5,75 5,25%22 fill=%22%23080c14%22 stroke=%22%2300f3ff%22 stroke-width=%228%22/><path d=%22M50,20 L80,45 L50,80 L20,45 Z%22 fill=%22%2300f3ff%22 opacity=%220.8%22/></svg>">
+</head>
+<body class="theme-quantum-cyan layout-hybrid aegis-locked" id="aegis-root">
+    <section id="aegis-auth-gate" class="aegis-auth-gate" aria-live="polite">
+      <div class="aegis-auth-panel">
+        <div class="aegis-auth-brand"><span class="aegis-auth-crest">A</span><span>AEGIS<span> // OPERATOR ACCESS</span></span></div>
+        <p class="aegis-auth-kicker">SECURE PLAYER IDENTITY</p>
+        <h1 id="aegis-auth-title">Authenticate, Operator.</h1>
+        <p id="aegis-auth-description">Sign in to restore your personal AegisOS campaign.</p>
+        <form id="aegis-login-form">
+          <label>Operator ID<input name="username" minlength="3" maxlength="20" autocomplete="username" required placeholder="operator_id"></label>
+          <label>Access phrase<input name="password" type="password" autocomplete="current-password" required placeholder="Your access phrase"></label>
+          <button type="submit">AUTHENTICATE <span>→</span></button><p id="aegis-login-error" role="alert"></p>
+        </form>
+        <form id="aegis-register-form" hidden>
+          <label>Display name<input name="displayName" minlength="2" maxlength="32" required placeholder="Operator name"></label>
+          <label>Operator ID<input name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_-]{3,20}" required placeholder="choose_operator_id"></label>
+          <label>Create access phrase<input name="password" type="password" minlength="10" maxlength="128" autocomplete="new-password" required placeholder="At least 10 characters"></label>
+          <button type="submit">CREATE PLAYER PROFILE <span>→</span></button><p id="aegis-register-error" role="alert"></p>
+        </form>
+        <div class="aegis-auth-switch"><span id="aegis-auth-switch-copy">New to AegisOS?</span><button id="aegis-auth-switch" type="button">Create player profile</button></div>
+        <small>PLAYER DATA IS STORED IN AN INDIVIDUAL ACCOUNT SAVE SLOT</small>
+      </div>
+    </section>
+    <!-- Ambient Dynamic Canvas Wallpaper -->
+    <canvas id="wallpaper-canvas"></canvas>
+
+    
+    <!-- 1. VIRTUAL MICROKERNEL BOOT SCREEN -->
+    <div id="aegis-boot-screen" class="boot-screen hidden" aria-live="polite">
+        <div class="boot-content">
+            <div class="boot-crest">
+                <svg viewBox="0 0 100 100">
+                    <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#080c14" stroke="#00f3ff" stroke-width="6"/>
+                    <path d="M50,20 L80,45 L50,80 L20,45 Z" fill="#00f3ff" opacity="0.8"/>
+                </svg>
+            </div>
+            <h1 class="boot-title">AEGIS // OPERATOR STATION</h1>
+            <div class="boot-console" id="boot-console">
+                <div class="boot-line">> [  0.000000] Initializing Dual-Kernel Hybrid Architecture v2.0-Alpha...</div>
+            </div>
+            <div class="boot-bar-wrap">
+                <div class="boot-bar-fill" id="boot-bar-fill"></div>
+            </div>
+            <div class="boot-status" id="boot-status">BOOTING VIRTUAL MICROKERNEL ENVIRONMENT...</div>
+        </div>
+    </div>
+
+    <!-- 2. CRITICAL SYSTEM BREACH & 30-SECOND SHUTDOWN OVERLAY -->
+    <div id="aegis-critical-breach-overlay" class="breach-overlay hidden" aria-live="assertive">
+        <div class="breach-panel">
+            <div class="breach-header">
+                <span class="breach-skull">☠️</span>
+                <span class="breach-title">CRITICAL ZERO-DAY BREACH // HOSTILE TAKEOVER</span>
+            </div>
+            <div class="breach-subtitle">YOU HAVE BEEN HACKED! HOSTILE CIPHER HAS COMPROMISED RING 0.</div>
+            <div class="breach-warning">
+                UNAUTHORIZED CIPHER WIPING INODE TABLES. ALL LOCAL FILES WILL BE PURGED AND SYSTEM WILL SHUT DOWN IN:
+            </div>
+            <div class="breach-timer-wrap">
+                <span class="breach-clock" id="breach-timer-clock">00:30.00</span>
+            </div>
+            <div class="breach-puzzle-box" id="breach-puzzle-box">
+                <div class="breach-hint" id="breach-hint">
+                    <strong>DEFENSE OVERRIDE:</strong> Deploy emergency microkernel bypass cipher or inject security override key (<code>AEGIS-OVERRIDE-SEC99</code>).
+                </div>
+                <div class="breach-input-row">
+                    <input type="text" id="breach-override-input" placeholder="Enter override cipher (e.g. AEGIS-OVERRIDE-SEC99)" autocomplete="off">
+                    <button type="button" class="btn-breach-fix" id="btn-breach-fix">⚡ FIX THE SYSTEM</button>
+                </div>
+            </div>
+            <div class="breach-status" id="breach-status">DEFENSE PROTOCOL ARMED. TIME IS RUNNING OUT.</div>
+        </div>
+    </div>
+
+    <!-- 3. INTERACTIVE DEFENSE & BREACH RECOVERY TUTORIAL MODAL -->
+    <div id="aegis-tutorial-overlay" class="modal-overlay hidden" aria-live="polite">
+        <div class="tutorial-window glass-panel">
+            <div class="tutorial-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">🛡️</span>
+                    <h3>TACTICAL CYBER DEFENSE & BREACH RECOVERY TUTORIAL</h3>
+                </div>
+                <button type="button" class="win-btn win-btn-close" id="btn-close-tutorial" title="Close Tutorial"></button>
+            </div>
+            <div class="tutorial-tabs">
+                <button type="button" class="tutorial-tab active" data-tab="tut-threats">1. Threat Detection</button>
+                <button type="button" class="tutorial-tab" data-tab="tut-breach">2. 30s Red Alert Lockdown</button>
+                <button type="button" class="tutorial-tab" data-tab="tut-carve">3. File Inode Carving</button>
+                <button type="button" class="tutorial-tab" data-tab="tut-rollback">4. Merkle Rollback</button>
+                <button type="button" class="tutorial-tab" data-tab="tut-tools">5. Investigation Tools</button>
+            </div>
+            <div class="tutorial-body">
+                <div class="tutorial-panel" id="tut-threats">
+                    <h4>How Adversaries Attack AegisOS</h4>
+                    <p>Adversaries deploy multi-stage attacks against the system:</p>
+                    <ul>
+                        <li><strong>Port Hijacking:</strong> Rogue daemons hijack ports (e.g. port 8443) to intercept ingress traffic. Use <em>Diagnostics & Triage</em> to kill rogue PIDs.</li>
+                        <li><strong>Capability Escalation:</strong> Signed binaries request unauthorized capabilities like <code>CAP_NET_RAW_SOCKET</code>. Use <em>Aegis Shield</em> to revoke tokens.</li>
+                        <li><strong>Ransomware Inode Corruption:</strong> Attackers corrupt file headers or encrypt vault data. Use <em>File Recovery & Hex Carver</em> to reconstruct them.</li>
+                    </ul>
+                </div>
+                <div class="tutorial-panel hidden" id="tut-breach">
+                    <h4>The 30-Second Critical Red Alert Lockdown</h4>
+                    <p>When an active emergency attack fails or a critical zero-day strikes, the system enters <strong>Critical Lockdown</strong>:</p>
+                    <div class="tutorial-alert-sample">
+                        <strong>⚠️ YOU HAVE BEEN HACKED // SYSTEM SHUTS DOWN IN 30 SECONDS</strong>
+                        <p>A flashing red screen will count down. Click <strong>[⚡ FIX THE SYSTEM]</strong> and enter the emergency override cipher: <code>AEGIS-OVERRIDE-SEC99</code> to defuse it!</p>
+                    </div>
+                    <p><strong>Warning:</strong> If the 30-second timer hits zero, all local files are wiped and you must carve and recover them from memory!</p>
+                </div>
+                <div class="tutorial-panel hidden" id="tut-carve">
+                    <h4>How to Recover & Carve Corrupted Files</h4>
+                    <p>In <strong>Files & Storage</strong>, open the <code>[🔬 File Recovery & Hex Carver]</code> tab:</p>
+                    <ul>
+                        <li>Select any corrupted file (e.g. <code>financial_audit.db.corrupt</code>).</li>
+                        <li>Inspect the raw hex bytes and check the <strong>Forensic Clue</strong>.</li>
+                        <li>Enter the repair magic header (e.g. <code>41 45 47 49</code> for AEGIS DB, or <code>7F 45 4C 46</code> for ELF drivers) or the decryption key (e.g. <code>0xAE915_KRN_SEC</code>).</li>
+                        <li>Click <strong>[Carve & Restore Inode]</strong> to restore the file cleanly!</li>
+                    </ul>
+                </div>
+                <div class="tutorial-panel hidden" id="tut-rollback">
+                    <h4>Self-Healing Merkle Rollback</h4>
+                    <p>When multiple blocks are scrambled by ransomware, open <strong>Self-Healing Filesystem</strong>:</p>
+                    <ul>
+                        <li>Click <strong>[Run Merkle Integrity Scan]</strong> to identify the diverged block.</li>
+                        <li>Click <strong>[⚡ Rollback Checkpoint]</strong> to execute an atomic sub-10 second restoration to clean baseline <code>chkpt-0001</code>.</li>
+                        <li>Or run <code>checkpoint rollback</code> in Terminal!</li>
+                    </ul>
+                </div>
+                <div class="tutorial-panel hidden" id="tut-tools">
+                    <h4>Operator Investigation Tools</h4>
+                    <ul>
+                        <li><strong>Ghost Browser:</strong> Air-gapped disposable web sandbox. All web memory is incinerated upon closing with 0x00 bytes.</li>
+                        <li><strong>Operator Case Notes:</strong> Jot down critical case IOCs, hashes, and PIDs. Click [Insert IOCs] and save directly to AegisFS.</li>
+                        <li><strong>Case Dossier (F4):</strong> Press F4 or click the Case Dossier pill to view objectives, review clues, and take on Live Drills!</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tutorial-footer">
+                <span id="tut-page-indicator">Step 1 of 5</span>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-action-small" id="btn-tut-prev" disabled>Previous</button>
+                    <button type="button" class="btn-primary" id="btn-tut-next">Next Step →</button>
+                    <button type="button" class="btn-primary-small hidden" id="btn-tut-complete">Complete Tutorial ✓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Desktop Wrapper -->
+    <div id="desktop-surface">
+        
+        <!-- Desktop App Icons (Grid) -->
+        <div id="desktop-grid">
+            <div class="desktop-icon" data-app="browser">
+                <div class="icon-badge icon-browser"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                <span class="icon-label">Ghost Browser</span>
+            </div>
+            <div class="desktop-icon" data-app="ai">
+                <div class="icon-badge icon-ai"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                <span class="icon-label">Aegis Mind AI</span>
+            </div>
+            <div class="desktop-icon" data-app="files">
+                <div class="icon-badge icon-files"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+                <span class="icon-label">Files & Storage</span>
+            </div>
+            <div class="desktop-icon" data-app="cybersec">
+                <div class="icon-badge icon-cybersec"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg></div>
+                <span class="icon-label">CyberSec Arsenal</span>
+            </div>
+            <div class="desktop-icon" data-app="terminal">
+                <div class="icon-badge"><svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+                <span class="icon-label">Terminal</span>
+            </div>
+            <div class="desktop-icon" data-app="neural">
+                <div class="icon-badge icon-neural"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-7.74 16.33L12 22l7.74-3.67A10 10 0 0 0 12 2zm0 4a6 6 0 1 1-6 6 6 6 0 0 1 6-6z"/></svg></div>
+                <span class="icon-label">Neural Monitor</span>
+            </div>
+            <div class="desktop-icon" data-app="shield">
+                <div class="icon-badge icon-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                <span class="icon-label">Aegis Shield</span>
+            </div>
+            <div class="desktop-icon" data-app="merkle">
+                <div class="icon-badge icon-merkle"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+                <span class="icon-label">Self-Healing</span>
+            </div>
+            <div class="desktop-icon" data-app="optimizer">
+                <div class="icon-badge icon-opt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 5.2-5.2 2 2-5.2z"/></svg></div>
+                <span class="icon-label">Task Optimizer</span>
+            </div>
+            <div class="desktop-icon" data-app="troubleshoot">
+                <div class="icon-badge icon-trouble"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+                <span class="icon-label">Diagnostics</span>
+            </div>
+            <div class="desktop-icon" data-app="store">
+                <div class="icon-badge icon-store"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+                <span class="icon-label">App Store</span>
+            </div>
+            <div class="desktop-icon" data-app="settings">
+                <div class="icon-badge icon-settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+                <span class="icon-label">Settings</span>
+            </div>
+                        <div class="desktop-icon" data-app="notepad">
+                <div class="icon-badge icon-notepad"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                <span class="icon-label">Case Notes</span>
+            </div>
+            <div class="desktop-icon" data-app="voice">
+                <div class="icon-badge icon-voice"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>
+                <span class="icon-label">Aegis Voice</span>
+            </div>
+        </div>
+
+
+        <!-- Windows Manager Container (Active Floating Windows) -->
+        <div id="wm-container"></div>
+
+    </div>
+
+    <!-- Universal Top HUD Bar (Aegis Hybrid & Linux Modes) -->
+    <header id="top-bar">
+        <div class="top-left">
+            <button id="btn-aegis-menu" class="glass-pill" title="Aegis System Menu">
+                <svg class="brand-crest" viewBox="0 0 100 100">
+                    <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#00f3ff"/>
+                    <path d="M50,22 L75,42 L50,72 L25,42 Z" fill="#080c14"/>
+                </svg>
+                <span class="brand-name">Aegis<b>OS</b></span>
+            </button>
+            <div class="sys-badge"><span class="badge-dot"></span> KERNEL 2.0 ALPHA</div>
+            <div class="sys-badge badge-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ZERO-TRUST ACTIVE</div>
+        </div>
+
+        <div class="top-center">
+            <button id="btn-palette" class="glass-pill search-pill" title="Press Ctrl+Space to search">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span class="search-placeholder">Type command, cybersec action, or ask AI...</span>
+                <kbd class="kbd-hint">Ctrl + Space</kbd>
+            </button>
+        </div>
+
+        <div class="top-right">
+            <!-- Layout Switcher (Core Aegis Feature) -->
+            <div class="control-group">
+                <label class="control-label">Layout:</label>
+                <select id="layout-select" class="glass-dropdown">
+                    <option value="hybrid" selected>Aegis Hybrid</option>
+                    <option value="windows">Windows Mode</option>
+                    <option value="linux">Linux Mode</option>
+                </select>
+            </div>
+
+            <!-- Theme Switcher -->
+            <div class="control-group">
+                <label class="control-label">Theme:</label>
+                <select id="theme-select" class="glass-dropdown">
+                    <option value="quantum-cyan" selected>Quantum Cyan</option>
+                    <option value="cyberpunk-amber">Cyber Amber</option>
+                    <option value="deep-space-dark">Deep Space</option>
+                    <option value="crystal-light">Crystal Light</option>
+                </select>
+            </div>
+
+            <!-- Live Telemetry Sparks -->
+            <div class="live-telemetry">
+                <div class="telemetry-item" title="CPU Core Activity">
+                    <span class="tel-label">CPU</span>
+                    <span class="tel-val" id="top-cpu">18%</span>
+                    <div class="tel-bar"><div class="tel-fill" id="top-cpu-fill" style="width: 18%;"></div></div>
+                </div>
+                <div class="telemetry-item" title="Encrypted Physical RAM">
+                    <span class="tel-label">RAM</span>
+                    <span class="tel-val" id="top-ram">34%</span>
+                    <div class="tel-bar"><div class="tel-fill" id="top-ram-fill" style="width: 34%;"></div></div>
+                </div>
+            </div>
+
+            <!-- Clock & Status -->
+            <div class="clock-display" id="hud-clock">12:00:00</div>
+        </div>
+    </header>
+
+    <!-- Floating Dynamic Dock (Hybrid Mode) / Bottom Taskbar (Windows) / Left Dash (Linux) -->
+    <nav id="aegis-dock">
+        <!-- Start / App Button (Visible in Windows/Linux mode) -->
+        <button class="dock-app-btn dock-start-btn" id="dock-start-btn" title="Start Menu">
+            <svg class="brand-crest" viewBox="0 0 100 100">
+                <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#00f3ff"/>
+                <path d="M50,22 L75,42 L50,72 L25,42 Z" fill="#080c14"/>
+            </svg>
+        </button>
+
+        <div class="dock-apps">
+            <!-- Ghost Browser (Air-Gapped Disposable Sandbox) -->
+            <button class="dock-app-btn" data-app="browser" title="Quantum Ghost Browser (Air-Gapped Disposable Web Sandbox)">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- AI Assistant (Premier) -->
+            <button class="dock-app-btn dock-ai-btn" data-app="ai" title="Aegis Mind AI Controller">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Files & Storage Manager -->
+            <button class="dock-app-btn" data-app="files" title="AegisFS Cryptographic Files & Tiered Storage">
+                <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Cybersecurity Arsenal -->
+            <button class="dock-app-btn" data-app="cybersec" title="Cybersecurity Arsenal (DPI, Vulnerabilities, Sandbox)">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Terminal -->
+            <button class="dock-app-btn" data-app="terminal" title="Aegis Shell & Terminal">
+                <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Neural Monitor -->
+            <button class="dock-app-btn" data-app="neural" title="Neural Activity Monitor">
+                <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-7.74 16.33L12 22l7.74-3.67A10 10 0 0 0 12 2zm0 4a6 6 0 1 1-6 6 6 6 0 0 1 6-6z"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Aegis Shield -->
+            <button class="dock-app-btn" data-app="shield" title="Aegis Shield Firewall & Zero-Trust">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Merkle Self-Healing -->
+            <button class="dock-app-btn" data-app="merkle" title="Self-Healing Merkle Filesystem & Rollback">
+                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Task Optimizer -->
+            <button class="dock-app-btn" data-app="optimizer" title="Task Optimizer Engine">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 5.2-5.2 2 2-5.2z"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Troubleshooter -->
+            <button class="dock-app-btn" data-app="troubleshoot" title="System Diagnostic Scanner">
+                <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+            <!-- Settings -->
+            <button class="dock-app-btn" data-app="settings" title="Settings Center">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+        </div>
+
+        <div class="dock-divider"></div>
+
+                    <!-- Operator Case Notepad -->
+            <button class="dock-app-btn" data-app="notepad" title="Operator Case Notes & Dossier Journal">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span class="dock-dot"></span>
+            </button>
+        <button class="dock-app-btn" data-app="voice" title="Aegis Voice Assistant">
+            <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+        </button>
+
+        <!-- Windows System Tray (Active in Windows mode) -->
+        <div id="windows-systray" class="systray-container">
+            <span class="tray-icon" title="Aegis Guard Active"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+            <span class="tray-icon" title="Zero-Trust Enforced"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <span class="tray-time" id="tray-clock">12:00</span>
+        </div>
+    </nav>
+
+    <!-- Global Command Palette Modal (Ctrl+Space) -->
+    <div id="palette-overlay" class="modal-overlay hidden">
+        <div class="palette-window glass-panel">
+            <div class="palette-search-row">
+                <svg viewBox="0 0 24 24" class="search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="palette-input" placeholder="Type a command, app, or system setting..." autocomplete="off">
+                <kbd class="kbd-esc">ESC</kbd>
+            </div>
+            <div class="palette-results" id="palette-results">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="palette-footer">
+                <span>Navigate <kbd>↑</kbd> <kbd>↓</kbd></span>
+                <span>Execute <kbd>ENTER</kbd></span>
+                <span>AegisOS Fuzzy Search v2.0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Menu / App Launcher Drawer -->
+    <div id="start-menu" class="glass-panel hidden">
+        <div class="start-header">
+            <div class="user-avatar">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="user-info">
+                <div class="user-name">Root Administrator</div>
+                <div class="user-role">Zero-Trust Ring 0 Authority</div>
+            </div>
+            <button class="btn-lock" title="Lock Session"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
+        </div>
+        <div class="start-section-title">CORE APPLICATIONS</div>
+        <div class="start-app-grid">
+            <div class="start-item" data-app="browser">
+                <div class="start-icon" style="color: #00f3ff;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                <span>Ghost Browser</span>
+            </div>
+            <div class="start-item" data-app="ai">
+                <div class="start-icon" style="color: #ffaa00;"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                <span>Aegis Mind AI</span>
+            </div>
+            <div class="start-item" data-app="files">
+                <div class="start-icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+                <span>Files & Storage</span>
+            </div>
+            <div class="start-item" data-app="cybersec">
+                <div class="start-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg></div>
+                <span>CyberSec Arsenal</span>
+            </div>
+            <div class="start-item" data-app="terminal">
+                <div class="start-icon"><svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+                <span>Terminal</span>
+            </div>
+            <div class="start-item" data-app="neural">
+                <div class="start-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-7.74 16.33L12 22l7.74-3.67A10 10 0 0 0 12 2zm0 4a6 6 0 1 1-6 6 6 6 0 0 1 6-6z"/></svg></div>
+                <span>Neural Telemetry</span>
+            </div>
+            <div class="start-item" data-app="shield">
+                <div class="start-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                <span>Aegis Shield</span>
+            </div>
+            <div class="start-item" data-app="merkle">
+                <div class="start-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+                <span>Self-Healing FS</span>
+            </div>
+            <div class="start-item" data-app="optimizer">
+                <div class="start-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2 5.2-5.2 2 2-5.2z"/></svg></div>
+                <span>Task Optimizer</span>
+            </div>
+            <div class="start-item" data-app="troubleshoot">
+                <div class="start-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+                <span>Diagnostics</span>
+            </div>
+        </div>
+        <div class="start-footer">
+            <div class="quick-status"><span class="badge-dot pulse-green"></span> System Operational</div>
+            <button id="btn-run-demo" class="btn-primary-small">Run Architecture Demo</button>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- ============================================================== -->
+    <!-- INTERACTIVE APP TEMPLATES (Cloned dynamically by WM)            -->
+    <!-- ============================================================== -->
+
+    <!-- 0. QUANTUM GHOST BROWSER: VIRTUAL DISPOSABLE AIR-GAPPED WEB BROWSER -->
+    <template id="tmpl-browser">
+        <div class="app-browser">
+            <!-- Browser Controls & Omnibox Bar -->
+            <div class="browser-nav-bar">
+                <div class="browser-nav-btns">
+                    <button class="nav-btn" id="btn-browser-back" title="Back"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+                    <button class="nav-btn" id="btn-browser-forward" title="Forward"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    <button class="nav-btn" id="btn-browser-reload" title="Reload RAM Container"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+                    <button class="nav-btn" id="btn-browser-home" title="Disposable Home"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
+                </div>
+
+                <div class="browser-omnibox-wrapper">
+                    <div class="omnibox-ssl" title="Cryptographically Air-Gapped Microkernel Sandbox">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span>SANDBOXED</span>
+                    </div>
+                    <input type="text" id="browser-url-input" class="browser-omnibox" placeholder="Enter URL or search DuckDuckGo (e.g. duckduckgo.com, wikipedia.org)..." value="https://duckduckgo.com">
+                    <button class="btn-browser-go" id="btn-browser-go">Navigate</button>
+                </div>
+
+                <div class="browser-actions">
+                    <button class="btn-browser-action btn-save-bookmark" id="btn-browser-bookmark" title="Save Bookmark to Host Vault (/vault/browser_data/)">
+                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span>Save to Host</span>
+                    </button>
+                    <button class="btn-browser-action btn-shred-container" id="btn-browser-shred" title="Shred Ephemeral RAM Container (3-Pass 0x00 Wipe)">
+                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        <span>Shred Container</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ephemeral Micro-VM Status Banner -->
+            <div class="browser-security-banner">
+                <div class="sec-badge-row">
+                    <span class="browser-badge badge-container-id" id="browser-container-badge">MICRO-VM: INITIALIZING...</span>
+                    <span class="browser-badge badge-ram-airgap" id="browser-ram-badge">RAM-ISOLATED (128 MB VIRTUAL MEMORY)</span>
+                    <span class="browser-badge badge-zero-trust" id="browser-airgap-badge">ZERO-TRUST AIRGAP ACTIVE</span>
+                </div>
+                <div class="sec-banner-text">
+                    <strong>Ephemeral Container Isolation:</strong> All web requests, cookies, DOM trees, and scripts run strictly in volatile virtual RAM. When closed or shredded, the virtual browser is incinerated with 0x00 bytes. Your host filesystem and real browser remain 100% invisible to outsiders.
+                </div>
+            </div>
+
+            <!-- Persistent Bookmarks Strip (Stored on Host Vault) -->
+            <div class="browser-bookmarks-strip">
+                <span class="bookmark-label"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> HOST VAULT BOOKMARKS:</span>
+                <div class="bookmark-items" id="browser-bookmarks-list">
+                    <!-- Populated dynamically from /vault/browser_data/ -->
+                </div>
+            </div>
+
+            <!-- Live Threat Quarantine Bar -->
+            <div class="browser-telemetry-strip">
+                <div class="tel-tag"><span class="badge-dot pulse-green"></span> HOST LEAKS: <b>0 (BLOCKED)</b></div>
+                <div class="tel-tag">COOKIES QUARANTINED: <b id="browser-cookies-count">14</b></div>
+                <div class="tel-tag">TRACKERS ISOLATED: <b id="browser-trackers-count">31</b></div>
+                <div class="tel-tag">SCRIPTS SCRUBBED: <b id="browser-scripts-count">6</b></div>
+                <div class="tel-tag" style="margin-left: auto;">CIPHER: <b>XTS-AES-256 AIRGAP</b></div>
+            </div>
+
+            <!-- Sandboxed Browser Viewport -->
+            <div class="browser-viewport-container">
+                <iframe id="browser-viewport-frame" class="browser-viewport-frame" sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals" src="https://duckduckgo.com"></iframe>
+                <div id="browser-fallback-page" class="browser-fallback-page hidden">
+                    <div class="fallback-hero">
+                        <div class="fallback-crest">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        </div>
+                        <h2>Quantum Ghost Air-Gapped Portal</h2>
+                        <p class="text-muted" style="max-width: 600px; margin: 0 auto 16px;">This virtual browser session is running inside Microkernel Sandboxed Ring 3. External websites cannot detect your host identity, IP addresses, or local drives.</p>
+                        <div class="fallback-search-box">
+                            <input type="text" id="fallback-search-input" placeholder="Search the internet securely...">
+                            <button class="btn-primary" id="btn-fallback-search">Search via Ephemeral Proxy</button>
+                        </div>
+                        <div class="fallback-quicklinks">
+                            <button class="quicklink-btn" data-url="https://duckduckgo.com">DuckDuckGo Search</button>
+                            <button class="quicklink-btn" data-url="https://en.wikipedia.org">Wikipedia</button>
+                            <button class="quicklink-btn" data-url="https://kernel.org">Linux Kernel Archives</button>
+                            <button class="quicklink-btn" data-url="https://cve.mitre.org">CVE Vulnerability DB</button>
+                            <button class="quicklink-btn" data-url="https://news.ycombinator.com">Hacker News</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 1. AGENTIC AI ASSISTANT: "AEGIS MIND" -->
+    <template id="tmpl-ai">
+        <div class="app-ai">
+            <div class="ai-header">
+                <div class="ai-avatar-core">
+                    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <div class="ai-header-info">
+                    <div class="ai-name">Aegis Mind <span>v2.0 Autonomous Controller</span></div>
+                    <div class="ai-desc">Empowered with full Ring-0 system authority: executes multi-step workflows, manages tiered storage, orchestrates cybersecurity tools, and tunes scheduler heuristics.</div>
+                </div>
+                <div class="ai-status-pill">● ACTIVE & LISTENING</div>
+            </div>
+
+            <!-- Quick Action Pills -->
+            <div class="ai-quick-pills">
+                <button class="ai-pill" data-prompt="Optimize storage and clean duplicate blocks">⚡ Optimize Tiered Storage & TRIM</button>
+                <button class="ai-pill" data-prompt="Run comprehensive security vulnerability audit">🛡️ Full Cybersecurity Audit</button>
+                <button class="ai-pill" data-prompt="Activate Game Mode for maximum CPU and GPU boost">🚀 Boost Game Mode</button>
+                <button class="ai-pill" data-prompt="Simulate ransomware attack and heal with 10s rollback">☣️ Simulate Ransomware & Heal</button>
+                <button class="ai-pill" data-prompt="Encrypt sensitive data vault with AES-256">🔐 Encrypt Data Vault</button>
+            </div>
+
+            <!-- Chat / Execution History -->
+            <div class="ai-chat-box" id="ai-chat-stream">
+                <div class="ai-msg ai-msg-bot">
+                    <div class="msg-bubble">
+                        Greetings, Administrator. I am <strong>Aegis Mind</strong>, your autonomous operating system copilot. 
+                        Give me any high-level objective — whether it is storage optimization, threat hunting, kernel tuning, or file encryption — and I will autonomously plan and execute it across all AegisOS subsystems.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Row -->
+            <div class="ai-input-bar">
+                <input type="text" class="ai-text-input" id="ai-user-input" placeholder="Tell Aegis Mind to perform any work (e.g., 'Harden system security and optimize SSD storage')...">
+                <button class="btn-primary" id="btn-ai-send">
+                    <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Execute Work
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <!-- 2. FILE MANAGEMENT & TIERED STORAGE OPTIMIZER -->
+    <template id="tmpl-files">
+        <div class="app-files">
+            <div class="files-header-stats">
+                <div class="stat-card">
+                    <div class="stat-title">Total Tiered Capacity</div>
+                    <div class="stat-value" id="storage-total-val">2.56 TB</div>
+                    <div class="stat-sub">785.4 GB Used | 1.77 TB Free</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Deduplication Savings</div>
+                    <div class="stat-value color-green" id="storage-dedup-val">48.2 GB</div>
+                    <div class="stat-sub">1.28x Deduplication Ratio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">ZSTD/LZ4 Compression</div>
+                    <div class="stat-value" id="storage-comp-val">2.35x</div>
+                    <div class="stat-sub">Saved 64.5 GB Physical Space</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">NVMe SSD Health</div>
+                    <div class="stat-value color-green" id="storage-health-val">99.4%</div>
+                    <div class="stat-sub">TRIM Active | Low Wear</div>
+                </div>
+            </div>
+
+            <div class="shield-tabs">
+                <button class="tab-btn active" data-tab="tab-file-browser">AegisFS File Browser</button>
+                <button class="tab-btn" data-tab="tab-tier-storage">Tiered Storage Hierarchy</button>
+            </div>
+
+            <!-- Tab 1: File Browser -->
+            <div class="tab-content" id="tab-file-browser">
+                <div class="files-action-bar">
+                    <div class="store-search-bar" style="width: 280px;">
+                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="files-search-input" placeholder="Filter files by path or hash...">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-action-small" id="btn-create-file-modal">+ Create New File</button>
+                        <button class="btn-action-small" id="btn-refresh-files">↻ Refresh Inodes</button>
+                    </div>
+                </div>
+
+                <table class="aegis-table" style="margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th>Name / Inode</th>
+                            <th>Size</th>
+                            <th>Ring Level</th>
+                            <th>Permissions</th>
+                            <th>AES-256 Encryption</th>
+                            <th>SHA-256 Merkle Hash</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="files-table-body">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+
+                <!-- Integrated Aegis Code & Text File Editor -->
+                <div class="file-editor-panel hidden" id="file-editor-panel">
+                    <div class="editor-header">
+                        <div class="editor-title-group">
+                            <span class="editor-badge" id="editor-mode-badge">EDITING INODE</span>
+                            <input type="text" class="editor-path-input" id="editor-file-path" placeholder="/userland/data/filename.txt">
+                        </div>
+                        <div class="editor-actions">
+                            <label class="editor-enc-toggle">
+                                <input type="checkbox" id="editor-enc-check">
+                                <span>AES-256 Encrypted</span>
+                            </label>
+                            <button class="btn-primary-small" id="btn-save-file-editor">
+                                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#000;fill:none;stroke-width:2;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Save to AegisFS
+                            </button>
+                            <button class="btn-action-small" id="btn-close-file-editor">✖ Close Editor</button>
+                        </div>
+                    </div>
+                    <div class="editor-body">
+                        <div class="editor-line-numbers" id="editor-line-numbers">1</div>
+                        <textarea class="editor-textarea" id="editor-textarea" placeholder="Type or paste document / code payload here..." spellcheck="false"></textarea>
+                    </div>
+                    <div class="editor-footer">
+                        <span id="editor-stats">Lines: 1 | Characters: 0 | Size: 0 KB</span>
+                        <span id="editor-hash" style="color: var(--accent); font-family: var(--font-mono); font-size: 10px;">Merkle Leaf: Pending Save</span>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- Tab 2: File Recovery & Hex Carver -->
+            <div class="tab-content hidden" id="tab-file-recovery">
+                <div class="recovery-hero-bar">
+                    <div>
+                        <strong>Cryptographic File Carver & Inode Reconstructor:</strong>
+                        <div class="text-muted" style="font-size: 11px;">Recover ransomware-encrypted assets, repair corrupt file magic headers, and reconstruct damaged Merkle block leaves.</div>
+                    </div>
+                    <button class="btn-action-small" id="btn-refresh-recovery">↻ Refresh Corrupted Manifest</button>
+                </div>
+
+                <div class="recovery-layout">
+                    <div class="recovery-sidebar">
+                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">DAMAGED INODES:</div>
+                        <div class="recovery-item-list" id="recovery-item-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="recovery-workbench" id="recovery-workbench">
+                        <div class="workbench-empty" id="workbench-empty">Select a damaged file from the sidebar to inspect raw hex dump and carve the inode.</div>
+                        <div class="workbench-content hidden" id="workbench-content">
+                            <div class="workbench-header">
+                                <div>
+                                    <h3 id="carve-file-name" style="margin: 0; color: var(--accent);">filename.ext</h3>
+                                    <div id="carve-file-damage" class="damage-badge">HEADER_CORRUPTED</div>
+                                </div>
+                                <span class="status-pill pill-blocked" id="carve-file-status">UNRECOVERED</span>
+                            </div>
+
+                            <div class="hex-viewer-box">
+                                <div class="hex-viewer-title">RAW HEX & ASCII DUMP (OFFSET 0x00000000)</div>
+                                <div class="hex-dump-columns">
+                                    <div class="hex-col-offset" id="hex-dump-offset">00000000:</div>
+                                    <div class="hex-col-bytes" id="hex-dump-bytes">00 00 00 00 32 30 32 36 ...</div>
+                                    <div class="hex-col-ascii" id="hex-dump-ascii">....2026</div>
+                                </div>
+                            </div>
+
+                            <div class="carve-forensic-hint" id="carve-forensic-hint">
+                                <strong>Forensic Clue:</strong> <span>...</span>
+                            </div>
+
+                            <div class="carve-action-row">
+                                <div class="carve-input-group">
+                                    <label for="carve-hex-input">Enter Magic Bytes (Hex) or Decryption Key:</label>
+                                    <input type="text" id="carve-hex-input" class="editor-path-input" placeholder="e.g. 41 45 47 49 or 0xAE915_KRN_SEC">
+                                </div>
+                                <button class="btn-primary" id="btn-execute-carve">
+                                    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    Carve & Restore Inode
+                                </button>
+                            </div>
+
+                            <div class="recovery-result-box hidden" id="recovery-result-box"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Tiered Storage Hierarchy & TRIM -->
+            <div class="tab-content hidden" id="tab-tier-storage">
+                <div class="tier-action-bar">
+                    <div>
+                        <strong>Hierarchical Auto-Tiering Engine:</strong> Automatically promotes active blocks to L1 RAM / NVMe, demoting cold snapshots to SATA TLC storage.
+                    </div>
+                    <button class="btn-primary" id="btn-run-trim-optimize">
+                        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        Run Deduplication & TRIM Optimizer
+                    </button>
+                </div>
+
+                <div class="tiers-grid" id="storage-tiers-container">
+                    <!-- Storage tier cards -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 3. CYBERSECURITY ARSENAL -->
+    <template id="tmpl-cybersec">
+        <div class="app-cybersec">
+            <div class="cybersec-header">
+                <div>
+                    <h2>Aegis Cybersecurity Arsenal</h2>
+                    <p class="text-muted">Industrial-grade defensive security: Deep Packet Inspection, CVE Vulnerability Hunter, Ring-3 Malware Sandbox, and Zero-Trust Tokens.</p>
+                </div>
+                <div class="security-score-badge">
+                    <span class="score-num">98/100</span>
+                    <span class="score-label">DEFENSE RATING</span>
+                </div>
+            </div>
+
+            <div class="shield-tabs">
+                <button class="tab-btn active" data-tab="tab-dpi-sniffer">Deep Packet Inspector (DPI)</button>
+                <button class="tab-btn" data-tab="tab-vuln-scan">Vulnerability Hunter</button>
+                <button class="tab-btn" data-tab="tab-malware-sandbox">AI Threat Sandbox</button>
+                <button class="tab-btn" data-tab="tab-zt-tokens">Zero-Trust Tokens</button>
+            </div>
+
+            <!-- Tab 1: Deep Packet Inspector (DPI) -->
+            <div class="tab-content" id="tab-dpi-sniffer">
+                <div class="dpi-controls">
+                    <span style="font-size: 11px; font-weight: 600; color: var(--text-muted);">LIVE HARDWARE TAP: <span style="color: var(--status-ok);">SNIFFING ENCRYPTED FRAMES</span></span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-action-small" id="btn-toggle-sniffer">Pause Sniffer</button>
+                        <button class="btn-action-small" id="btn-clear-sniffer">Clear Stream</button>
+                    </div>
+                </div>
+                <div class="dpi-feed-box" id="dpi-feed-list">
+                    <!-- Packets injected here -->
+                </div>
+            </div>
+
+            <!-- Tab 2: Vulnerability Scanner -->
+            <div class="tab-content hidden" id="tab-vuln-scan">
+                <div class="vuln-top">
+                    <div>
+                        <strong>Kernel ASLR, Canaries & Syscall Surface Verification</strong>
+                        <div class="text-muted" style="font-size: 11px;">Scans microkernel memory boundaries, driver IOCTL gates, and compiler mitigation flags.</div>
+                    </div>
+                    <button class="btn-primary" id="btn-run-vuln-scan">Run Vulnerability Assessment</button>
+                </div>
+                <div class="diag-list" id="vuln-results-list" style="margin-top: 14px;">
+                    <!-- Vulnerability points -->
+                </div>
+            </div>
+
+            <!-- Tab 3: Malware Sandbox Detonator -->
+            <div class="tab-content hidden" id="tab-malware-sandbox">
+                <div class="sandbox-hero">
+                    <div class="sandbox-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; font-size: 13px;">Microkernel Ring-3 Isolated Detonation Chamber</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Execute suspicious binaries in an isolated hardware memory sandbox. Zero syscall access permitted to real filesystem.</div>
+                    </div>
+                    <select id="sandbox-sample-select" class="glass-dropdown">
+                        <option value="ransom_injector.bin">Sample: ransom_injector.bin</option>
+                        <option value="mem_escalate_poc">Sample: mem_escalate_poc</option>
+                        <option value="nop_sled_shellcode.raw">Sample: nop_sled_shellcode.raw</option>
+                    </select>
+                    <button class="btn-danger" id="btn-detonate-sample">Detonate in Sandbox</button>
+                </div>
+
+                <div class="sandbox-report-box" id="sandbox-report">
+                    <div class="text-muted" style="text-align: center; padding: 20px; font-size: 12px;">Select a sample payload and click 'Detonate in Sandbox' to inspect real-time heuristic disassembly and tripwires.</div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Zero-Trust Token Broker -->
+            <div class="tab-content hidden" id="tab-zt-tokens">
+                <div class="zt-token-header">
+                    <div>
+                        <strong>Ephemeral Capability Token Generator</strong>
+                        <div class="text-muted" style="font-size: 11px;">Issue cryptographically signed tokens with strict Time-To-Live (TTL) for device hardware access.</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="zt-subject-input" placeholder="Subject (e.g. aegis_app)" class="glass-dropdown" style="width: 150px;">
+                        <select id="zt-cap-select" class="glass-dropdown">
+                            <option value="CAP_NET_RAW_SOCKET">CAP_NET_RAW_SOCKET</option>
+                            <option value="CAP_STORAGE_ADMIN">CAP_STORAGE_ADMIN</option>
+                            <option value="CAP_FRAMEBUFFER_WRITE">CAP_FRAMEBUFFER_WRITE</option>
+                            <option value="CAP_MIC_CAPTURE">CAP_MIC_CAPTURE</option>
+                        </select>
+                        <button class="btn-primary" id="btn-issue-zt-token">Issue Token</button>
+                    </div>
+                </div>
+
+                <table class="aegis-table" style="margin-top: 14px;">
+                    <thead>
+                        <tr>
+                            <th>Token ID</th>
+                            <th>Subject Process</th>
+                            <th>Granted Capability</th>
+                            <th>TTL Expiry</th>
+                            <th>Gate State</th>
+                        </tr>
+                    </thead>
+                    <tbody id="zt-tokens-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <!-- EXISTING APPS -->
+    <template id="tmpl-terminal">
+        <div class="app-terminal">
+            <div class="terminal-screen" id="term-screen">
+                <div class="term-banner">
+========================================================================
+   *   AEGIS OS - HYBRID SECURE INTELLIGENCE OPERATING SYSTEM   *
+   *   Kernel v2.0-Alpha | Dual-Kernel Hybrid | AI Self-Healing  *
+========================================================================
+   [Linux-level Stability] [Windows-level UI/UX] [AI Self-Protection]
+   Type 'help' for command list, or try 'shield', 'storage', 'ai <task>'.
+                </div>
+                <div class="term-history" id="term-history"></div>
+                <div class="term-prompt-line">
+                    <span class="prompt-prefix">aegis@kernel-ring0:~$</span>
+                    <input type="text" class="term-input" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-neural">
+        <div class="app-neural">
+            <div class="neural-header-stats">
+                <div class="stat-card">
+                    <div class="stat-title">CPU Telemetry</div>
+                    <div class="stat-value" id="neu-cpu-val">18.4%</div>
+                    <div class="stat-sub">8 Cores CFS Active</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Memory Allocation</div>
+                    <div class="stat-value" id="neu-mem-val">5.6 / 16 GB</div>
+                    <div class="stat-sub">ASLR Page Encryption ON</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">System Entropy</div>
+                    <div class="stat-value" id="neu-entropy-val">0.91</div>
+                    <div class="stat-sub">High Cryptographic State</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Threat Rating</div>
+                    <div class="stat-value color-green" id="neu-threat-val">SECURE</div>
+                    <div class="stat-sub">Zero-Trust Ring 3 Gate</div>
+                </div>
+            </div>
+
+            <div class="neural-canvas-container">
+                <div class="canvas-label">REAL-TIME THREAD ENTROPY & SYSTEM SINE WAVEFORM</div>
+                <canvas id="neural-wave-canvas" width="800" height="180"></canvas>
+            </div>
+
+            <div class="neural-stream-section">
+                <div class="section-title">LIVE KERNEL TELEMETRY RING BUFFER</div>
+                <div class="neural-events-table" id="neural-events-list">
+                    <!-- Stream items inserted here -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-shield">
+        <div class="app-shield">
+            <div class="shield-summary-grid">
+                <div class="shield-status-box">
+                    <div class="shield-badge-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <div>
+                        <div class="shield-status-heading">Aegis Shield Firewall</div>
+                        <div class="shield-status-desc">Stateful Packet Inspection & Zero-Day Heuristics ACTIVE</div>
+                    </div>
+                    <button class="btn-action-small" id="btn-scan-guard">Run AI Guard Scan</button>
+                </div>
+            </div>
+
+            <div class="shield-tabs">
+                <button class="tab-btn active" data-tab="tab-firewall">Firewall Rules</button>
+                <button class="tab-btn" data-tab="tab-zerotrust">Zero-Trust Policies</button>
+                <button class="tab-btn" data-tab="tab-packets">Live Packet Monitor</button>
+                <button class="tab-btn" data-tab="tab-quarantine">Threat Vault (<span id="vault-count">3</span>)</button>
+            </div>
+
+            <div class="tab-content" id="tab-firewall">
+                <table class="aegis-table">
+                    <thead>
+                        <tr>
+                            <th>Rule Name</th>
+                            <th>Protocol</th>
+                            <th>Port</th>
+                            <th>Direction</th>
+                            <th>Action</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="firewall-rules-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content hidden" id="tab-zerotrust">
+                <div class="zerotrust-banner">
+                    <div class="zt-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                    <div>
+                        <strong>Default-Deny Microkernel Gate:</strong> Every driver and userland binary requires signed ephemeral capability tokens before accessing network sockets, camera, or raw disk sectors.
+                    </div>
+                </div>
+                <div class="zt-policy-list" id="zt-policy-items">
+                    <div class="zt-item">
+                        <div>
+                            <strong>Audio / Microphone Access</strong>
+                            <div class="zt-desc">Requires user biometric or explicit token grant</div>
+                        </div>
+                        <span class="status-pill pill-restricted">PROMPT ON ACCESS</span>
+                    </div>
+                    <div class="zt-item">
+                        <div>
+                            <strong>Direct Memory Access (DMA)</strong>
+                            <div class="zt-desc">Hardware IOMMU isolation, Ring 3 drivers restricted</div>
+                        </div>
+                        <span class="status-pill pill-secure">ENFORCED</span>
+                    </div>
+                    <div class="zt-item">
+                        <div>
+                            <strong>Raw Socket Creation (AF_PACKET)</strong>
+                            <div class="zt-desc">Restricted to `aegis_shield_daemon` (PID 8) only</div>
+                        </div>
+                        <span class="status-pill pill-secure">ENFORCED</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="tab-packets">
+                <div class="packet-feed" id="packet-feed-list">
+                    <!-- Live packets stream -->
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="tab-quarantine">
+                <div class="quarantine-list" id="quarantine-items">
+                    <!-- Quarantined threats -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-merkle">
+        <div class="app-merkle">
+            <div class="merkle-hero">
+                <div>
+                    <div class="merkle-title">Cryptographic Merkle Tree & Self-Healing Engine</div>
+                    <div class="merkle-desc">Real-time SHA-256 block hash verification with Sub-10-Second Atomic Rollback</div>
+                </div>
+                <div class="merkle-actions">
+                    <button class="btn-danger" id="btn-corrupt-merkle">
+                        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Simulate Ransomware Attack
+                    </button>
+                    <button class="btn-success" id="btn-rollback-merkle">
+                        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+                        Execute 10s Atomic Rollback
+                    </button>
+                </div>
+            </div>
+
+            <!-- Merkle Tree Status Card -->
+            <div class="merkle-status-card" id="merkle-status-card">
+                <div class="status-indicator-ring green" id="merkle-indicator"></div>
+                <div class="merkle-status-text">
+                    <div class="status-label" id="merkle-status-label">MERKLE ROOT STATUS: INTEGRITY VERIFIED</div>
+                    <div class="status-root-hash" id="merkle-root-hash">Root: 0x8f4d92a15c8e43f07a1b3d5c9e2a7b6f4c8d1e3a5b7c9d0e1f2a3b4c5d6e7f8</div>
+                </div>
+            </div>
+
+            <!-- Rollback Timer Overlay -->
+            <div id="rollback-timer-box" class="rollback-timer-box hidden">
+                <div class="timer-countdown" id="rollback-timer-val">01.42s</div>
+                <div class="timer-desc">ATOMIC ROLLBACK IN PROGRESS... Re-pointing cryptographic root inode...</div>
+                <div class="timer-bar"><div class="timer-bar-fill" id="rollback-bar-fill"></div></div>
+            </div>
+
+            <!-- Visual Block Tree -->
+            <div class="section-title">FILESYSTEM ALLOCATION BLOCKS</div>
+            <div class="merkle-blocks-grid" id="merkle-blocks-container">
+                <!-- Blocks rendered here -->
+            </div>
+
+            <div class="section-title" style="margin-top: 18px;">BOOTABLE SYSTEM SNAPSHOTS</div>
+            <div class="snapshots-list" id="snapshots-list">
+                <!-- Snapshots rendered here -->
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-optimizer">
+        <div class="app-optimizer">
+            <div class="opt-header">
+                <div>
+                    <h2>Aegis Dynamic Task Optimizer</h2>
+                    <p class="text-muted">Adaptive scheduler kernel heuristics automatically fine-tune core clocks, GPU pipelines, and thread priorities based on current workload.</p>
+                </div>
+                <div class="current-mode-badge" id="opt-current-badge">MODE: WORK (BALANCED)</div>
+            </div>
+
+            <div class="opt-mode-cards">
+                <div class="mode-card" data-mode="GAME">
+                    <div class="card-icon icon-game"><svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg></div>
+                    <h3>Game Mode</h3>
+                    <p>+25% CPU Priority, +30% GPU Clock Boost. Background indexing paused. Ultra-low 1.2ms audio latency.</p>
+                    <button class="btn-opt-select" data-mode="GAME">Activate Game Mode</button>
+                </div>
+                <div class="mode-card active" data-mode="WORK">
+                    <div class="card-icon icon-work"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+                    <h3>Work Mode</h3>
+                    <p>Balanced multitasking, CFS scheduler optimizes foreground office and coding IDE responsiveness.</p>
+                    <button class="btn-opt-select" data-mode="WORK">Activate Work Mode</button>
+                </div>
+                <div class="mode-card" data-mode="STREAMING">
+                    <div class="card-icon icon-stream"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg></div>
+                    <h3>Streaming Mode</h3>
+                    <p>Hardware NVENC/VCE encoding isolation, dedicated network QoS packet queue to prevent frame drops.</p>
+                    <button class="btn-opt-select" data-mode="STREAMING">Activate Streaming</button>
+                </div>
+                <div class="mode-card" data-mode="ECO">
+                    <div class="card-icon icon-eco"><svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div>
+                    <h3>Eco / Low-Power</h3>
+                    <p>Limits CPU envelope to 9W TDP. Aggressive page compaction, max battery preservation.</p>
+                    <button class="btn-opt-select" data-mode="ECO">Activate Eco Mode</button>
+                </div>
+            </div>
+
+            <div class="opt-metrics-grid">
+                <div class="metric-gauge">
+                    <div class="metric-title">Effective CPU Frequency</div>
+                    <div class="metric-val" id="metric-cpu-freq">3.85 GHz</div>
+                    <div class="metric-slider-track"><div class="metric-slider-fill" id="fill-cpu-freq" style="width: 75%;"></div></div>
+                </div>
+                <div class="metric-gauge">
+                    <div class="metric-title">GPU Dynamic Boost</div>
+                    <div class="metric-val" id="metric-gpu-val">+0% (Standard)</div>
+                    <div class="metric-slider-track"><div class="metric-slider-fill" id="fill-gpu-freq" style="width: 50%;"></div></div>
+                </div>
+                <div class="metric-gauge">
+                    <div class="metric-title">Thermal Package Power</div>
+                    <div class="metric-val" id="metric-tdp-val">28 Watts</div>
+                    <div class="metric-slider-track"><div class="metric-slider-fill" id="fill-tdp-freq" style="width: 45%;"></div></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-troubleshoot">
+        <div class="app-troubleshoot">
+            <div class="trouble-header">
+                <div>
+                    <h2>Aegis 7-Point Automated Diagnostics</h2>
+                    <p class="text-muted">Comprehensive self-check across kernel memory, Zero-Trust gates, drivers, Merkle integrity, and network shields.</p>
+                </div>
+                <button class="btn-primary" id="btn-run-diagnostics">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Run Full System Scan
+                </button>
+            </div>
+
+            <div class="diag-list" id="diag-list-items">
+                <!-- Diagnostic tests inserted here -->
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-store">
+        <div class="app-store">
+            <div class="store-header">
+                <div class="store-search-bar">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="Search verified AegisOS applications..." id="store-search">
+                </div>
+                <div class="store-filter-tags">
+                    <button class="tag-btn active">All</button>
+                    <button class="tag-btn">Security</button>
+                    <button class="tag-btn">Developer</button>
+                    <button class="tag-btn">Utilities</button>
+                </div>
+            </div>
+
+            <div class="app-catalog-grid" id="store-catalog">
+                <!-- App cards -->
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-settings">
+        <div class="app-settings">
+            <div class="settings-sidebar">
+                <button class="settings-nav-btn active" data-tab="set-kernel">Microkernel & ASLR</button>
+                <button class="settings-nav-btn" data-tab="set-appearance">Display & Layout</button>
+                <button class="settings-nav-btn" data-tab="set-security">Zero-Trust Security</button>
+                <button class="settings-nav-btn" data-tab="set-about">About AegisOS</button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-panel active" id="set-kernel">
+                    <h3>Kernel Core Settings</h3>
+                    <div class="setting-row">
+                        <div>
+                            <strong>64-bit Address Space Layout Randomization (ASLR)</strong>
+                            <div class="text-muted">Protects kernel, stack, and heap against buffer overflow exploits</div>
+                        </div>
+                        <input type="checkbox" checked class="aegis-switch">
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <strong>Driver Ring 3 Microkernel Isolation</strong>
+                            <div class="text-muted">Crashes in audio/GPU drivers will restart automatically without BSOD/Kernel Panic</div>
+                        </div>
+                        <input type="checkbox" checked class="aegis-switch">
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <strong>Completely Fair Scheduler Adaptive Affinity</strong>
+                            <div class="text-muted">Dynamic thread balancing between performance and efficiency cores</div>
+                        </div>
+                        <input type="checkbox" checked class="aegis-switch">
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" id="set-appearance">
+                    <h3>Adaptive UI Configuration</h3>
+                    <div class="setting-row">
+                        <div>
+                            <strong>Desktop Paradigm</strong>
+                            <div class="text-muted">Choose your preferred user interface layout</div>
+                        </div>
+                        <select id="settings-layout-select" class="glass-dropdown">
+                            <option value="hybrid">Aegis Hybrid (Floating Dock + Top HUD)</option>
+                            <option value="windows">Windows Mode (Bottom Taskbar + Start Menu)</option>
+                            <option value="linux">Linux Mode (Universal Top Bar + Dash)</option>
+                        </select>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <strong>Color Theme</strong>
+                            <div class="text-muted">Adaptive high-contrast glassmorphic neon theme</div>
+                        </div>
+                        <select id="settings-theme-select" class="glass-dropdown">
+                            <option value="quantum-cyan">Quantum Cyan</option>
+                            <option value="cyberpunk-amber">Cyberpunk Amber</option>
+                            <option value="deep-space-dark">Deep Space Dark</option>
+                            <option value="crystal-light">Crystal Light</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" id="set-security">
+                    <h3>Zero-Trust Engine</h3>
+                    <div class="setting-row">
+                        <div>
+                            <strong>Default-Deny Hardware Policy</strong>
+                            <div class="text-muted">Block unverified access to camera, microphone, and serial ports</div>
+                        </div>
+                        <input type="checkbox" checked class="aegis-switch">
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <strong>Aegis Guard AI Heuristic Scanning</strong>
+                            <div class="text-muted">Continuous background behavioral anomaly detection</div>
+                        </div>
+                        <input type="checkbox" checked class="aegis-switch">
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" id="set-about">
+                    <div class="about-hero">
+                        <svg class="about-crest" viewBox="0 0 100 100">
+                            <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#00f3ff"/>
+                            <path d="M50,22 L75,42 L50,72 L25,42 Z" fill="#080c14"/>
+                        </svg>
+                        <h2>Aegis OS</h2>
+                        <p class="about-tagline">The Hybrid Secure Intelligence Operating System</p>
+                    </div>
+                    <div class="about-specs">
+                        <div class="spec-row"><span class="spec-label">Version</span><span class="spec-val">2.0.0-Alpha (Build 2026.11)</span></div>
+                        <div class="spec-row"><span class="spec-label">Architecture</span><span class="spec-val">Dual-Kernel Microkernel (Aegis Core + Linux ABI)</span></div>
+                        <div class="spec-row"><span class="spec-label">Filesystem</span><span class="spec-val">AegisFS (Cryptographic Merkle Tree)</span></div>
+                        <div class="spec-row"><span class="spec-label">Storage Engine</span><span class="spec-val">Tiered Hierarchy (RAM -> NVMe -> SSD) + Deduplication</span></div>
+                        <div class="spec-row"><span class="spec-label">Security Subsystem</span><span class="spec-val">Aegis Shield + Guard AI + Zero-Trust AC</span></div>
+                        <div class="spec-row"><span class="spec-label">Autonomous AI</span><span class="spec-val">Aegis Mind Agentic System Controller</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-voice">
+        <div class="app-voice">
+            <div class="voice-center">
+                <div class="voice-orb" id="voice-orb">
+                    <div class="orb-wave"></div>
+                    <div class="orb-wave"></div>
+                    <div class="orb-core">
+                        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                    </div>
+                </div>
+                <div class="voice-status" id="voice-status">Aegis Voice: Listening for commands...</div>
+                <div class="voice-response-box" id="voice-response">"Say or click a voice action below..."</div>
+            </div>
+
+            <div class="voice-quick-actions">
+                <button class="voice-btn" data-cmd="optimize storage and clean disk">"Optimize storage & TRIM"</button>
+                <button class="voice-btn" data-cmd="run security scan">"Run cybersecurity scan"</button>
+                <button class="voice-btn" data-cmd="optimize for gaming">"Optimize for gaming"</button>
+                <button class="voice-btn" data-cmd="check filesystem integrity">"Check filesystem integrity"</button>
+                <button class="voice-btn" data-cmd="switch to amber theme">"Switch to amber theme"</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+    <script src="native-campaign.js"></script>
+    <script src="desktop-auth.js"></script>
+
+    <!-- 15. OPERATOR CASE NOTEPAD & DOSSIER JOURNAL -->
+    <template id="tmpl-notepad">
+        <div class="app-notepad">
+            <div class="notepad-toolbar">
+                <button class="btn-action-small" id="btn-notes-insert-ioc">📋 Insert Case IOCs</button>
+                <button class="btn-action-small" id="btn-notes-load">📂 Open from AegisFS</button>
+                <button class="btn-action-small" id="btn-notes-save" style="color: var(--accent); border-color: var(--accent);">💾 Save to AegisFS</button>
+                <button class="btn-action-small" id="btn-notes-clear">✖ Clear</button>
+                <span class="notepad-path" id="notepad-path-label">/userland/notes/case_notes.txt</span>
+            </div>
+            <div class="notepad-body">
+                <textarea class="notepad-textarea" id="notepad-textarea" placeholder="Jot down forensic observations, IP addresses, suspicious PIDs, token IDs, and attack timelines..." spellcheck="false"></textarea>
+            </div>
+            <div class="notepad-footer">
+                <span id="notepad-stats">Lines: 1 | Words: 0 | Characters: 0</span>
+                <span id="notepad-status" style="color: var(--status-ok);">Ready</span>
+            </div>
+        </div>
+    </template>
+
+</body>
+</html>
+

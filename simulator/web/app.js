@@ -279,7 +279,7 @@
                 win.classList.toggle('maximized');
             });
 
-            win.addEventListener('mousedown', () => this.bringToFront(win));
+            win.addEventListener('mousedown', () => this.bringToFront(win), true);
             this.setupDrag(win);
             this.initAppLogic(appId, win);
             AudioEngine.playChime('info');
@@ -366,6 +366,7 @@
                 case 'store': StoreApp.init(win); break;
                 case 'settings': SettingsApp.init(win); break;
                 case 'voice': VoiceApp.init(win); break;
+                case 'notepad': NotepadApp.init(win); break;
             }
         }
     };
@@ -921,6 +922,143 @@
             };
             loadStorageTiers();
 
+            // ==========================================
+            // FILE RECOVERY & CRYPTOGRAPHIC HEX CARVER
+            // ==========================================
+            const recoveryList = win.querySelector('#recovery-item-list');
+            const btnRefreshRecovery = win.querySelector('#btn-refresh-recovery');
+            const workbenchEmpty = win.querySelector('#workbench-empty');
+            const workbenchContent = win.querySelector('#workbench-content');
+            const carveFileName = win.querySelector('#carve-file-name');
+            const carveFileDamage = win.querySelector('#carve-file-damage');
+            const carveFileStatus = win.querySelector('#carve-file-status');
+            const hexDumpOffset = win.querySelector('#hex-dump-offset');
+            const hexDumpBytes = win.querySelector('#hex-dump-bytes');
+            const hexDumpAscii = win.querySelector('#hex-dump-ascii');
+            const carveForensicHint = win.querySelector('#carve-forensic-hint');
+            const carveHexInput = win.querySelector('#carve-hex-input');
+            const btnExecuteCarve = win.querySelector('#btn-execute-carve');
+            const recoveryResultBox = win.querySelector('#recovery-result-box');
+
+            let cachedCorruptedFiles = [];
+            let activeCorruptFile = null;
+
+            const loadCorruptedFiles = async () => {
+                if (!recoveryList) return;
+                try {
+                    const res = await fetch('/api/files/corrupted-list');
+                    const data = await res.json();
+                    cachedCorruptedFiles = data.corruptedFiles || [];
+                    renderCorruptedList();
+                } catch (e) { }
+            };
+
+            const renderCorruptedList = () => {
+                if (!recoveryList) return;
+                if (cachedCorruptedFiles.length === 0) {
+                    recoveryList.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); padding: 8px;">No corrupted files recorded.</div>';
+                    return;
+                }
+                recoveryList.innerHTML = cachedCorruptedFiles.map(f => `
+                    <div class="recovery-item-card ${activeCorruptFile && activeCorruptFile.id === f.id ? 'selected' : ''}" data-id="${f.id}">
+                        <div class="corrupt-title">${escapeHtml(f.name)}</div>
+                        <div class="corrupt-type">${f.damageType}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                            <span style="font-size: 9px; color: var(--text-muted); font-family: var(--font-mono);">Offset: ${f.corruptOffset}</span>
+                            <span class="status-pill ${f.status === 'RECOVERED' ? 'pill-secure' : 'pill-blocked'}" style="font-size: 8px; padding: 1px 4px;">
+                                ${f.status}
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+
+                recoveryList.querySelectorAll('.recovery-item-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const id = card.dataset.id;
+                        activeCorruptFile = cachedCorruptedFiles.find(f => f.id === id);
+                        renderCorruptedList();
+                        openWorkbench(activeCorruptFile);
+                    });
+                });
+            };
+
+            const openWorkbench = (f) => {
+                if (!f || !workbenchContent) return;
+                workbenchEmpty?.classList.add('hidden');
+                workbenchContent?.classList.remove('hidden');
+
+                carveFileName.textContent = f.name;
+                carveFileDamage.textContent = f.damageType;
+                carveFileStatus.textContent = f.status;
+                carveFileStatus.className = `status-pill ${f.status === 'RECOVERED' ? 'pill-secure' : 'pill-blocked'}`;
+
+                hexDumpOffset.textContent = f.corruptOffset + ':';
+                hexDumpBytes.textContent = f.rawHex;
+                hexDumpAscii.textContent = f.asciiDump;
+
+                carveForensicHint.innerHTML = `<strong>Forensic Clue:</strong> ${escapeHtml(f.hint)}`;
+                carveHexInput.value = f.status === 'RECOVERED' ? f.expectedMagic : '';
+                recoveryResultBox.classList.add('hidden');
+            };
+
+            btnExecuteCarve?.addEventListener('click', async () => {
+                if (!activeCorruptFile) return;
+                const val = carveHexInput.value.trim();
+                if (!val) {
+                    Notifications.show('Carve Error', 'Please enter repair magic bytes or symmetric decryption key.', 'error');
+                    return;
+                }
+
+                btnExecuteCarve.disabled = true;
+                btnExecuteCarve.textContent = "Carving Inode...";
+                try {
+                    const res = await fetch('/api/files/recover', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fileId: activeCorruptFile.id,
+                            hexOrKey: val
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        recoveryResultBox.classList.remove('hidden');
+                        recoveryResultBox.className = 'recovery-result-box';
+                        recoveryResultBox.innerHTML = `<strong>✅ INODE RECOVERED:</strong> ${escapeHtml(data.message)}<br><small style="color:var(--text-muted);">Hash verified clean. File mounted in AegisFS file browser.</small>`;
+                        AudioEngine.playChime('success');
+                        Notifications.show('File Inode Carved', data.message, 'success');
+                        window.dispatchEvent(new CustomEvent('aegis:desktop-event', {
+                            detail: { type: 'file-recovered', value: activeCorruptFile.name }
+                        }));
+                        if (window.AegisCampaign && window.AegisCampaign.unlockAchievement) {
+                            window.AegisCampaign.unlockAchievement('crypt_inode');
+                        }
+                        loadFiles();
+                        loadCorruptedFiles();
+                        activeCorruptFile.status = "RECOVERED";
+                        carveFileStatus.textContent = "RECOVERED";
+                        carveFileStatus.className = "status-pill pill-secure";
+                    } else {
+                        recoveryResultBox.classList.remove('hidden');
+                        recoveryResultBox.className = 'recovery-result-box';
+                        recoveryResultBox.style.borderColor = 'var(--status-err)';
+                        recoveryResultBox.style.background = 'rgba(255, 95, 86, 0.1)';
+                        recoveryResultBox.style.color = 'var(--status-err)';
+                        recoveryResultBox.innerHTML = `<strong>❌ CARVE FAILED:</strong> ${escapeHtml(data.error || 'Invalid signature or decryption key.')}`;
+                        AudioEngine.playChime('alert');
+                        Notifications.show('Carve Mismatch', data.error || 'Magic byte mismatch.', 'error');
+                    }
+                } catch (e) {
+                    Notifications.show('Network Error', e.message, 'error');
+                }
+                btnExecuteCarve.disabled = false;
+                btnExecuteCarve.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Carve & Restore Inode`;
+            });
+
+            btnRefreshRecovery?.addEventListener('click', loadCorruptedFiles);
+            loadCorruptedFiles();
+
+
             // Run TRIM & Deduplication
             btnTrim.addEventListener('click', async () => {
                 btnTrim.disabled = true;
@@ -1294,6 +1432,79 @@
                     Notifications.show('Shield Policy Updated', `Firewall rule #${t.dataset.id} state toggled.`, 'info');
                 });
             });
+
+            
+            // ==========================================
+            // ZERO-TRUST CAPABILITY TOKEN AUDIT
+            // ==========================================
+            const tokensBody = win.querySelector('#shield-tokens-body');
+            const btnRefreshTokens = win.querySelector('#btn-refresh-shield-tokens');
+
+            const loadTokens = async () => {
+                if (!tokensBody) return;
+                try {
+                    const res = await fetch('/api/shield/tokens');
+                    const data = await res.json();
+                    renderTokens(data.tokens || []);
+                } catch (e) { }
+            };
+
+            const renderTokens = (tokens) => {
+                if (!tokensBody) return;
+                tokensBody.innerHTML = tokens.map(t => {
+                    const isCompromised = t.compromised || t.status === 'ANOMALOUS_ESCALATION';
+                    const isRevoked = t.status === 'REVOKED';
+                    return `
+                        <tr style="${isCompromised ? 'background: rgba(255, 95, 86, 0.12);' : ''}">
+                            <td>
+                                <strong>${t.id}</strong>
+                                ${isCompromised ? '<span style="font-size: 9px; color: var(--status-err); display: block;">⚠️ ANOMALOUS GRANT</span>' : ''}
+                            </td>
+                            <td><code>${escapeHtml(t.subject)}</code></td>
+                            <td><span class="status-pill ${isCompromised ? 'pill-blocked' : 'pill-secure'}">${t.cap}</span></td>
+                            <td>${t.ring}</td>
+                            <td><span class="status-pill ${isRevoked ? 'pill-blocked' : isCompromised ? 'pill-blocked' : 'pill-secure'}">${t.status}</span></td>
+                            <td>
+                                ${!isRevoked ? `
+                                    <button class="btn-action-small btn-revoke-token" data-id="${t.id}" style="color: var(--status-err); border-color: var(--status-err); font-size: 10px;">
+                                        Revoke Capability
+                                    </button>
+                                ` : '<span style="font-size: 10px; color: var(--text-muted);">Revoked ✓</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                tokensBody.querySelectorAll('.btn-revoke-token').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const tokenId = btn.dataset.id;
+                        try {
+                            const res = await fetch('/api/shield/revoke-token', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ tokenId })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                Notifications.show('Zero-Trust Policy Enforced', data.message, 'warning');
+                                AudioEngine.playChime('alert');
+                                window.dispatchEvent(new CustomEvent('aegis:desktop-event', {
+                                    detail: { type: 'token-revoked', value: tokenId }
+                                }));
+                                if (window.AegisCampaign && window.AegisCampaign.unlockAchievement) {
+                                    window.AegisCampaign.unlockAchievement('zero_trust_elite');
+                                }
+                                loadTokens();
+                            }
+                        } catch (e) {
+                            Notifications.show('Error', e.message, 'error');
+                        }
+                    });
+                });
+            };
+
+            btnRefreshTokens?.addEventListener('click', loadTokens);
+            loadTokens();
 
             win.querySelector('#btn-scan-guard').addEventListener('click', async () => {
                 Notifications.show('Aegis Guard', 'Executing AI heuristic intrusion detection scan...', 'info');
@@ -1694,6 +1905,84 @@
     // ==========================================
     // 15. GLOBAL COMMAND PALETTE (CTRL+SPACE)
     // ==========================================
+    
+    // ==========================================
+    // 14.5. OPERATOR CASE NOTEPAD CONTROLLER
+    // ==========================================
+    const NotepadApp = {
+        init(win) {
+            const textarea = win.querySelector('#notepad-textarea');
+            const btnInsertIoc = win.querySelector('#btn-notes-insert-ioc');
+            const btnSave = win.querySelector('#btn-notes-save');
+            const btnLoad = win.querySelector('#btn-notes-load');
+            const btnClear = win.querySelector('#btn-notes-clear');
+            const stats = win.querySelector('#notepad-stats');
+            const status = win.querySelector('#notepad-status');
+
+            const updateStats = () => {
+                if (!textarea) return;
+                const val = textarea.value;
+                const lines = val ? val.split('\n').length : 1;
+                const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+                const chars = val.length;
+                if (stats) stats.textContent = `Lines: ${lines} | Words: ${words} | Characters: ${chars}`;
+            };
+            textarea?.addEventListener('input', updateStats);
+
+            btnInsertIoc?.addEventListener('click', () => {
+                const state = window.AegisCampaign ? window.AegisCampaign.state : null;
+                const missionTitle = window.AegisCampaign && window.AegisCampaign.mission ? window.AegisCampaign.mission.title : 'Active Operation';
+                const iocSnippet = `\n[AEGIS CASE EVIDENCE RECORD]\nTimestamp: ${new Date().toISOString()}\nOperation: ${missionTitle}\nHostile Endpoint: 185.220.101.5:8443 (C2 Beacon)\nCompromised Token: TOK-KERNEL-ESCALATED (CAP_NET_RAW_SOCKET)\nRogue Gateway PID: 4819 (rogue_c2_proxy on port 8443)\nClean Rollback Point: chkpt-0001 (Root: 0x8f4d92a15c8e...)\nNote: Verify all evidence milestones before sealing incident report.\n`;
+                textarea.value += iocSnippet;
+                updateStats();
+                Notifications.show('IOCs Appended', 'Active case indicators inserted into notepad.', 'info');
+            });
+
+            btnSave?.addEventListener('click', async () => {
+                try {
+                    const res = await fetch('/api/files/write', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            path: '/userland/notes/case_notes.txt',
+                            content: textarea.value
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        Notifications.show('Notes Saved', 'Saved case notes to /userland/notes/case_notes.txt', 'success');
+                        if (status) status.textContent = 'Saved to AegisFS ✓';
+                    }
+                } catch (e) {
+                    Notifications.show('Save Error', e.message, 'error');
+                }
+            });
+
+            btnLoad?.addEventListener('click', async () => {
+                try {
+                    const res = await fetch('/api/files/read?path=/userland/notes/case_notes.txt');
+                    const data = await res.json();
+                    if (data.file) {
+                        textarea.value = data.content || '';
+                        updateStats();
+                        Notifications.show('Notes Loaded', 'Loaded notes from /userland/notes/case_notes.txt', 'info');
+                        if (status) status.textContent = 'Loaded from AegisFS ✓';
+                    } else {
+                        Notifications.show('File Not Found', 'No case_notes.txt found yet in AegisFS. Type your notes and click Save.', 'info');
+                    }
+                } catch (e) { }
+            });
+
+            btnClear?.addEventListener('click', () => {
+                if (confirm('Clear notepad content?')) {
+                    textarea.value = '';
+                    updateStats();
+                }
+            });
+            updateStats();
+        }
+    };
+
     const Palette = {
         overlay: null,
         input: null,
@@ -1914,7 +2203,8 @@
                     troubleshoot: 'System Diagnostic Scanner',
                     store: 'Aegis App Store',
                     settings: 'Settings Center',
-                    voice: 'Aegis Voice Assistant'
+                    voice: 'Aegis Voice Assistant',
+                    notepad: 'Operator Case Notes & Dossier Journal'
                 };
                 const w = app === 'browser' ? 920 : app === 'ai' ? 840 : app === 'files' ? 820 : 760;
                 const h = app === 'browser' ? 620 : app === 'ai' ? 560 : app === 'files' ? 530 : 500;
