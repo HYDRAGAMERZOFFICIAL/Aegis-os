@@ -49,9 +49,9 @@ test('research enforces prerequisites and spends points once', () => {
   assert.equal(game.getState().resources.research, 60);
 });
 
-test('three campaign missions can be completed with their dedicated action sequences', () => {
+test('four campaign missions can be completed with their dedicated action sequences', () => {
   const game = new GameManager();
-  assert.equal(game.getState().missions.length, 3);
+  assert.equal(game.getState().missions.length, 4);
   game.startMission('mission-01');
   const chapterOne = [
     ['inspect_process', {}], ['trace_origin', { answer: '185.220.101.5' }],
@@ -75,7 +75,19 @@ test('three campaign missions can be completed with their dedicated action seque
   ];
   for (const [action, payload] of chapterThree) assert.equal(game.performAction(action, payload).ok, true, action);
   assert.equal(game.getState().currentMission.status, 'completed');
-  assert.equal(game.getState().missions.filter(item => item.completed).length, 3);
+
+  game.startMission('mission-04');
+  const chapterFour = [
+    ['audit_merkle_tree', { answer: 'ROOT-MERKLE-LEAF-0x4F' }],
+    ['identify_rootkit', {}],
+    ['deploy_sandbox', { answer: 'ephemeral-jail-v2' }],
+    ['purge_rootkit', {}],
+    ['submit_report', { answer: 'citadel-sealed' }]
+  ];
+  for (const [action, payload] of chapterFour) assert.equal(game.performAction(action, payload).ok, true, action);
+  assert.equal(game.getState().currentMission.status, 'completed');
+
+  assert.equal(game.getState().missions.filter(item => item.completed).length, 4);
 });
 
 test('save manager round-trips game state and rejects unsafe slots', () => {

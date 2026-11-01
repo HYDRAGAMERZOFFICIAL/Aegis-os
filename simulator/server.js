@@ -987,6 +987,28 @@ function handleAIAssistant(prompt, callback) {
         });
     }
 
+    if (p.includes('correlat') || p.includes('timeline') || p.includes('root cause') || p.includes('incident') || p.includes('campaign')) {
+        let correlationDetail = "Timeline correlation: unauthorized service file modification preceded process spawn, followed by outbound beacon to 185.220.101.5:8443.";
+        let taskName = "Timeline Forensic Reconstruction";
+        if (p.includes('kernel') || p.includes('privilege') || p.includes('token')) {
+            correlationDetail = "Kernel audit correlation: component 'kernel_sync_worker' requested unneeded ring-0 capability. Compromised token: TOK-KERNEL-ESCALATED.";
+            taskName = "Kernel Privilege Boundary Audit";
+        } else if (p.includes('traffic') || p.includes('flood') || p.includes('gateway') || p.includes('route')) {
+            correlationDetail = "Traffic telemetry correlation: public API gateway degraded under distributed flood on edge-route-01. Resilient route: edge-route-02.";
+            taskName = "Network Route Ingress Correlation";
+        }
+        return callback({
+            role: "assistant",
+            intent: "INCIDENT_CORRELATION",
+            reply: 'Aegis Mind Incident Correlation Engine:\n' + correlationDetail + '\n\nEvidence recorded in your active operation dossier.',
+            actionsExecuted: [
+                { task: taskName, result: "Evidence Verified" },
+                { task: "Update Operations HUD Dossier", result: "Complete" }
+            ],
+            suggestedFollowups: ["Open Operations HUD", "Inspect in Terminal", "Run Aegis Guard scan"]
+        });
+    }
+
     return callback({
         role: "assistant",
         intent: "GENERAL_EXECUTION",

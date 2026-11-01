@@ -1138,7 +1138,7 @@
                         const outLine = document.createElement('div');
                         outLine.className = 'term-line';
                         outLine.style.color = '#e6f8ff';
-                        outLine.textContent = data.output || 'Execution complete.';
+                        outLine.textContent = (data.output || 'Execution complete.').replace(/\\n/g, '\n');
                         history.appendChild(outLine);
                     } catch (err) {
                         const errLine = document.createElement('div');
@@ -1642,7 +1642,10 @@
                     const low = cmd.toLowerCase();
                     let reply = `Executing voice instruction: "${cmd}"`;
 
-                    if (low.includes('game') || low.includes('gaming')) {
+                    if (low.includes('campaign') || low.includes('operation') || low.includes('mission')) {
+                        reply = "Opening Aegis Tactical Operations Center. Field incident status ready.";
+                        if (window.AegisCampaign) window.AegisCampaign.open();
+                    } else if (low.includes('game') || low.includes('gaming')) {
                         reply = "Aegis Task Optimizer configured for Game Mode. Clocks boosted.";
                         WM.open('optimizer', 'Task Optimizer');
                         document.querySelector('.btn-opt-select[data-mode="GAME"]')?.click();
@@ -1697,6 +1700,7 @@
         results: null,
         selectedIndex: 0,
         items: [
+            { title: "Tactical Operations // Campaign", sub: "Live incident response operations, cyberwarfare investigation", action: () => { if (window.AegisCampaign) window.AegisCampaign.open(); }, icon: "shield" },
             { title: "Quantum Ghost Browser", sub: "Air-gapped disposable web sandbox; zero host trace", app: "browser", icon: "browser" },
             { title: "Aegis Mind AI Controller", sub: "Autonomous system copilot: execute any high-level task", app: "ai", icon: "ai" },
             { title: "Files & Tiered Storage Manager", sub: "AegisFS file browser, in-window editor, deduplication & TRIM", app: "files", icon: "files" },

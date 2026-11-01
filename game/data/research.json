@@ -33,5 +33,23 @@
       "behavioral-analysis",
       "rapid-recovery"
     ]
+  },
+  {
+    "id": "quantum-cryptography",
+    "name": "Quantum Cryptography",
+    "description": "Hardware-accelerated Merkle ledger proofs and post-quantum trust verification.",
+    "cost": 150,
+    "prerequisites": [
+      "adaptive-defense"
+    ]
+  },
+  {
+    "id": "neural-firewall",
+    "name": "Neural Zero-Trust Firewall",
+    "description": "Autonomous stateful packet synthesis and instantaneous micro-sandbox isolation.",
+    "cost": 180,
+    "prerequisites": [
+      "adaptive-defense"
+    ]
   }
 ]

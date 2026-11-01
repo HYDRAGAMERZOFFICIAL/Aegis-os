@@ -23,6 +23,8 @@ test('campaign operations unlock sequentially after the previous operation is se
   assert.equal(missions[0].completed, true);
   assert.equal(missions[1].unlocked, true);
   assert.equal(missions[2].unlocked, false);
+  assert.equal(missions[3].unlocked, false);
+
   game.startMission('mission-02');
   assert.equal(game.getState().currentMission.id, 'mission-02');
   const chapterTwo = [
@@ -32,6 +34,8 @@ test('campaign operations unlock sequentially after the previous operation is se
   ];
   for (const [action, payload] of chapterTwo) assert.equal(game.performAction(action, payload).ok, true, action);
   assert.equal(game.getState().missions[2].unlocked, true);
+  assert.equal(game.getState().missions[3].unlocked, false);
+
   game.startMission('mission-03');
   const chapterThree = [
     ['analyze_traffic', {}], ['rate_limit', { answer: 'adaptive-750' }],
@@ -39,5 +43,17 @@ test('campaign operations unlock sequentially after the previous operation is se
     ['submit_report', { answer: 'availability-restored' }]
   ];
   for (const [action, payload] of chapterThree) assert.equal(game.performAction(action, payload).ok, true, action);
+  assert.equal(game.getState().missions[3].unlocked, true);
+
+  game.startMission('mission-04');
+  const chapterFour = [
+    ['audit_merkle_tree', { answer: 'ROOT-MERKLE-LEAF-0x4F' }],
+    ['identify_rootkit', {}],
+    ['deploy_sandbox', { answer: 'ephemeral-jail-v2' }],
+    ['purge_rootkit', {}],
+    ['submit_report', { answer: 'citadel-sealed' }]
+  ];
+  for (const [action, payload] of chapterFour) assert.equal(game.performAction(action, payload).ok, true, action);
+
   assert.equal(game.getState().missions.every(mission => mission.completed), true);
 });
