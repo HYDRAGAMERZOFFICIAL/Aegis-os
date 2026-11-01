@@ -11,7 +11,8 @@
     "start:desktop": "electron .",
     "test:game": "node --test game/tests/game-engine.test.js",
     "dist:win": "electron-builder --win nsis --x64",
-    "dist:linux": "electron-builder --linux AppImage --x64"
+    "dist:linux": "electron-builder --linux AppImage --x64",
+    "check:game": "node --check simulator/server.js && node --check simulator/web/game.js && node --check launcher/electron-main.js"
   },
   "keywords": [
     "operating-system",
