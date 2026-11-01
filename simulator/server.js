@@ -216,6 +216,20 @@ const systemState = {
                 type: "vault",
                 content: "[TOP_SECRET_ENCLAVE_DATA]\nCIPHER: AES-256-GCM\nKEY_ID: HSM-SECURE-KEY-882\nPAYLOAD: 88f9104c88e9124018b871cda912bc78"
             }
+            ,{
+                id: "f-8",
+                name: "svc-sync-cache.bin",
+                path: "/var/cache/svc-sync-cache.bin",
+                size: 24576,
+                sizeStr: "24 KB",
+                perm: "rwxrwxr-x",
+                ring: "Ring 3",
+                encrypted: false,
+                hash: "d91f0a7e...",
+                modified: "2026-11-01 02:11",
+                type: "binary",
+                content: "AEGIS TRAINING ARTEFACT\\nservice=sync-worker\\nparent=systemd\\nremote=185.220.101.5:8443\\nretry=15s\\nNOTE: simulated suspicious persistence artefact for campaign investigation only."
+            }
         ],
         snapshots: [
             { id: "chkpt-0001", name: "Clean Boot Baseline", timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(), size: "482 MB", bootable: true },
