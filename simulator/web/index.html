@@ -139,6 +139,93 @@
         </div>
     </div>
 
+    <!-- AEGIS OPERATOR DATA VAULT & USER DATABASE MODAL -->
+    <div id="aegis-user-vault-modal" class="modal-overlay hidden" aria-live="polite">
+        <div class="aegis-vault-box glass-panel">
+            <div class="aegis-dialog-header">
+                <div class="aegis-dialog-brand">
+                    <span class="aegis-dialog-icon">💾</span>
+                    <span class="aegis-dialog-title">AEGIS-OS OPERATOR DATA VAULT & USER DATABASE</span>
+                </div>
+                <button class="aegis-dialog-close" id="vault-modal-close" type="button">✕</button>
+            </div>
+            <div class="vault-status-ribbon">
+                <span class="vault-db-indicator">● LIVE RELATIONAL STORAGE: ONLINE</span>
+                <span class="vault-db-engine">AegisDB v2.4 In-Memory (0.04ms) • Merkle Journaling</span>
+                <span class="vault-sync-status" id="vault-sync-label">Last Synced: Just now</span>
+            </div>
+            <div class="vault-tabs">
+                <button type="button" class="vault-tab-btn active" data-vtab="vtab-profile">👤 Operator Profile</button>
+                <button type="button" class="vault-tab-btn" data-vtab="vtab-campaign">🎯 Campaign & Progress</button>
+                <button type="button" class="vault-tab-btn" data-vtab="vtab-notes">📝 Case Notes & Dossier</button>
+                <button type="button" class="vault-tab-btn" data-vtab="vtab-tables">🗄️ Relational Tables</button>
+                <button type="button" class="vault-tab-btn" data-vtab="vtab-audit">📜 Security Audit Log</button>
+            </div>
+            <div class="vault-body">
+                <!-- Tab 1: Profile -->
+                <div class="vault-tab-content" id="vtab-profile">
+                    <div class="vault-profile-card">
+                        <div class="vault-avatar">🛡️</div>
+                        <div class="vault-profile-info">
+                            <h3 id="vault-op-name">OPERATOR // ROOT</h3>
+                            <div class="vault-badge-row">
+                                <span class="vault-badge" id="vault-op-clearance">LEVEL_5_COSMIC</span>
+                                <span class="vault-badge" id="vault-op-role">SECURITY_DIRECTOR</span>
+                                <span class="vault-badge" id="vault-op-rank">Grandmaster Operator</span>
+                            </div>
+                            <p class="vault-meta" id="vault-op-meta">Account provisioned with Hardware Enclave Security.</p>
+                        </div>
+                    </div>
+                    <div class="vault-stat-grid">
+                        <div class="vault-stat-card"><span class="vstat-num" id="vault-stat-score">0</span><span class="vstat-lbl">Command Score</span></div>
+                        <div class="vault-stat-card"><span class="vstat-num" id="vault-stat-xp">0</span><span class="vstat-lbl">Defense XP</span></div>
+                        <div class="vault-stat-card"><span class="vstat-num" id="vault-stat-credits">0</span><span class="vstat-lbl">Tactical Credits</span></div>
+                        <div class="vault-stat-card"><span class="vstat-num" id="vault-stat-ops">0 / 8</span><span class="vstat-lbl">Cases Secured</span></div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Campaign -->
+                <div class="vault-tab-content hidden" id="vtab-campaign">
+                    <div class="vault-subheading">ACTIVE THEATER PERSISTENCE</div>
+                    <div class="vault-campaign-summary" id="vault-campaign-details">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Tab 3: Case Notes -->
+                <div class="vault-tab-content hidden" id="vtab-notes">
+                    <div class="vault-subheading">STORED OPERATOR CASE NOTES & EVIDENCE DOSSIER</div>
+                    <pre class="vault-notes-preview" id="vault-notes-display">No case notes currently recorded.</pre>
+                    <div class="vault-row-actions">
+                        <button type="button" class="btn-action-small" id="vault-btn-open-notepad">📝 Open in Notepad</button>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Relational Tables -->
+                <div class="vault-tab-content hidden" id="vtab-tables">
+                    <div class="vault-subheading">AEGISDB SYSTEM TABLES AUDIT</div>
+                    <div class="vault-tables-list" id="vault-tables-container">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Tab 5: Audit Log -->
+                <div class="vault-tab-content hidden" id="vtab-audit">
+                    <div class="vault-subheading">OPERATOR CRYPTOGRAPHIC AUDIT LOGS</div>
+                    <div class="vault-audit-stream" id="vault-audit-container">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+            <div class="aegis-dialog-footer vault-footer">
+                <button type="button" class="btn-action-small" id="vault-btn-sync" style="color: #00f3ff; border-color: #00f3ff;">💾 Sync to Database Now</button>
+                <button type="button" class="btn-action-small" id="vault-btn-restore">🔄 Restore from Database</button>
+                <button type="button" class="btn-action-small" id="vault-btn-export">📥 Export Data Backup (JSON)</button>
+                <button type="button" class="btn-action-small btn-danger" id="vault-btn-signout" style="color: #ff3366; border-color: #ff3366;">🚪 Sign Out</button>
+            </div>
+        </div>
+    </div>
+
     <div id="aegis-tutorial-overlay" class="modal-overlay hidden" aria-live="polite">
         <div class="tutorial-window glass-panel">
             <div class="tutorial-header">
@@ -266,17 +353,7 @@
                 <div class="icon-badge icon-settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
                 <span class="icon-label">Settings</span>
             </div>
-                                    <div class="desktop-icon" data-app="database">
-                <div class="icon-badge icon-database" style="background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(157, 0, 255, 0.2)); border-color: #00f3ff;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#00f3ff" stroke-width="2">
-                        <ellipse cx="12" cy="5" rx="9" ry="3"/>
-                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-                    </svg>
-                </div>
-                <span class="icon-label">AegisDB</span>
-            </div>
-            <div class="desktop-icon" data-app="notepad">
+                                    <div class="desktop-icon" data-app="notepad">
                 <div class="icon-badge icon-notepad"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
                 <span class="icon-label">Case Notes</span>
             </div>
@@ -426,9 +503,6 @@
         <div class="dock-divider"></div>
 
                     <!-- Operator Case Notepad -->
-                        <button class="dock-app-btn" data-app="database" title="AegisDB Studio (In-Memory System Database)">
-                <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-            </button>
             <button class="dock-app-btn" data-app="notepad" title="Operator Case Notes & Dossier Journal">
                 <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 <span class="dock-dot"></span>
@@ -1237,6 +1311,7 @@
                 <button class="settings-nav-btn active" data-tab="set-kernel">Microkernel & ASLR</button>
                 <button class="settings-nav-btn" data-tab="set-appearance">Display & Layout</button>
                 <button class="settings-nav-btn" data-tab="set-security">Zero-Trust Security</button>
+                <button class="settings-nav-btn" data-tab="set-vault">Operator Database & Vault</button>
                 <button class="settings-nav-btn" data-tab="set-about">About AegisOS</button>
             </div>
             <div class="settings-body">
@@ -1307,6 +1382,25 @@
                             <div class="text-muted">Continuous background behavioral anomaly detection</div>
                         </div>
                         <input type="checkbox" checked class="aegis-switch">
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" id="set-vault">
+                    <h3>Operator Database & Persistent Vault</h3>
+                    <p class="text-muted">AegisDB in-memory relational engine stores your campaign state, case notes, rank, and achievements, persisted to disk and restored automatically upon login.</p>
+                    <div class="setting-row">
+                        <div>
+                            <strong>AegisDB In-Memory Storage</strong>
+                            <div class="text-muted">Status: ACTIVE • Latency: &lt;0.05ms • In-Memory Relational Cache</div>
+                        </div>
+                        <button type="button" class="btn-action-small" id="btn-settings-open-vault" style="color: #00f3ff; border-color: #00f3ff;">Open Operator Data Vault</button>
+                    </div>
+                    <div class="setting-row">
+                        <div>
+                            <strong>Automatic Session Synchronization</strong>
+                            <div class="text-muted">Continuously preserves case dossier, journal notes, and investigative milestones</div>
+                        </div>
+                        <span class="badge" style="background: rgba(0, 243, 255, 0.2); color: #00f3ff;">ENABLED</span>
                     </div>
                 </div>
 
