@@ -319,7 +319,7 @@ const server = http.createServer((req, res) => {
     }
 
     // Static Web File Serving
-    let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : (pathname === '/game' ? 'game.html' : pathname));
+    let filePath = path.join(WEB_DIR, (pathname === '/' || pathname === '/game' || pathname === '/game.html') ? 'index.html' : pathname);
     filePath = path.normalize(filePath);
 
     if (!filePath.toLowerCase().startsWith(WEB_DIR.toLowerCase())) {
