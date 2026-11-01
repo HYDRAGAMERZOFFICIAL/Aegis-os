@@ -7,3 +7,4 @@ int fs_create_snapshot(const char* name);
 int fs_restore_snapshot(const char* name);
 
 #endif
+

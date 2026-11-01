@@ -38,3 +38,4 @@ int microkernel_init(void);
 int microkernel_isolate_driver(int driver_id);
 
 #endif
+

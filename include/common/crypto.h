@@ -22,3 +22,4 @@ void sha256_final(sha256_ctx_t *ctx, u8 digest[32]);
 int aes_encrypt(const u8 *key, u32 key_size, const u8 *plaintext, u8 *ciphertext, u64 size);
 
 #endif
+

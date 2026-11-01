@@ -15,3 +15,4 @@ u64 gcd(u64 a, u64 b);
 u64 lcm(u64 a, u64 b);
 
 #endif
+

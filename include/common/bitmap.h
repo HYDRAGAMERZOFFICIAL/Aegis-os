@@ -11,3 +11,4 @@ u32 bitmap_find_first_set(const u8 *bitmap, u32 size);
 u32 bitmap_count_set(const u8 *bitmap, u32 size);
 
 #endif
+
