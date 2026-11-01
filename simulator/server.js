@@ -725,6 +725,21 @@ function handleApi(req, res, pathname, url) {
                 payloadFlag: isSuspicious ? 'Unusual entropy anomaly / Potential probe' : 'Encrypted application frame'
             });
         }
+        samplePackets.unshift({
+            id: 'pkt-training-c2', timestamp: new Date().toLocaleTimeString(), protocol: 'TLS 1.3',
+            srcIp: '192.168.1.44', dstIp: '185.220.101.5', port: 8443,
+            status: 'FLAGGED_INSPECTION', payloadFlag: 'TRAINING C2 BEACON / 15s retry interval'
+        });
+        samplePackets.push({
+            id: 'pkt-training-flood-a', timestamp: new Date().toLocaleTimeString(), protocol: 'HTTPS',
+            srcIp: '198.51.100.21', dstIp: '10.0.0.80', port: 443,
+            status: 'FLAGGED_INSPECTION', payloadFlag: 'TRAINING BURST / gateway ingress'
+        });
+        samplePackets.push({
+            id: 'pkt-training-flood-b', timestamp: new Date().toLocaleTimeString(), protocol: 'HTTPS',
+            srcIp: '198.51.100.37', dstIp: '10.0.0.80', port: 443,
+            status: 'FLAGGED_INSPECTION', payloadFlag: 'TRAINING BURST / gateway ingress'
+        });
         return sendJson(res, 200, { packets: samplePackets, blockedCount: systemState.securityStatus.threatsBlocked });
     }
 
