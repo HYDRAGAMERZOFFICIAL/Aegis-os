@@ -69,3 +69,13 @@
 .mission-progress{margin:18px 0}
 @media(max-width:900px){.resource-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.campaign-grid{grid-template-columns:1fr}.campaign-card{grid-template-columns:1fr auto;align-items:center}.campaign-card-title,.campaign-card-detail{grid-column:1}.campaign-card-status{position:static;grid-column:2;grid-row:1}.main-grid{grid-template-columns:1fr}.top-meta{display:none}}
 @media(max-width:620px){.topbar{height:auto;min-height:64px;padding:12px 16px;flex-wrap:wrap;gap:10px}.top-actions{gap:6px;flex-wrap:wrap}.operator-chip{display:none}.layout{padding-top:28px}.hero{align-items:flex-start;flex-direction:column}.resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mission-footer{flex-wrap:wrap}.mission-footer select{max-width:100%}.objective{flex-wrap:wrap}.objective-copy{min-width:calc(100% - 45px)}.auth-panel{padding:24px 20px}.boot-checks{gap:10px;font-size:7px}.gate-corner{font-size:7px}}
+
+.mission-console{margin:14px 0;padding:16px;border:1px solid rgba(105,230,233,.35);background:linear-gradient(120deg,rgba(105,230,233,.07),rgba(9,24,36,.8))}
+.challenge-prompt{font-size:12px;line-height:1.65;color:#c0d3dc;margin:0 0 13px}
+.challenge-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.challenge-choice{display:grid;gap:5px;text-align:left;padding:12px;border:1px solid var(--line);background:rgba(3,13,21,.7);color:var(--text);cursor:pointer;min-width:0}
+.challenge-choice:hover{border-color:var(--cyan);background:rgba(105,230,233,.08)}
+.challenge-choice strong{font-size:10px;color:var(--cyan);overflow-wrap:anywhere}
+.challenge-choice small{font-size:9px;line-height:1.45;color:var(--muted)}
+.challenge-cancel{margin-top:8px}
+@media(max-width:620px){.challenge-choices{grid-template-columns:1fr}}
