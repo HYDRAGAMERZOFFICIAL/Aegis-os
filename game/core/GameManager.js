@@ -28,6 +28,7 @@ class GameManager {
       submit_report: () => ({ ok: true, detail: 'Incident report submitted to Aegis Command.' })
     };
     if (!Object.prototype.hasOwnProperty.call(handlers, action)) return { ok: false, reason: 'Unsupported game action.' };
+    if (!this.missions.canPerform(action)) return { ok: false, reason: 'Action is unavailable until the previous objective is completed.' };
     const result = handlers[action](payload); if (!result.ok) return result;
     const progress = this.missions.recordAction(action);
     this.threats.advanceTurn();
