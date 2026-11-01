@@ -1,0 +1,29 @@
+name: Aegis game checks
+
+on:
+  push:
+    branches:
+      - main
+      - feature/aegis-last-firewall-game
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  game-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax
+        run: |
+          node --check simulator/server.js
+          node --check game/engine/missions.js
+          node --check game/engine/engine.js
+          node --check game/ui/game.js
+      - name: Run game engine tests
+        run: npm run test:game
