@@ -1,12 +1,15 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "api/[...route].js", "use": "@vercel/node" },
-    { "src": "simulator/web/**", "use": "@vercel/static" }
+  "rewrites": [
+    { "source": "/game", "destination": "/game.html" }
   ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/[...route].js" },
-    { "src": "/game/?$", "dest": "/simulator/web/game.html" },
-    { "src": "/(.*)", "dest": "/simulator/web/$1" }
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    }
   ]
 }
