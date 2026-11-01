@@ -193,3 +193,4 @@ if (!content.includes('id="tmpl-notepad"')) {
 
 fs.writeFileSync(htmlFile, content, 'utf8');
 console.log('Successfully updated simulator/web/index.html with overlays, notepad, and templates.');
+

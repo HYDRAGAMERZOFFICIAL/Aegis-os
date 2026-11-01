@@ -108,3 +108,4 @@ content = content.replace(oldEnter, newEnter);
 
 fs.writeFileSync(authFile, content, 'utf8');
 console.log('Successfully updated simulator/web/desktop-auth.js with boot screen flow.');
+

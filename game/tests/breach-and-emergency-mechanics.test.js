@@ -178,3 +178,4 @@ test('Operator Case Notes can be written to and loaded from AegisFS', async () =
     assert.ok(readRes.file);
     assert.equal(readRes.content, notesContent);
 });
+

@@ -165,3 +165,4 @@ if (!content.includes('/api/system/trigger-wiped')) {
 
 fs.writeFileSync(serverFile, content, 'utf8');
 console.log('Successfully added in-memory cache and breach wipe endpoint to server.js');
+

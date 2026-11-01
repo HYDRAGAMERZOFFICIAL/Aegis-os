@@ -119,3 +119,4 @@ content = content.replace(oldAutoOpen, newAutoOpen);
 
 fs.writeFileSync(appFile, content, 'utf8');
 console.log('Successfully updated simulator/web/app.js with NotepadApp and removed auto window popups.');
+

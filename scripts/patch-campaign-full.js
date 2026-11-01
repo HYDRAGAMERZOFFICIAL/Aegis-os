@@ -392,3 +392,4 @@ if (!code.includes('openTutorial: openTutorial')) {
 
 fs.writeFileSync(campaignFile, code, 'utf8');
 console.log('Successfully updated simulator/web/native-campaign.js with breach countdown, sequential step lock, tutorial, and random events.');
+
