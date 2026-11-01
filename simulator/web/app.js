@@ -1353,6 +1353,14 @@
                 { id: "blk-4", path: "/userland/data/user_vault.dat", hash: "8f4d92a...", size: "54.1 MB", status: "HEALTHY" },
                 { id: "blk-5", path: "/filesystem/merkle_journal.log", hash: "7c5e31a...", size: "512 KB", status: "HEALTHY" }
             ];
+            // Mission-specific evidence is rendered inside the existing Merkle app.
+            const campaignSnapshot = window.AegisCampaign && window.AegisCampaign.state;
+            if (campaignSnapshot && campaignSnapshot.index === 0 && campaignSnapshot.started && !campaignSnapshot.done.includes('op1')) {
+                blocks.push({ id: "blk-6", path: "/var/cache/svc-sync-cache.bin", hash: "d91f0a7e...", size: "24 KB", status: "CORRUPTED" });
+                statusLabel.textContent = "MERKLE ROOT COMPROMISED: SYNC CACHE HASH DIVERGENCE";
+                statusLabel.style.color = 'var(--status-err)';
+                indicator.className = 'status-indicator-ring red';
+            }
 
             const renderBlocks = () => {
                 blocksContainer.innerHTML = blocks.map(b => `
