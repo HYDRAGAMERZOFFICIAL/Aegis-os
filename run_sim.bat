@@ -2,7 +2,7 @@
 title AegisOS Simulator Launcher
 echo ========================================================================
 echo    *   AEGIS OS - HYBRID SECURE INTELLIGENCE OPERATING SYSTEM   *
-echo    *   Kernel v2.0-Alpha | Dual-Kernel Hybrid | AI Self-Healing  *
+echo    *   Kernel v2.0-Alpha ^| Dual-Kernel Hybrid ^| AI Self-Healing  *
 echo ========================================================================
 echo.
 echo Choose simulator mode:
@@ -49,4 +49,3 @@ pause
 goto end
 
 :end
-

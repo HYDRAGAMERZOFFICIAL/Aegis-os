@@ -16,6 +16,10 @@
         
         <!-- Desktop App Icons (Grid) -->
         <div id="desktop-grid">
+            <div class="desktop-icon" data-app="browser">
+                <div class="icon-badge icon-browser"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                <span class="icon-label">Ghost Browser</span>
+            </div>
             <div class="desktop-icon" data-app="ai">
                 <div class="icon-badge icon-ai"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                 <span class="icon-label">Aegis Mind AI</span>
@@ -145,6 +149,11 @@
         </button>
 
         <div class="dock-apps">
+            <!-- Ghost Browser (Air-Gapped Disposable Sandbox) -->
+            <button class="dock-app-btn" data-app="browser" title="Quantum Ghost Browser (Air-Gapped Disposable Web Sandbox)">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span class="dock-dot"></span>
+            </button>
             <!-- AI Assistant (Premier) -->
             <button class="dock-app-btn dock-ai-btn" data-app="ai" title="Aegis Mind AI Controller">
                 <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -244,6 +253,10 @@
         </div>
         <div class="start-section-title">CORE APPLICATIONS</div>
         <div class="start-app-grid">
+            <div class="start-item" data-app="browser">
+                <div class="start-icon" style="color: #00f3ff;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                <span>Ghost Browser</span>
+            </div>
             <div class="start-item" data-app="ai">
                 <div class="start-icon" style="color: #ffaa00;"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                 <span>Aegis Mind AI</span>
@@ -293,6 +306,95 @@
     <!-- ============================================================== -->
     <!-- INTERACTIVE APP TEMPLATES (Cloned dynamically by WM)            -->
     <!-- ============================================================== -->
+
+    <!-- 0. QUANTUM GHOST BROWSER: VIRTUAL DISPOSABLE AIR-GAPPED WEB BROWSER -->
+    <template id="tmpl-browser">
+        <div class="app-browser">
+            <!-- Browser Controls & Omnibox Bar -->
+            <div class="browser-nav-bar">
+                <div class="browser-nav-btns">
+                    <button class="nav-btn" id="btn-browser-back" title="Back"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+                    <button class="nav-btn" id="btn-browser-forward" title="Forward"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    <button class="nav-btn" id="btn-browser-reload" title="Reload RAM Container"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+                    <button class="nav-btn" id="btn-browser-home" title="Disposable Home"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
+                </div>
+
+                <div class="browser-omnibox-wrapper">
+                    <div class="omnibox-ssl" title="Cryptographically Air-Gapped Microkernel Sandbox">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span>SANDBOXED</span>
+                    </div>
+                    <input type="text" id="browser-url-input" class="browser-omnibox" placeholder="Enter URL or search DuckDuckGo (e.g. duckduckgo.com, wikipedia.org)..." value="https://duckduckgo.com">
+                    <button class="btn-browser-go" id="btn-browser-go">Navigate</button>
+                </div>
+
+                <div class="browser-actions">
+                    <button class="btn-browser-action btn-save-bookmark" id="btn-browser-bookmark" title="Save Bookmark to Host Vault (/vault/browser_data/)">
+                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span>Save to Host</span>
+                    </button>
+                    <button class="btn-browser-action btn-shred-container" id="btn-browser-shred" title="Shred Ephemeral RAM Container (3-Pass 0x00 Wipe)">
+                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        <span>Shred Container</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ephemeral Micro-VM Status Banner -->
+            <div class="browser-security-banner">
+                <div class="sec-badge-row">
+                    <span class="browser-badge badge-container-id" id="browser-container-badge">MICRO-VM: INITIALIZING...</span>
+                    <span class="browser-badge badge-ram-airgap" id="browser-ram-badge">RAM-ISOLATED (128 MB VIRTUAL MEMORY)</span>
+                    <span class="browser-badge badge-zero-trust" id="browser-airgap-badge">ZERO-TRUST AIRGAP ACTIVE</span>
+                </div>
+                <div class="sec-banner-text">
+                    <strong>Ephemeral Container Isolation:</strong> All web requests, cookies, DOM trees, and scripts run strictly in volatile virtual RAM. When closed or shredded, the virtual browser is incinerated with 0x00 bytes. Your host filesystem and real browser remain 100% invisible to outsiders.
+                </div>
+            </div>
+
+            <!-- Persistent Bookmarks Strip (Stored on Host Vault) -->
+            <div class="browser-bookmarks-strip">
+                <span class="bookmark-label"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> HOST VAULT BOOKMARKS:</span>
+                <div class="bookmark-items" id="browser-bookmarks-list">
+                    <!-- Populated dynamically from /vault/browser_data/ -->
+                </div>
+            </div>
+
+            <!-- Live Threat Quarantine Bar -->
+            <div class="browser-telemetry-strip">
+                <div class="tel-tag"><span class="badge-dot pulse-green"></span> HOST LEAKS: <b>0 (BLOCKED)</b></div>
+                <div class="tel-tag">COOKIES QUARANTINED: <b id="browser-cookies-count">14</b></div>
+                <div class="tel-tag">TRACKERS ISOLATED: <b id="browser-trackers-count">31</b></div>
+                <div class="tel-tag">SCRIPTS SCRUBBED: <b id="browser-scripts-count">6</b></div>
+                <div class="tel-tag" style="margin-left: auto;">CIPHER: <b>XTS-AES-256 AIRGAP</b></div>
+            </div>
+
+            <!-- Sandboxed Browser Viewport -->
+            <div class="browser-viewport-container">
+                <iframe id="browser-viewport-frame" class="browser-viewport-frame" sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals" src="https://duckduckgo.com"></iframe>
+                <div id="browser-fallback-page" class="browser-fallback-page hidden">
+                    <div class="fallback-hero">
+                        <div class="fallback-crest">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        </div>
+                        <h2>Quantum Ghost Air-Gapped Portal</h2>
+                        <p class="text-muted" style="max-width: 600px; margin: 0 auto 16px;">This virtual browser session is running inside Microkernel Sandboxed Ring 3. External websites cannot detect your host identity, IP addresses, or local drives.</p>
+                        <div class="fallback-search-box">
+                            <input type="text" id="fallback-search-input" placeholder="Search the internet securely...">
+                            <button class="btn-primary" id="btn-fallback-search">Search via Ephemeral Proxy</button>
+                        </div>
+                        <div class="fallback-quicklinks">
+                            <button class="quicklink-btn" data-url="https://duckduckgo.com">DuckDuckGo Search</button>
+                            <button class="quicklink-btn" data-url="https://en.wikipedia.org">Wikipedia</button>
+                            <button class="quicklink-btn" data-url="https://kernel.org">Linux Kernel Archives</button>
+                            <button class="quicklink-btn" data-url="https://cve.mitre.org">CVE Vulnerability DB</button>
+                            <button class="quicklink-btn" data-url="https://news.ycombinator.com">Hacker News</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
 
     <!-- 1. AGENTIC AI ASSISTANT: "AEGIS MIND" -->
     <template id="tmpl-ai">
@@ -398,6 +500,35 @@
                         <!-- Populated dynamically -->
                     </tbody>
                 </table>
+
+                <!-- Integrated Aegis Code & Text File Editor -->
+                <div class="file-editor-panel hidden" id="file-editor-panel">
+                    <div class="editor-header">
+                        <div class="editor-title-group">
+                            <span class="editor-badge" id="editor-mode-badge">EDITING INODE</span>
+                            <input type="text" class="editor-path-input" id="editor-file-path" placeholder="/userland/data/filename.txt">
+                        </div>
+                        <div class="editor-actions">
+                            <label class="editor-enc-toggle">
+                                <input type="checkbox" id="editor-enc-check">
+                                <span>AES-256 Encrypted</span>
+                            </label>
+                            <button class="btn-primary-small" id="btn-save-file-editor">
+                                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#000;fill:none;stroke-width:2;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Save to AegisFS
+                            </button>
+                            <button class="btn-action-small" id="btn-close-file-editor">✖ Close Editor</button>
+                        </div>
+                    </div>
+                    <div class="editor-body">
+                        <div class="editor-line-numbers" id="editor-line-numbers">1</div>
+                        <textarea class="editor-textarea" id="editor-textarea" placeholder="Type or paste document / code payload here..." spellcheck="false"></textarea>
+                    </div>
+                    <div class="editor-footer">
+                        <span id="editor-stats">Lines: 1 | Characters: 0 | Size: 0 KB</span>
+                        <span id="editor-hash" style="color: var(--accent); font-family: var(--font-mono); font-size: 10px;">Merkle Leaf: Pending Save</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab 2: Tiered Storage Hierarchy & TRIM -->

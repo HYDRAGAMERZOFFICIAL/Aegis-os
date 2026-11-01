@@ -3,11 +3,12 @@
  * Pure Node.js implementation - Zero external dependencies required.
  * 
  * Features:
- * - Dual-Kernel Microkernel & Userland Simulation
- * - Cryptographic File Management (AegisFS)
+ * - Dual-Kernel Microkernel & Real OS Syscall Simulation
+ * - Real Cryptographic File I/O (Read, Write, Edit, Create, Delete, Shred, Encrypt)
  * - Tiered Storage & Block Deduplication Optimizer
+ * - Virtual Air-Gapped Disposable Browser ("Aegis Quantum Ghost Browser")
  * - Comprehensive Cybersecurity Suite (DPI Sniffer, Vulnerability Scanner, Malware Sandbox, Zero-Trust Broker)
- * - Agentic AI Assistant ("Aegis Mind") capable of multi-step autonomous task execution
+ * - Agentic AI Assistant ("Aegis Mind") with speech cancellation & multi-step execution
  */
 
 const http = require('http');
@@ -26,7 +27,7 @@ const systemState = {
     kernelVersion: "2.0.0-Alpha",
     architecture: "Dual-Kernel Microkernel (Aegis Core + Linux ABI)",
     startTime: Date.now(),
-    layout: "hybrid", // "hybrid" | "windows" | "linux"
+    layout: "hybrid",
     theme: "quantum-cyan",
     optimizerMode: "WORK",
     
@@ -36,7 +37,7 @@ const systemState = {
         idsActive: true,
         guardAccuracy: 98.7,
         zeroTrustPolicy: "DEFAULT_DENY",
-        threatsBlocked: 19,
+        threatsBlocked: 22,
         quarantinedFiles: [
             { id: 'THR-8821', name: 'ransom_injector.bin', type: 'Ransomware Heuristic', threatLevel: 'CRITICAL', time: '10 mins ago', blocked: true, hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' },
             { id: 'THR-8822', name: 'mem_escalate_poc', type: 'Privilege Escalation', threatLevel: 'HIGH', time: '25 mins ago', blocked: true, hash: 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb' },
@@ -62,7 +63,22 @@ const systemState = {
         ]
     },
 
-    // Merkle Filesystem & Explorer State
+    // Virtual Disposable Browser ("Ghost Browser") State
+    browser: {
+        currentContainerId: null,
+        containerStatus: "INACTIVE", // "INACTIVE" | "RAM_ISOLATED" | "SHREDDED"
+        ephemeralMemoryAllocatedMb: 512,
+        containersDestroyedCount: 4,
+        bookmarks: [
+            { id: "bm-1", title: "DuckDuckGo Search", url: "https://duckduckgo.com", icon: "🦆", addedAt: "2026-11-01" },
+            { id: "bm-2", title: "Wikipedia: The Free Encyclopedia", url: "https://en.wikipedia.org", icon: "📖", addedAt: "2026-11-01" },
+            { id: "bm-3", title: "Hacker News (YCombinator)", url: "https://news.ycombinator.com", icon: "🔥", addedAt: "2026-11-01" },
+            { id: "bm-4", title: "AegisOS Architecture Whitepaper", url: "https://aegis-os.org/docs", icon: "🛡️", addedAt: "2026-11-01" }
+        ],
+        history: []
+    },
+
+    // Merkle Filesystem & Real File Contents
     filesystem: {
         merkleRoot: "0x8f4d92a15c8e43f07a1b3d5c9e2a7b6f4c8d1e3a5b7c9d0e1f2a3b4c5d6e7f8",
         status: "INTEGRITY_VERIFIED",
@@ -76,13 +92,104 @@ const systemState = {
             { id: "blk-5", path: "/filesystem/merkle_journal.log", hash: "7c5e31a89c423e7...", size: "512 KB", status: "HEALTHY", tier: "NVMe" }
         ],
         files: [
-            { id: "f-1", name: "vmlinuz-aegis", path: "/boot/vmlinuz-aegis", size: 14889984, sizeStr: "14.2 MB", perm: "rwxr-xr-x", ring: "Ring 0", encrypted: false, hash: "a4f912c...", modified: "2026-11-01 10:14", type: "kernel" },
-            { id: "f-2", name: "zero_trust.db", path: "/system/security/zero_trust.db", size: 1258291, sizeStr: "1.2 MB", perm: "rw-------", ring: "Ring 0", encrypted: true, hash: "9d4c21b...", modified: "2026-11-01 14:22", type: "db" },
-            { id: "f-3", name: "libaegis_kernel.so", path: "/system/lib/libaegis_kernel.so", size: 8808038, sizeStr: "8.4 MB", perm: "rwxr-xr-x", ring: "Ring 1", encrypted: false, hash: "3e1a77f...", modified: "2026-11-01 12:05", type: "library" },
-            { id: "f-4", name: "user_vault.dat", path: "/userland/data/user_vault.dat", size: 56728576, sizeStr: "54.1 MB", perm: "rw-rw----", ring: "Ring 3", encrypted: true, hash: "8f4d92a...", modified: "2026-11-01 14:50", type: "data" },
-            { id: "f-5", name: "merkle_journal.log", path: "/filesystem/merkle_journal.log", size: 524288, sizeStr: "512 KB", perm: "rw-r--r--", ring: "Ring 0", encrypted: true, hash: "7c5e31a...", modified: "2026-11-01 15:10", type: "log" },
-            { id: "f-6", name: "firewall_rules.conf", path: "/etc/aegis/firewall_rules.conf", size: 4096, sizeStr: "4 KB", perm: "rw-r--r--", ring: "Ring 2", encrypted: false, hash: "1b9a4c8...", modified: "2026-11-01 13:30", type: "config" },
-            { id: "f-7", name: "classified_payload.enc", path: "/vault/classified_payload.enc", size: 10485760, sizeStr: "10.0 MB", perm: "r--------", ring: "Ring 0", encrypted: true, hash: "fe248a9...", modified: "2026-11-01 09:00", type: "vault" }
+            {
+                id: "f-1",
+                name: "vmlinuz-aegis",
+                path: "/boot/vmlinuz-aegis",
+                size: 14889984,
+                sizeStr: "14.2 MB",
+                perm: "rwxr-xr-x",
+                ring: "Ring 0",
+                encrypted: false,
+                hash: "a4f912c...",
+                modified: "2026-11-01 10:14",
+                type: "kernel",
+                content: "#!/aegis/microkernel\n# AegisOS Core Dual-Kernel Image v2.0-Alpha\n[KERNEL_BOOT]\nARCH=x86_64_MICROKERNEL\nASLR=ENABLED_64BIT\nSCHEDULER=CFS_ADAPTIVE\nROOT_HASH=0x8f4d92a15c8e43f07a1b3d5c9e2a7b6f4c8d1e3a5b7c9d0e1f2a3b4c5d6e7f8\nMERKLE_TREE=ENFORCED\nDRIVER_ISOLATION=RING_3_SANDBOX"
+            },
+            {
+                id: "f-2",
+                name: "zero_trust.db",
+                path: "/system/security/zero_trust.db",
+                size: 1258291,
+                sizeStr: "1.2 MB",
+                perm: "rw-------",
+                ring: "Ring 0",
+                encrypted: true,
+                hash: "9d4c21b...",
+                modified: "2026-11-01 14:22",
+                type: "db",
+                content: "[ZERO_TRUST_SECURITY_DATABASE]\nDEFAULT_DENY_POLICY=TRUE\nHARDWARE_ACCESS_GATES=STRICT\nALLOWED_CAPABILITIES=CAP_NET_RAW,CAP_STORAGE_ADMIN,CAP_FRAMEBUFFER\nACTIVE_TOKENS=3\nAUDIT_LOG_ROTATION=HOURLY"
+            },
+            {
+                id: "f-3",
+                name: "libaegis_kernel.so",
+                path: "/system/lib/libaegis_kernel.so",
+                size: 8808038,
+                sizeStr: "8.4 MB",
+                perm: "rwxr-xr-x",
+                ring: "Ring 1",
+                encrypted: false,
+                hash: "3e1a77f...",
+                modified: "2026-11-01 12:05",
+                type: "library",
+                content: "/* AegisOS Core Dynamic Shared Library */\nextern int mmgr_alloc(size_t sz);\nextern void shield_filter_packet(const void *frame);\nextern int ztac_verify_token(const char *token_id);"
+            },
+            {
+                id: "f-4",
+                name: "user_vault.dat",
+                path: "/userland/data/user_vault.dat",
+                size: 56728576,
+                sizeStr: "54.1 MB",
+                perm: "rw-rw----",
+                ring: "Ring 3",
+                encrypted: true,
+                hash: "8f4d92a...",
+                modified: "2026-11-01 14:50",
+                type: "data",
+                content: "CLASSIFIED USER VAULT\nUser: Root Administrator\nAuth Method: Biometric + Ephemeral Hardware Token\nVault Path: /vault/secure_enclave.dat\nStatus: AES-256-XTS Encrypted"
+            },
+            {
+                id: "f-5",
+                name: "merkle_journal.log",
+                path: "/filesystem/merkle_journal.log",
+                size: 524288,
+                sizeStr: "512 KB",
+                perm: "rw-r--r--",
+                ring: "Ring 0",
+                encrypted: true,
+                hash: "7c5e31a...",
+                modified: "2026-11-01 15:10",
+                type: "log",
+                content: "[2026-11-01 10:00:00] MERKLE_JOURNAL_INITIALIZED root=0x8f4d92a1...\n[2026-11-01 12:00:00] CHECKPOINT_CREATED id=chkpt-0001 (Clean Boot)\n[2026-11-01 14:30:00] SNAPSHOT_TAKEN id=chkpt-0002 (Pre-Update)\n[2026-11-01 15:10:00] INTEGRITY_AUDIT: All 6 branch hashes verified healthy."
+            },
+            {
+                id: "f-6",
+                name: "firewall_rules.conf",
+                path: "/etc/aegis/firewall_rules.conf",
+                size: 4096,
+                sizeStr: "4 KB",
+                perm: "rw-r--r--",
+                ring: "Ring 2",
+                encrypted: false,
+                hash: "1b9a4c8...",
+                modified: "2026-11-01 13:30",
+                type: "config",
+                content: "# Aegis Shield Stateful Firewall Configuration\nFIREWALL_ENABLED=1\nSTATEFUL_INSPECTION=1\nNOP_SLED_BLOCKER=1\nPORT_SCAN_THRESHOLD=10/sec\nDEFAULT_ACTION=DROP\nALLOW_PORTS=22,443,80"
+            },
+            {
+                id: "f-7",
+                name: "classified_payload.enc",
+                path: "/vault/classified_payload.enc",
+                size: 10485760,
+                sizeStr: "10.0 MB",
+                perm: "r--------",
+                ring: "Ring 0",
+                encrypted: true,
+                hash: "fe248a9...",
+                modified: "2026-11-01 09:00",
+                type: "vault",
+                content: "[TOP_SECRET_ENCLAVE_DATA]\nCIPHER: AES-256-GCM\nKEY_ID: HSM-SECURE-KEY-882\nPAYLOAD: 88f9104c88e9124018b871cda912bc78"
+            }
         ],
         snapshots: [
             { id: "chkpt-0001", name: "Clean Boot Baseline", timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(), size: "482 MB", bootable: true },
@@ -91,7 +198,7 @@ const systemState = {
         ]
     },
 
-    // Tiered Storage & Optimization Engine State
+    // Storage Engine State
     storage: {
         totalCapacityGb: 2560,
         usedCapacityGb: 785.4,
@@ -111,7 +218,7 @@ const systemState = {
         ]
     },
 
-    // Live Telemetry
+    // Telemetry
     telemetry: {
         cpuUsage: 18.4,
         ramUsage: 34.2,
@@ -125,7 +232,6 @@ const systemState = {
     }
 };
 
-// MIME Types
 const MIME_TYPES = {
     '.html': 'text/html; charset=UTF-8',
     '.css': 'text/css; charset=UTF-8',
@@ -244,7 +350,7 @@ function handleApi(req, res, pathname, url) {
     }
 
     // ----------------------------------------------------
-    // 2. FILE MANAGEMENT (AegisFS Cryptographic Explorer)
+    // 2. FILE MANAGEMENT (READ, WRITE, CREATE, EDIT, ENCRYPT, DELETE)
     // ----------------------------------------------------
     if (pathname === '/api/files/list' && req.method === 'GET') {
         return sendJson(res, 200, {
@@ -255,22 +361,66 @@ function handleApi(req, res, pathname, url) {
         });
     }
 
+    if (pathname === '/api/files/read' && req.method === 'GET') {
+        const fileId = url.searchParams.get('id');
+        const filePath = url.searchParams.get('path');
+        const file = systemState.filesystem.files.find(f => (fileId && f.id === fileId) || (filePath && f.path === filePath));
+        if (!file) return sendJson(res, 404, { error: 'File not found' });
+        return sendJson(res, 200, { file, content: file.content });
+    }
+
+    if (pathname === '/api/files/write' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.path) return sendJson(res, 400, { error: 'Path required' });
+            let file = systemState.filesystem.files.find(f => f.path === data.path || f.id === data.fileId);
+            
+            if (file) {
+                file.content = data.content || '';
+                file.size = Buffer.byteLength(file.content, 'utf8');
+                file.sizeStr = `${Math.max(1, Math.round(file.size / 1024))} KB`;
+                file.hash = Math.random().toString(16).substring(2, 10) + "...";
+                file.modified = new Date().toISOString().substring(0, 16).replace('T', ' ');
+            } else {
+                const name = path.basename(data.path);
+                file = {
+                    id: `f-${Date.now()}`,
+                    name: name,
+                    path: data.path,
+                    size: Buffer.byteLength(data.content || '', 'utf8'),
+                    sizeStr: `${Math.max(1, Math.round(Buffer.byteLength(data.content || '', 'utf8') / 1024))} KB`,
+                    perm: data.perm || "rw-r--r--",
+                    ring: data.ring || "Ring 3",
+                    encrypted: !!data.encrypted,
+                    hash: Math.random().toString(16).substring(2, 10) + "...",
+                    modified: new Date().toISOString().substring(0, 16).replace('T', ' '),
+                    type: path.extname(name).replace('.', '') || "text",
+                    content: data.content || ""
+                };
+                systemState.filesystem.files.push(file);
+            }
+            return sendJson(res, 200, { success: true, file });
+        });
+        return;
+    }
+
     if (pathname === '/api/files/create' && req.method === 'POST') {
         parseBody(req, (err, data) => {
             if (err || !data.name) return sendJson(res, 400, { error: 'File name required' });
+            const filePath = data.path || `/userland/data/${data.name}`;
+            const content = data.content || "AegisOS Protected Document Payload";
             const newFile = {
                 id: `f-${Date.now()}`,
                 name: data.name,
-                path: data.path || `/userland/data/${data.name}`,
-                size: (data.content ? data.content.length : 128),
-                sizeStr: `${Math.max(1, Math.round((data.content ? data.content.length : 128) / 1024))} KB`,
+                path: filePath,
+                size: Buffer.byteLength(content, 'utf8'),
+                sizeStr: `${Math.max(1, Math.round(Buffer.byteLength(content, 'utf8') / 1024))} KB`,
                 perm: data.perm || "rw-r--r--",
                 ring: data.ring || "Ring 3",
                 encrypted: !!data.encrypted,
                 hash: Math.random().toString(16).substring(2, 10) + "...",
                 modified: new Date().toISOString().substring(0, 16).replace('T', ' '),
                 type: data.type || "text",
-                content: data.content || "AegisOS Protected Document Payload"
+                content: content
             };
             systemState.filesystem.files.push(newFile);
             return sendJson(res, 200, { success: true, file: newFile });
@@ -307,7 +457,57 @@ function handleApi(req, res, pathname, url) {
     }
 
     // ----------------------------------------------------
-    // 3. STORAGE OPTIMIZER & TIERED ENGINE
+    // 3. VIRTUAL DISPOSABLE BROWSER ("GHOST BROWSER")
+    // ----------------------------------------------------
+    if (pathname === '/api/browser/new-container' && req.method === 'POST') {
+        const containerId = `MICRO-VM-GHOST-${Math.floor(Math.random() * 90000) + 10000}`;
+        systemState.browser.currentContainerId = containerId;
+        systemState.browser.containerStatus = "RAM_ISOLATED";
+
+        return sendJson(res, 200, {
+            success: true,
+            containerId,
+            status: "RAM_ISOLATED",
+            ramAllocatedMb: systemState.browser.ephemeralMemoryAllocatedMb,
+            airgapProtection: "ACTIVE",
+            message: "Ephemeral RAM-isolated browser container provisioned. All internet interaction is strictly quarantined. Data wipes automatically upon closing."
+        });
+    }
+
+    if (pathname === '/api/browser/destroy-container' && req.method === 'POST') {
+        const destroyedId = systemState.browser.currentContainerId || "MICRO-VM-GHOST-ACTIVE";
+        systemState.browser.currentContainerId = null;
+        systemState.browser.containerStatus = "SHREDDED";
+        systemState.browser.containersDestroyedCount++;
+
+        return sendJson(res, 200, {
+            success: true,
+            shreddedContainerId: destroyedId,
+            wipeAlgorithm: "DoD 5220.22-M 3-Pass 0x00 Cryptographic Shred",
+            dataRetainedOnHost: "ONLY_SANITIZED_BOOKMARKS",
+            threatsMitigated: "All cookies, trackers, cache, and drive-by scripts vaporized.",
+            totalContainersPurged: systemState.browser.containersDestroyedCount
+        });
+    }
+
+    if (pathname === '/api/browser/save-bookmark' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.url) return sendJson(res, 400, { error: 'URL required' });
+            const bookmark = {
+                id: `bm-${Date.now()}`,
+                title: data.title || data.url,
+                url: data.url,
+                icon: "🌐",
+                addedAt: new Date().toLocaleDateString()
+            };
+            systemState.browser.bookmarks.push(bookmark);
+            return sendJson(res, 200, { success: true, bookmark });
+        });
+        return;
+    }
+
+    // ----------------------------------------------------
+    // 4. STORAGE OPTIMIZER & TIERED ENGINE
     // ----------------------------------------------------
     if (pathname === '/api/storage/info' && req.method === 'GET') {
         return sendJson(res, 200, {
@@ -317,7 +517,6 @@ function handleApi(req, res, pathname, url) {
     }
 
     if (pathname === '/api/storage/optimize' && req.method === 'POST') {
-        // Simulate TRIM, deduplication pass, and defragmentation
         const reclaimedMb = Math.floor(Math.random() * 850) + 420;
         systemState.storage.dedupSavingsGb = Math.round((systemState.storage.dedupSavingsGb + (reclaimedMb / 1024)) * 10) / 10;
         systemState.storage.fragmentationPercent = Math.max(0.4, Math.round((systemState.storage.fragmentationPercent * 0.4) * 10) / 10);
@@ -334,9 +533,8 @@ function handleApi(req, res, pathname, url) {
     }
 
     // ----------------------------------------------------
-    // 4. POWERFUL CYBERSECURITY SUITE
+    // 5. CYBERSECURITY SUITE
     // ----------------------------------------------------
-    // 4a. Live Packet Sniffer Feed
     if (pathname === '/api/cybersec/packets' && req.method === 'GET') {
         const protocols = ['TLS 1.3', 'HTTPS', 'SSH-2.0', 'DNS-SEC', 'TCP SYN', 'ICMP', 'QUIC'];
         const samplePackets = [];
@@ -357,7 +555,6 @@ function handleApi(req, res, pathname, url) {
         return sendJson(res, 200, { packets: samplePackets, blockedCount: systemState.securityStatus.threatsBlocked });
     }
 
-    // 4b. Vulnerability Assessment Scanner
     if (pathname === '/api/cybersec/vulnerability-scan' && req.method === 'POST') {
         return sendJson(res, 200, {
             status: "AUDIT_COMPLETE",
@@ -374,11 +571,10 @@ function handleApi(req, res, pathname, url) {
         });
     }
 
-    // 4c. Detonate in Isolated Malware Sandbox
     if (pathname === '/api/cybersec/sandbox-detonate' && req.method === 'POST') {
         parseBody(req, (err, data) => {
             const sampleName = data.sampleName || "unknown_suspicious_payload.bin";
-            const threatScore = Math.floor(Math.random() * 15) + 85; // 85-99%
+            const threatScore = Math.floor(Math.random() * 15) + 85;
             return sendJson(res, 200, {
                 success: true,
                 sampleName,
@@ -397,7 +593,6 @@ function handleApi(req, res, pathname, url) {
         return;
     }
 
-    // 4d. Issue Zero-Trust Token
     if (pathname === '/api/cybersec/issue-token' && req.method === 'POST') {
         parseBody(req, (err, data) => {
             const token = {
@@ -415,7 +610,7 @@ function handleApi(req, res, pathname, url) {
     }
 
     // ----------------------------------------------------
-    // 5. AGENTIC AI ASSISTANT ("Aegis Mind")
+    // 6. AGENTIC AI ASSISTANT ("Aegis Mind")
     // ----------------------------------------------------
     if (pathname === '/api/ai/execute' && req.method === 'POST') {
         parseBody(req, (err, data) => {
@@ -429,7 +624,7 @@ function handleApi(req, res, pathname, url) {
     }
 
     // ----------------------------------------------------
-    // 6. EXISTING AEGIS CONTROLS (Shield, Merkle, Opt, Term)
+    // 7. EXISTING AEGIS CONTROLS (Shield, Merkle, Opt, Term)
     // ----------------------------------------------------
     if (pathname === '/api/shield/toggle-rule' && req.method === 'POST') {
         parseBody(req, (err, data) => {
@@ -523,12 +718,11 @@ function handleApi(req, res, pathname, url) {
 }
 
 // ==========================================
-// AGENTIC AI ASSISTANT REASONING & EXECUTION
+// AGENTIC AI ASSISTANT REASONING
 // ==========================================
 function handleAIAssistant(prompt, callback) {
     const p = prompt.toLowerCase();
     
-    // Action 1: Optimize Storage / Defrag / TRIM
     if (p.includes('storage') || p.includes('dedup') || p.includes('trim') || p.includes('clean disk')) {
         const reclaimed = Math.floor(Math.random() * 800) + 400;
         systemState.storage.dedupSavingsGb += Math.round((reclaimed / 1024) * 10) / 10;
@@ -537,11 +731,7 @@ function handleAIAssistant(prompt, callback) {
         return callback({
             role: "assistant",
             intent: "STORAGE_OPTIMIZATION",
-            reply: `I have analyzed and optimized the AegisOS tiered storage hierarchy.
-Here is what I performed:
-1. Ran real-time deduplication pass across Tier 2 (NVMe) & Tier 3 (SATA SSD). Reclaimed ${reclaimed} MB of duplicate blocks.
-2. Dispatched I/O TRIM commands to SSD controller wear-leveling ring.
-3. Compacted kernel memory pages in Tier 1 RAM Buffer. Current fragmentation is now down to ${systemState.storage.fragmentationPercent}%.`,
+            reply: `Tiered storage analyzed and optimized.\n1. Ran real-time deduplication pass across NVMe & SATA SSD. Reclaimed ${reclaimed} MB.\n2. Dispatched I/O TRIM commands to SSD controller.\n3. Compacted kernel memory pages. Fragmentation down to ${systemState.storage.fragmentationPercent}%.`,
             actionsExecuted: [
                 { task: "Block Deduplication Sweep", result: `Reclaimed ${reclaimed} MB` },
                 { task: "I/O TRIM Wear-Leveling", result: "Complete" },
@@ -551,15 +741,24 @@ Here is what I performed:
         });
     }
 
-    // Action 2: Security Hardening / Vulnerability Scan
+    if (p.includes('browser') || p.includes('web') || p.includes('ghost') || p.includes('internet')) {
+        return callback({
+            role: "assistant",
+            intent: "BROWSER_SPAWN",
+            reply: `Aegis Quantum Ghost Browser is active.\nEvery browsing session is completely isolated in an ephemeral RAM container. Once you close the browser window, the container is destroyed with a 0x00 cryptographic shred so no cookies, malware, or trackers touch your host system.`,
+            actionsExecuted: [
+                { task: "Spawn Ephemeral Container", result: "RAM-Isolated (512 MB sandbox)" },
+                { task: "Zero-Trust Airgap", result: "Enforced" }
+            ],
+            suggestedFollowups: ["Open Quantum Ghost Browser", "Audit vulnerabilities", "Clean storage"]
+        });
+    }
+
     if (p.includes('security') || p.includes('vulnerabilit') || p.includes('harden') || p.includes('audit')) {
         return callback({
             role: "assistant",
             intent: "SECURITY_AUDIT",
-            reply: `Comprehensive cybersecurity audit complete. All AegisOS defenses are operating at maximum readiness (Score: 98/100).
-- **Aegis Shield Firewall**: Stateful Packet Inspection active, 19 attack vectors mitigated.
-- **Aegis Guard AI**: Heuristic accuracy is 98.7% with active zero-day honeypot tripwires.
-- **Microkernel Isolation**: ASLR 64-bit entropy verified; user-space drivers strictly sandboxed in Ring 3.`,
+            reply: `Comprehensive cybersecurity audit complete. Defense rating: 98/100 (EXTREME DEFENSE).\n- Aegis Shield: Stateful Packet Inspection active, 22 attacks dropped.\n- Aegis Guard AI: 98.7% heuristic accuracy with zero-day honeypots.\n- Microkernel Isolation: 64-bit ASLR entropy and Ring-3 driver sandboxes verified.`,
             actionsExecuted: [
                 { task: "Audit ASLR & Shadow Stack Canaries", result: "PASS (64-bit entropy verified)" },
                 { task: "Evaluate Firewall Rules", result: "6 rules enforced, 0 open debug ports" },
@@ -569,7 +768,6 @@ Here is what I performed:
         });
     }
 
-    // Action 3: Simulate Ransomware Attack & Heal
     if (p.includes('ransomware') || p.includes('attack') || p.includes('corrupt') || p.includes('heal') || p.includes('rollback')) {
         if (p.includes('rollback') || p.includes('heal') || p.includes('repair')) {
             systemState.filesystem.blocks.forEach(b => b.status = "HEALTHY");
@@ -577,7 +775,7 @@ Here is what I performed:
             return callback({
                 role: "assistant",
                 intent: "RESTORE_MERKLE",
-                reply: `Atomic Sub-10s Rollback completed in 1.42 seconds! The Merkle tree cryptographic root inode has been re-pointed to clean restore point 'chkpt-0003'. All filesystem blocks are verified healthy with zero data loss.`,
+                reply: `Atomic Sub-10s Rollback completed in 1.42 seconds! The Merkle root inode has been re-pointed to clean restore point 'chkpt-0003'. All files are healthy with 0 data loss.`,
                 actionsExecuted: [
                     { task: "Lookup Snapshot Checkpoint", result: "chkpt-0003 verified" },
                     { task: "Atomic Root Pointer Pivot", result: "1.42s execution time" },
@@ -591,8 +789,7 @@ Here is what I performed:
             return callback({
                 role: "assistant",
                 intent: "CORRUPT_MERKLE_ALERT",
-                reply: `ALERT: I have simulated a ransomware attack targeting block '/userland/data/user_vault.dat'. Aegis Guard immediately caught the cryptographic divergence!
-Would you like me to execute an atomic rollback to restore the system?`,
+                reply: `ALERT: Ransomware attack simulated on block '/userland/data/user_vault.dat'. Aegis Guard caught the cryptographic divergence immediately.\nWould you like me to execute an atomic rollback?`,
                 actionsExecuted: [
                     { task: "Simulate Ransomware Payload Injection", result: "Hash diverged on blk-4" },
                     { task: "Aegis Guard Detection Tripwire", result: "ALARM TRIGGERED (Confidence: 99.2%)" }
@@ -602,17 +799,12 @@ Would you like me to execute an atomic rollback to restore the system?`,
         }
     }
 
-    // Action 4: Mode Switching (Game / Eco / Work)
     if (p.includes('game') || p.includes('gaming') || p.includes('boost') || p.includes('fps')) {
         systemState.optimizerMode = "GAME";
         return callback({
             role: "assistant",
             intent: "MODE_CHANGE",
-            reply: `I have activated Game Mode via the Aegis Dynamic Task Optimizer!
-- **CPU Scheduler**: Priority boosted by +25%, dynamic frequency raised to 4.85 GHz.
-- **GPU Pipeline**: Overclock boost +30% enabled.
-- **Background Tasks**: Indexing, telemetry logging, and updates paused.
-- **Audio Subsystem**: Switched to ultra-low 1.2ms latency mode.`,
+            reply: `Game Mode activated via Task Optimizer!\n- CPU Priority: +25% (4.85 GHz dynamic clock).\n- GPU Pipeline: +30% Overclock boost.\n- Background tasks suspended, audio latency set to 1.2ms.`,
             actionsExecuted: [
                 { task: "Set CFS Scheduler Priority", result: "Boost +25%" },
                 { task: "GPU Pipeline Clock", result: "+30% Overclock" },
@@ -622,78 +814,236 @@ Would you like me to execute an atomic rollback to restore the system?`,
         });
     }
 
-    // Action 5: File Encryption / Management
-    if (p.includes('encrypt') || p.includes('file') || p.includes('files') || p.includes('vault')) {
-        return callback({
-            role: "assistant",
-            intent: "FILE_MANAGEMENT",
-            reply: `AegisFS Cryptographic File Manager is monitoring ${systemState.filesystem.files.length} system and userland files.
-- All files in '/vault' and '/system/security' are secured with per-file AES-256-XTS encryption.
-- Merkle root integrity: ${systemState.filesystem.merkleRoot.substring(0, 24)}...
-- Zero-Trust permissions isolate Ring 0 kernel files from unprivileged Ring 3 applications.`,
-            actionsExecuted: [
-                { task: "Inspect File Allocation Table", result: `${systemState.filesystem.files.length} active inodes` },
-                { task: "Validate Hardware Cryptographic Engine", result: "AES-NI Hardware Acceleration Active" }
-            ],
-            suggestedFollowups: ["Show storage tiers", "Clean up disk space", "Check security status"]
-        });
-    }
-
-    // Default general assistant response
     return callback({
         role: "assistant",
         intent: "GENERAL_EXECUTION",
-        reply: `I am **Aegis Mind**, the integrated AI system controller. I have full ring-0 access to execute any instruction across microkernel scheduling, tiered storage, Aegis Shield firewall, Merkle filesystem, and diagnostic repairs.
-
-You can ask me to:
-- *"Optimize storage and clean duplicate blocks"*
-- *"Run a full cybersecurity vulnerability scan"*
-- *"Simulate a ransomware attack and heal with 10s rollback"*
-- *"Activate Game Mode for maximum CPU/GPU boost"*
-- *"Inspect and encrypt files in the user vault"*`,
+        reply: `I am **Aegis Mind**, your autonomous operating system copilot with Ring-0 authority.\n\nTell me any task:\n- *"Optimize tiered storage and clean disk"*\n- *"Open virtual ghost browser for private search"*\n- *"Run full cybersecurity vulnerability audit"*\n- *"Simulate ransomware attack and heal with 10s rollback"*\n- *"Encrypt or edit files in the secure vault"*`,
         actionsExecuted: [
             { task: "Parse Natural Language Intent", result: "Ready" },
             { task: "Check System Health", result: "Normal (CPU: 18%, Security: Optimal)" }
         ],
         suggestedFollowups: [
             "Optimize storage now",
+            "Open virtual ghost browser",
             "Run security vulnerability scan",
-            "Switch to game mode",
-            "Simulate ransomware attack"
+            "Switch to game mode"
         ]
     });
 }
 
-// Shell command executor
+// ==========================================
+// REAL OS COMMAND EXECUTOR (SHELL SUBSYSTEM)
+// ==========================================
 function executeShellCommand(cmd, callback) {
     const parts = cmd.split(' ').filter(Boolean);
     const root = parts[0].toLowerCase();
-    const arg = parts[1] ? parts[1].toLowerCase() : '';
+    const arg1 = parts[1] ? parts[1] : '';
+    const arg2 = parts[2] ? parts[2] : '';
 
     switch (root) {
         case 'help':
-            return callback(`AegisOS Shell Commands:
-  help                    - List available commands
-  sysinfo                 - Print system & kernel architecture info
-  ps                      - List active processes
+            return callback(`AegisOS Full System Command Manual:
+  [Filesystem & Editing]
+  ls [path]               - List files and directories
+  cat <file>              - Read and print file contents
+  write <file> <text>     - Write or append text to file
+  touch <file>            - Create new empty file
+  rm <file>               - Delete file from filesystem
+  shred <file>            - Cryptographic multi-pass 0x00 file wipe
+  encrypt <file>          - Toggle AES-256 hardware encryption
+  
+  [System & Telemetry]
+  sysinfo                 - OS architecture & kernel status
+  uname [-a]              - Print system kernel release
+  whoami                  - Current user and privilege ring
+  uptime                  - System uptime and load averages
+  date                    - Print system timestamp
+  top / ps                - Active microkernel task manager
   kill <pid>              - Terminate process by PID
-  shield [status|toggle]  - Inspect or configure Aegis Shield Firewall
+  df -h                   - Storage partition & Merkle disk usage
+  free -m                 - Memory allocations (RAM & page cache)
+  
+  [Network & Security]
+  ping <host>             - Send simulated ICMP probe
+  curl <url>              - Make HTTP/TLS request in virtual stack
+  netstat                 - List active sockets & firewall state
+  shield [status|toggle]  - Configure Aegis Shield Firewall
   guard [scan]            - Trigger AI heuristic malware scanner
-  ztac                    - Inspect Zero-Trust Access Controller tokens
-  troubleshoot            - Run 7-point automated diagnostic suite
-  opt [game|work|stream]  - Switch Task Optimizer performance profile
-  checkpoint [list|heal]  - Manage snapshots and 10s rollback recovery
-  neural                  - Dump real-time neural telemetry counters
-  fs [ls|cat|corrupt|heal]- Test Merkle filesystem operations
-  storage [info|optimize] - Inspect tiered storage and run block deduplication
-  cybersec [scan|sniff]   - Run vulnerability audit or deep packet inspection
-  ai <prompt>             - Send command directly to Aegis Mind AI Controller
+  cybersec [scan|sniff]   - Run CVE audit or packet sniffer
+  
+  [Applications & AI]
+  browser [url]           - Launch virtual disposable Ghost Browser
+  storage [info|opt]      - Inspect tiered storage & run TRIM
+  opt [game|work|stream]  - Switch Task Optimizer profile
+  checkpoint [list|heal]  - Rollback to cryptographic snapshot
+  ai <instruction>        - Dispatch autonomous task to Aegis Mind
   theme [cyan|amber|dark] - Switch Adaptive UI visual theme
-  layout [hybrid|win|linux]- Switch desktop interface paradigm
-  clear                   - Clear terminal display`);
+  clear                   - Clear screen`);
 
+        // REAL OS COMMANDS: FILES
+        case 'ls':
+            const filterPath = arg1.toLowerCase();
+            const listFiles = systemState.filesystem.files.filter(f => !filterPath || f.path.toLowerCase().includes(filterPath));
+            if (listFiles.length === 0) return callback(`ls: cannot access '${arg1}': No such file or directory`);
+            return callback(listFiles.map(f => `${f.perm}  ${f.ring.padEnd(7)}  ${f.sizeStr.padStart(8)}  ${f.encrypted ? '[ENC]' : '[RAW]'}  ${f.path}`).join('\n'));
+
+        case 'cat':
+            if (!arg1) return callback(`cat: missing file operand`);
+            const targetCat = systemState.filesystem.files.find(f => f.path === arg1 || f.name === arg1 || f.id === arg1);
+            if (!targetCat) return callback(`cat: ${arg1}: No such file or directory`);
+            return callback(`[FILE: ${targetCat.path} (${targetCat.sizeStr}, ${targetCat.encrypted ? 'AES-256' : 'Plaintext'})]\n${targetCat.content || '(empty file)'}`);
+
+        case 'touch':
+            if (!arg1) return callback(`touch: missing file operand`);
+            let existingTouch = systemState.filesystem.files.find(f => f.path === arg1 || f.name === arg1);
+            if (!existingTouch) {
+                const name = path.basename(arg1);
+                existingTouch = {
+                    id: `f-${Date.now()}`,
+                    name: name,
+                    path: arg1.startsWith('/') ? arg1 : `/userland/data/${arg1}`,
+                    size: 0,
+                    sizeStr: "0 KB",
+                    perm: "rw-r--r--",
+                    ring: "Ring 3",
+                    encrypted: false,
+                    hash: Math.random().toString(16).substring(2, 10) + "...",
+                    modified: new Date().toISOString().substring(0, 16).replace('T', ' '),
+                    type: "text",
+                    content: ""
+                };
+                systemState.filesystem.files.push(existingTouch);
+                return callback(`Created file: ${existingTouch.path}`);
+            }
+            existingTouch.modified = new Date().toISOString().substring(0, 16).replace('T', ' ');
+            return callback(`Updated timestamp for ${existingTouch.path}`);
+
+        case 'write':
+            if (!arg1) return callback(`write: missing file operand. Usage: write <file> <text>`);
+            const writeContent = parts.slice(2).join(' ') || '';
+            let targetWrite = systemState.filesystem.files.find(f => f.path === arg1 || f.name === arg1);
+            if (!targetWrite) {
+                const name = path.basename(arg1);
+                targetWrite = {
+                    id: `f-${Date.now()}`,
+                    name: name,
+                    path: arg1.startsWith('/') ? arg1 : `/userland/data/${arg1}`,
+                    size: writeContent.length,
+                    sizeStr: `${Math.max(1, Math.round(writeContent.length / 1024))} KB`,
+                    perm: "rw-r--r--",
+                    ring: "Ring 3",
+                    encrypted: false,
+                    hash: Math.random().toString(16).substring(2, 10) + "...",
+                    modified: new Date().toISOString().substring(0, 16).replace('T', ' '),
+                    type: "text",
+                    content: writeContent
+                };
+                systemState.filesystem.files.push(targetWrite);
+                return callback(`Created and wrote ${writeContent.length} bytes to ${targetWrite.path}`);
+            }
+            targetWrite.content = writeContent;
+            targetWrite.size = writeContent.length;
+            targetWrite.sizeStr = `${Math.max(1, Math.round(writeContent.length / 1024))} KB`;
+            targetWrite.modified = new Date().toISOString().substring(0, 16).replace('T', ' ');
+            return callback(`Wrote ${writeContent.length} bytes to ${targetWrite.path}`);
+
+        case 'rm':
+            if (!arg1) return callback(`rm: missing operand`);
+            const rmIdx = systemState.filesystem.files.findIndex(f => f.path === arg1 || f.name === arg1 || f.id === arg1);
+            if (rmIdx === -1) return callback(`rm: cannot remove '${arg1}': No such file`);
+            const removed = systemState.filesystem.files.splice(rmIdx, 1)[0];
+            return callback(`Removed inode: ${removed.path}`);
+
+        case 'shred':
+            if (!arg1) return callback(`shred: missing operand`);
+            const shredIdx = systemState.filesystem.files.findIndex(f => f.path === arg1 || f.name === arg1);
+            if (shredIdx === -1) return callback(`shred: '${arg1}': No such file`);
+            const shredded = systemState.filesystem.files.splice(shredIdx, 1)[0];
+            return callback(`shred: ${shredded.path}: Overwritten with 3-pass 0x00 cryptographic zeroes. Inode purged.`);
+
+        case 'encrypt':
+            if (!arg1) return callback(`encrypt: missing file operand`);
+            const encFile = systemState.filesystem.files.find(f => f.path === arg1 || f.name === arg1);
+            if (!encFile) return callback(`encrypt: '${arg1}': No such file`);
+            encFile.encrypted = !encFile.encrypted;
+            return callback(`AegisFS Encryption toggled for ${encFile.path}: ${encFile.encrypted ? 'LOCKED (AES-256-XTS)' : 'UNLOCKED (Plaintext)'}`);
+
+        // REAL OS COMMANDS: SYSTEM INFO & STATS
+        case 'whoami':
+            return callback(`root (Authority: Zero-Trust Ring 0 Supervisor, UID: 0, GID: 0)`);
+
+        case 'date':
+            return callback(new Date().toString());
+
+        case 'uname':
+            return callback(`AegisOS kernel-ring0 2.0.0-Alpha #1 SMP PREEMPT 2026 x86_64 Dual-Kernel/Microkernel GNU/Linux-ABI`);
+
+        case 'uptime':
+            const upSec = Math.floor((Date.now() - systemState.startTime) / 1000);
+            const hrs = Math.floor(upSec / 3600);
+            const mins = Math.floor((upSec % 3600) / 60);
+            const secs = upSec % 60;
+            return callback(` ${new Date().toLocaleTimeString()} up ${hrs}h ${mins}m ${secs}s, 1 user, load average: 0.18, 0.22, 0.15`);
+
+        case 'top':
+            return callback(`AegisOS CFS Scheduler - Tasks: 54 total, 4 running, 50 sleeping
+CPU: ${systemState.telemetry.cpuUsage}% usr, 2.1% sys, 0.0% ni, 78.4% id
+Mem: 16384 MB total, 5603 MB used, 10781 MB free, 840 MB buff/cache
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+    1 root      20   0   14.2M   8.4M   4.2M S   0.1   0.1   0:02.14 aegis_kernel_init
+    8 system    10 -10   48.0M  32.1M  16.0M R   0.8   0.2   0:15.30 shield_daemon
+    9 system    10 -10   72.0M  48.5M  24.0M R   1.4   0.3   0:28.12 aegis_guard_ai
+   18 system    20   0   96.0M  64.0M  32.0M R   1.8   0.4   0:45.02 aegis_mind_ai
+   24 user      20   0  128.0M  85.0M  42.0M R   2.1   0.5   1:12.44 ui_compositor`);
+
+        case 'df':
+            return callback(`Filesystem                Size      Used     Avail  Use% Mounted on
+/dev/aegis_merkle0       512G      142G      370G   28% /
+/dev/aegis_ramdisk        16G      5.6G     10.4G   35% /tmp/ramfs
+/dev/aegis_sata0        2048G      637G     1411G   31% /vault/archive
+/dev/aegis_ghost_vm      512M       48M      464M   10% /var/run/ghost_browser`);
+
+        case 'free':
+            return callback(`               total        used        free      shared  buff/cache   available
+Mem:           16384        5603        9941         840         840       10781
+Swap:           8192           0        8192`);
+
+        case 'netstat':
+            return callback(`Active Internet Connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 127.0.0.1:3000          0.0.0.0:*               LISTEN      1/aegis_server
+tcp        0      0 10.0.0.1:22             0.0.0.0:*               LISTEN      8/shield_daemon
+tcp        0      0 10.0.0.1:443            0.0.0.0:*               LISTEN      8/shield_daemon
+udp        0      0 127.0.0.1:53            0.0.0.0:*                           12/dns_proxy`);
+
+        case 'ping':
+            const host = arg1 || '127.0.0.1';
+            return callback(`PING ${host} (${host}) 56(84) bytes of data.
+64 bytes from ${host}: icmp_seq=1 ttl=64 time=0.042 ms
+64 bytes from ${host}: icmp_seq=2 ttl=64 time=0.038 ms
+64 bytes from ${host}: icmp_seq=3 ttl=64 time=0.045 ms
+--- ${host} ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 0.038/0.041/0.045/0.003 ms`);
+
+        case 'curl':
+            const targetUrl = arg1 || 'https://aegis-os.org';
+            return callback(`HTTP/2 200 OK
+server: Aegis-Edge-Security/2.0
+content-type: text/html; charset=UTF-8
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+content-security-policy: default-src 'self'; sandbox allow-scripts
+
+<!DOCTYPE html><html><head><title>AegisOS Virtual Network Stack</title></head>
+<body><h1>Connected via Aegis Shield Zero-Trust Gateway</h1></body></html>`);
+
+        case 'browser':
+            return callback(`Launched Virtual Ghost Browser container. Session is RAM-isolated. Close window to shred.`);
+
+        // EXISTING HANDLERS
         case 'storage':
-            if (arg === 'optimize' || arg === 'trim') {
+            if (arg1 === 'optimize' || arg1 === 'trim') {
                 systemState.storage.dedupSavingsGb += 0.6;
                 systemState.storage.fragmentationPercent = 1.2;
                 return callback(`[Tiered Storage Optimizer] Defrag & TRIM complete! Reclaimed 614 MB of duplicate blocks. Fragmentation down to 1.2%.`);
@@ -707,7 +1057,7 @@ function executeShellCommand(cmd, callback) {
   Tier 3 (L3 SATA SSD):   2048 GB | Latency: 140.0 us`);
 
         case 'cybersec':
-            if (arg === 'sniff') {
+            if (arg1 === 'sniff') {
                 return callback(`[Deep Packet Inspector] Sniffing live frames...
   TLS 1.3 frame from 192.168.1.42:443 -> PASS (Encrypted payload)
   TCP SYN probe on port 23 -> BLOCKED (Telnet rule enforced)
@@ -736,20 +1086,7 @@ Scheduler: Completely Fair Scheduler (CFS) with Adaptive Mode
 Filesystem: AegisFS (Cryptographic Merkle Tree Integrity)
 Storage: Tiered Storage Engine (L1 RAM -> L2 NVMe -> L3 SATA)
 Security: Aegis Shield (IDS/IPS) + Aegis Guard AI + Zero-Trust Engine
-AI Subsystem: Aegis Mind Autonomous Controller Active`);
-
-        case 'ps':
-            return callback(`PID   PPID  USER      CPU%  MEM(MB)  STATE   NAME
-  1      0  root       0.1      8.4  SLEEP   aegis_kernel_init
-  2      1  root       0.0      4.2  SLEEP   ksoftirqd/0
-  8      1  system     0.8     32.1  RUN     aegis_shield_daemon
-  9      1  system     1.4     48.5  RUN     aegis_guard_ai
- 12      1  system     0.2     16.0  SLEEP   zero_trust_broker
- 15      1  system     0.5     24.0  RUN     tiered_storage_mgr
- 18      1  system     1.8     64.0  RUN     aegis_mind_ai_engine
- 24      1  user       2.1     85.0  RUN     aegis_ui_compositor
- 45     24  user       1.2     64.2  RUN     neural_activity_monitor
- 98     24  user       0.5     22.1  RUN     aegis_shell`);
+Virtual Browser: RAM-Isolated Disposable Container Engine Active`);
 
         case 'shield':
             return callback(`Aegis Shield Firewall & IDS/IPS:
@@ -764,13 +1101,13 @@ Active Scanners: Ransomware Canary, Privilege Escalation Tracker, Zero-Day Trap
 Quarantined Threats: ${systemState.securityStatus.quarantinedFiles.length} files secured in vault.`);
 
         case 'opt':
-            if (arg === 'game') {
+            if (arg1 === 'game') {
                 systemState.optimizerMode = 'GAME';
                 return callback(`[Task Optimizer] Game Mode Activated! CPU Boost: +25% | GPU Boost: +30% | Background Tasks: Paused.`);
-            } else if (arg === 'stream' || arg === 'streaming') {
+            } else if (arg1 === 'stream' || arg1 === 'streaming') {
                 systemState.optimizerMode = 'STREAMING';
                 return callback(`[Task Optimizer] Streaming Mode Activated! Network QoS Prioritized.`);
-            } else if (arg === 'eco') {
+            } else if (arg1 === 'eco') {
                 systemState.optimizerMode = 'ECO';
                 return callback(`[Task Optimizer] Eco Mode Activated! Power draw reduced to 9W.`);
             } else {
@@ -779,7 +1116,7 @@ Quarantined Threats: ${systemState.securityStatus.quarantinedFiles.length} files
             }
 
         case 'checkpoint':
-            if (arg === 'heal' || arg === 'rollback') {
+            if (arg1 === 'heal' || arg1 === 'rollback') {
                 systemState.filesystem.blocks.forEach(b => b.status = "HEALTHY");
                 systemState.filesystem.status = "INTEGRITY_VERIFIED";
                 return callback(`[Merkle Self-Healing] Checkpoint restored in 1.42s! All cryptographic hashes verified.`);
@@ -809,23 +1146,11 @@ Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
   Network Rate:    ${systemState.telemetry.networkKbps} KB/s
   Events Logged:   ${systemState.telemetry.totalEventsLogged}`);
 
-        case 'fs':
-            if (arg === 'corrupt') {
-                systemState.filesystem.blocks[4].status = "CORRUPTED";
-                systemState.filesystem.status = "CORRUPTED";
-                return callback(`[SIMULATION] Injected corruption into block /userland/data/user_vault.dat! Merkle Root diverged.`);
-            }
-            return callback(`AegisFS Cryptographic Merkle Filesystem:
-  Root Hash: ${systemState.filesystem.merkleRoot}
-  Status:    ${systemState.filesystem.status}
-  Blocks:    ${systemState.filesystem.blocks.length} allocated blocks.`);
-
         default:
             return callback(`Command '${root}' executed in Aegis Shell environment.`);
     }
 }
 
-// Start server on available port
 server.listen(PORT, () => {
     console.log(`========================================================================`);
     console.log(`   *  AEGIS OS WEB SIMULATOR SERVER ONLINE  *`);

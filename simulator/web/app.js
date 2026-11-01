@@ -268,6 +268,16 @@
 
         close(appId) {
             if (this.windows.has(appId)) {
+                // Immediately stop all speech synthesis when any window / agent is closed
+                if ('speechSynthesis' in window) {
+                    try { window.speechSynthesis.cancel(); } catch (e) { }
+                }
+
+                // If Quantum Ghost Browser is closed, safely shred the ephemeral RAM container
+                if (appId === 'browser') {
+                    BrowserApp.destroyCurrentContainer();
+                }
+
                 const win = this.windows.get(appId);
                 win.remove();
                 this.windows.delete(appId);
@@ -288,6 +298,10 @@
 
             header.addEventListener('mousedown', (e) => {
                 if (win.classList.contains('maximized')) return;
+                // Never trigger drag if user clicked window control buttons, inputs, or interactive controls
+                if (e.target.closest('.win-controls') || e.target.closest('.win-btn') || e.target.closest('button') || e.target.closest('input') || e.target.closest('select')) {
+                    return;
+                }
                 isDragging = true;
                 startX = e.clientX;
                 startY = e.clientY;
@@ -319,6 +333,7 @@
 
         initAppLogic(appId, win) {
             switch (appId) {
+                case 'browser': BrowserApp.init(win); break;
                 case 'ai': AIApp.init(win); break;
                 case 'files': FilesApp.init(win); break;
                 case 'cybersec': CyberSecApp.init(win); break;
@@ -332,6 +347,202 @@
                 case 'settings': SettingsApp.init(win); break;
                 case 'voice': VoiceApp.init(win); break;
             }
+        }
+    };
+
+    // ==========================================
+    // 4.5. QUANTUM GHOST BROWSER CONTROLLER
+    // ==========================================
+    const BrowserApp = {
+        activeWin: null,
+        currentContainerId: null,
+
+        async init(win) {
+            this.activeWin = win;
+            const urlInput = win.querySelector('#browser-url-input');
+            const btnGo = win.querySelector('#btn-browser-go');
+            const btnBack = win.querySelector('#btn-browser-back');
+            const btnForward = win.querySelector('#btn-browser-forward');
+            const btnReload = win.querySelector('#btn-browser-reload');
+            const btnHome = win.querySelector('#btn-browser-home');
+            const btnBookmark = win.querySelector('#btn-browser-bookmark');
+            const btnShred = win.querySelector('#btn-browser-shred');
+            const containerBadge = win.querySelector('#browser-container-badge');
+            const ramBadge = win.querySelector('#browser-ram-badge');
+            const bookmarksList = win.querySelector('#browser-bookmarks-list');
+            const iframe = win.querySelector('#browser-viewport-frame');
+            const fallbackPage = win.querySelector('#browser-fallback-page');
+            const fallbackInput = win.querySelector('#fallback-search-input');
+            const btnFallbackSearch = win.querySelector('#btn-fallback-search');
+
+            // 1. Provision Ephemeral RAM Container
+            await this.spawnContainer(containerBadge, ramBadge);
+
+            // 2. Load Host-Persisted Bookmarks
+            const loadBookmarks = async () => {
+                try {
+                    const res = await fetch('/api/browser/status');
+                    const data = await res.json();
+                    const bms = data.browser?.persistentBookmarksOnHost || [
+                        { title: "DuckDuckGo", url: "https://duckduckgo.com" },
+                        { title: "Wikipedia", url: "https://en.wikipedia.org" },
+                        { title: "Kernel.org", url: "https://kernel.org" },
+                        { title: "Hacker News", url: "https://news.ycombinator.com" }
+                    ];
+
+                    bookmarksList.innerHTML = bms.map(bm => `
+                        <div class="bookmark-pill" data-url="${bm.url}" title="Open ${escapeHtml(bm.url)} in ephemeral sandbox">
+                            <span>🌐</span>
+                            <span>${escapeHtml(bm.title)}</span>
+                        </div>
+                    `).join('');
+
+                    bookmarksList.querySelectorAll('.bookmark-pill').forEach(pill => {
+                        pill.addEventListener('click', () => {
+                            navigateTo(pill.dataset.url);
+                        });
+                    });
+                } catch (e) { }
+            };
+            loadBookmarks();
+
+            // 3. Navigation Engine
+            const navigateTo = (rawUrl) => {
+                if (!rawUrl) return;
+                let targetUrl = rawUrl.trim();
+
+                // Convert keyword search to secure DuckDuckGo search query
+                if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                    if (targetUrl.includes('.') && !targetUrl.includes(' ')) {
+                        targetUrl = 'https://' + targetUrl;
+                    } else {
+                        targetUrl = `https://duckduckgo.com/?q=${encodeURIComponent(targetUrl)}`;
+                    }
+                }
+
+                urlInput.value = targetUrl;
+                iframe.src = targetUrl;
+
+                // Handle cross-origin iframe security fallback gracefully
+                iframe.onerror = () => {
+                    fallbackPage.classList.remove('hidden');
+                };
+                fallbackPage.classList.add('hidden');
+
+                // Jitter threat telemetry to illustrate real-time container interception
+                const cookies = win.querySelector('#browser-cookies-count');
+                const trackers = win.querySelector('#browser-trackers-count');
+                const scripts = win.querySelector('#browser-scripts-count');
+                if (cookies) cookies.textContent = Math.floor(10 + Math.random() * 25);
+                if (trackers) trackers.textContent = Math.floor(20 + Math.random() * 40);
+                if (scripts) scripts.textContent = Math.floor(4 + Math.random() * 12);
+
+                try {
+                    const host = new URL(targetUrl).hostname || targetUrl;
+                    Notifications.show('RAM Container Routing', `Sandboxed HTTP connection established: ${host}`, 'info', 2500);
+                } catch (e) { }
+            };
+
+            btnGo.addEventListener('click', () => navigateTo(urlInput.value));
+            urlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') navigateTo(urlInput.value);
+            });
+
+            btnBack.addEventListener('click', () => {
+                try { iframe.contentWindow.history.back(); } catch (e) { }
+            });
+            btnForward.addEventListener('click', () => {
+                try { iframe.contentWindow.history.forward(); } catch (e) { }
+            });
+            btnReload.addEventListener('click', () => {
+                iframe.src = urlInput.value || 'https://duckduckgo.com';
+                AudioEngine.playChime('info');
+            });
+            btnHome.addEventListener('click', () => {
+                navigateTo('https://duckduckgo.com');
+            });
+
+            // 4. Save Bookmark to Host Vault (Not ephemeral)
+            btnBookmark.addEventListener('click', async () => {
+                const url = urlInput.value || 'https://duckduckgo.com';
+                let defaultTitle = url;
+                try { defaultTitle = new URL(url).hostname; } catch (e) { }
+                const title = prompt("Save bookmark to Host Vault (/vault/browser_data/):", defaultTitle);
+                if (!title) return;
+
+                const res = await fetch('/api/browser/save-bookmark', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, url })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Notifications.show('Host Vault Synchronized', `Saved bookmark "${title}" safely on host. Outbound browser cannot access host disks.`, 'success');
+                    loadBookmarks();
+                }
+            });
+
+            // 5. Shred & Re-Roll Container Action
+            btnShred.addEventListener('click', async () => {
+                await this.shredAndReroll(win, containerBadge, ramBadge);
+            });
+
+            // 6. Fallback Search Box
+            btnFallbackSearch?.addEventListener('click', () => {
+                if (fallbackInput.value.trim()) {
+                    navigateTo(fallbackInput.value.trim());
+                }
+            });
+            fallbackInput?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && fallbackInput.value.trim()) {
+                    navigateTo(fallbackInput.value.trim());
+                }
+            });
+
+            win.querySelectorAll('.quicklink-btn').forEach(btn => {
+                btn.addEventListener('click', () => navigateTo(btn.dataset.url));
+            });
+        },
+
+        async spawnContainer(badgeEl, ramEl) {
+            try {
+                const res = await fetch('/api/browser/new-container', { method: 'POST' });
+                const data = await res.json();
+                this.currentContainerId = data.containerId;
+                if (badgeEl) badgeEl.textContent = `MICRO-VM: ${data.containerId}`;
+                if (ramEl) ramEl.textContent = `RAM-ISOLATED (${data.ramAllocatedMb || 128} MB VOLATILE)`;
+            } catch (e) {
+                this.currentContainerId = `MICRO-VM-GHOST-${Math.floor(Math.random() * 90000) + 10000}`;
+                if (badgeEl) badgeEl.textContent = `MICRO-VM: ${this.currentContainerId}`;
+            }
+        },
+
+        async shredAndReroll(win, badgeEl, ramEl) {
+            AudioEngine.playChime('alert');
+            try {
+                const res = await fetch('/api/browser/destroy-container', { method: 'POST' });
+                const data = await res.json();
+                Notifications.show('Container Shredded', `${data.shreddedContainerId} incinerated with 3-Pass 0x00 wipe. Memory scrubbed.`, 'warn');
+            } catch (e) { }
+
+            // Re-spawn new container
+            await this.spawnContainer(badgeEl, ramEl);
+            AudioEngine.playChime('success');
+            Notifications.show('Fresh Sandbox Provisioned', `New isolated RAM container online: ${this.currentContainerId}`, 'success');
+
+            const iframe = win.querySelector('#browser-viewport-frame');
+            if (iframe) iframe.src = 'https://duckduckgo.com';
+            const urlInput = win.querySelector('#browser-url-input');
+            if (urlInput) urlInput.value = 'https://duckduckgo.com';
+        },
+
+        async destroyCurrentContainer() {
+            try {
+                const res = await fetch('/api/browser/destroy-container', { method: 'POST' });
+                const data = await res.json();
+                Notifications.show('Ghost Browser Vaporized', `Container ${data.shreddedContainerId || 'MICRO-VM'} purged with 3-Pass 0x00 wipe. Zero host footprint.`, 'info');
+            } catch (e) { }
+            this.currentContainerId = null;
         }
     };
 
@@ -469,7 +680,40 @@
             const btnTrim = win.querySelector('#btn-run-trim-optimize');
             const tiersContainer = win.querySelector('#storage-tiers-container');
 
+            // File Editor DOM elements
+            const editorPanel = win.querySelector('#file-editor-panel');
+            const editorPath = win.querySelector('#editor-file-path');
+            const editorMode = win.querySelector('#editor-mode-badge');
+            const editorEnc = win.querySelector('#editor-enc-check');
+            const editorTextarea = win.querySelector('#editor-textarea');
+            const editorLineNumbers = win.querySelector('#editor-line-numbers');
+            const editorStats = win.querySelector('#editor-stats');
+            const editorHash = win.querySelector('#editor-hash');
+            const btnSaveFile = win.querySelector('#btn-save-file-editor');
+            const btnCloseEditor = win.querySelector('#btn-close-file-editor');
+
             let cachedFiles = [];
+            let activeEditingFileId = null;
+
+            // Line numbers and character counter
+            const updateEditorStats = () => {
+                const text = editorTextarea.value;
+                const lines = text.split('\n').length;
+                let lineNums = '';
+                for (let i = 1; i <= lines; i++) {
+                    lineNums += i + '\n';
+                }
+                editorLineNumbers.textContent = lineNums;
+                const chars = text.length;
+                const sizeBytes = new Blob([text]).size;
+                const sizeStr = sizeBytes >= 1024 ? `${(sizeBytes / 1024).toFixed(1)} KB` : `${sizeBytes} B`;
+                editorStats.textContent = `Lines: ${lines} | Characters: ${chars} | Size: ${sizeStr}`;
+            };
+
+            editorTextarea.addEventListener('input', updateEditorStats);
+            editorTextarea.addEventListener('scroll', () => {
+                editorLineNumbers.scrollTop = editorTextarea.scrollTop;
+            });
 
             const renderFiles = (filter = '') => {
                 const filtered = cachedFiles.filter(f =>
@@ -494,10 +738,38 @@
                         </td>
                         <td><code style="font-size: 10px; color: var(--accent);">${f.hash}</code></td>
                         <td>
-                            <button class="btn-action-small btn-del-file" data-id="${f.id}" style="color: var(--status-err); border-color: var(--status-err);">Delete</button>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn-action-small btn-edit-file" data-id="${f.id}" data-path="${escapeHtml(f.path)}" style="color: var(--accent); border-color: var(--accent);">✏️ Edit</button>
+                                <button class="btn-action-small btn-del-file" data-id="${f.id}" style="color: var(--status-err); border-color: var(--status-err);">Delete</button>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
+
+                // Open existing file in Editor
+                tableBody.querySelectorAll('.btn-edit-file').forEach(b => {
+                    b.addEventListener('click', async () => {
+                        const fileId = b.dataset.id;
+                        try {
+                            const res = await fetch(`/api/files/read?id=${encodeURIComponent(fileId)}`);
+                            const data = await res.json();
+                            if (data.file) {
+                                activeEditingFileId = data.file.id;
+                                editorMode.textContent = `INODE: ${data.file.name}`;
+                                editorPath.value = data.file.path;
+                                editorEnc.checked = !!data.file.encrypted;
+                                editorTextarea.value = data.file.content || '';
+                                editorHash.textContent = `Merkle Leaf: 0x${data.file.hash}`;
+                                updateEditorStats();
+                                editorPanel.classList.remove('hidden');
+                                editorTextarea.focus();
+                                Notifications.show('File Loaded', `Opened ${data.file.name} in Aegis Editor.`, 'info', 2000);
+                            }
+                        } catch (e) {
+                            Notifications.show('Read Error', `Unable to read inode ${fileId}`, 'error');
+                        }
+                    });
+                });
 
                 tableBody.querySelectorAll('.btn-toggle-enc').forEach(b => {
                     b.addEventListener('click', async () => {
@@ -543,20 +815,56 @@
             searchInput.addEventListener('input', () => renderFiles(searchInput.value));
             btnRefresh.addEventListener('click', loadFiles);
 
-            // Create file modal action
-            btnCreate.addEventListener('click', async () => {
-                const name = prompt("Enter new filename (e.g., secret_vault.dat):", "classified_doc.dat");
-                if (!name) return;
-                const content = prompt("Enter file content / payload:", "TOP_SECRET_AEGIS_ENCRYPTED_DATA");
-                const encrypted = confirm("Enable per-file AES-256 hardware encryption?");
+            // Create New File Composer via in-window Editor
+            btnCreate.addEventListener('click', () => {
+                activeEditingFileId = null;
+                const randSuffix = Math.floor(1000 + Math.random() * 9000);
+                editorMode.textContent = "NEW INODE COMPOSER";
+                editorPath.value = `/userland/data/aegis_doc_${randSuffix}.txt`;
+                editorEnc.checked = false;
+                editorTextarea.value = `// AegisOS Cryptographic Protected Document\n// Inode Path: /userland/data/aegis_doc_${randSuffix}.txt\n// Timestamp: ${new Date().toISOString()}\n\n# AegisFS Document\nEnter payload or script contents here.\n`;
+                editorHash.textContent = "Merkle Leaf: Uncommitted Block";
+                updateEditorStats();
+                editorPanel.classList.remove('hidden');
+                editorTextarea.focus();
+            });
 
-                await fetch('/api/files/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, content, encrypted, ring: encrypted ? "Ring 0" : "Ring 3" })
-                });
-                Notifications.show('File Created', `Created ${name} with SHA-256 Merkle leaf registered.`, 'success');
-                loadFiles();
+            // Save File Action
+            btnSaveFile.addEventListener('click', async () => {
+                const path = editorPath.value.trim();
+                if (!path) return Notifications.show('File Error', 'File path is required.', 'error');
+                const content = editorTextarea.value;
+                const encrypted = editorEnc.checked;
+
+                try {
+                    const res = await fetch('/api/files/write', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            path,
+                            content,
+                            fileId: activeEditingFileId,
+                            encrypted
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        activeEditingFileId = data.file.id;
+                        editorHash.textContent = `Merkle Leaf: 0x${data.file.hash}`;
+                        editorMode.textContent = `INODE: ${data.file.name}`;
+                        Notifications.show('AegisFS Write Success', `Saved ${data.file.name} to persistent storage.`, 'success');
+                        loadFiles();
+                    } else {
+                        Notifications.show('Write Failed', data.error || 'Could not save file.', 'error');
+                    }
+                } catch (err) {
+                    Notifications.show('Write Error', err.message, 'error');
+                }
+            });
+
+            // Close Editor Drawer
+            btnCloseEditor.addEventListener('click', () => {
+                editorPanel.classList.add('hidden');
             });
 
             // Tiered storage render
@@ -833,7 +1141,7 @@
                     e.preventDefault();
                 } else if (e.key === 'Tab') {
                     e.preventDefault();
-                    const list = ['help', 'sysinfo', 'ps', 'shield', 'guard', 'ztac', 'troubleshoot', 'opt', 'checkpoint', 'neural', 'fs', 'storage', 'cybersec', 'ai', 'theme', 'layout', 'clear'];
+                    const list = ['help', 'sysinfo', 'ps', 'cat', 'touch', 'write', 'rm', 'shred', 'encrypt', 'ls', 'whoami', 'date', 'uname', 'uptime', 'top', 'df', 'free', 'netstat', 'ping', 'curl', 'browser', 'shield', 'guard', 'ztac', 'troubleshoot', 'opt', 'checkpoint', 'neural', 'fs', 'storage', 'cybersec', 'ai', 'theme', 'layout', 'clear'];
                     const val = input.value.toLowerCase();
                     const match = list.find(c => c.startsWith(val));
                     if (match) input.value = match;
@@ -1276,6 +1584,11 @@
             const response = win.querySelector('#voice-response');
 
             const handleVoice = (cmd) => {
+                // Immediately stop any currently playing speech before starting new
+                if ('speechSynthesis' in window) {
+                    try { window.speechSynthesis.cancel(); } catch (e) { }
+                }
+
                 status.textContent = `Aegis Voice: Processing "${cmd}"...`;
                 AudioEngine.playChime('info');
 
@@ -1297,13 +1610,18 @@
                     } else if (low.includes('amber')) {
                         reply = "Switching adaptive theme to Cyberpunk Amber.";
                         setTheme('cyberpunk-amber');
+                    } else if (low.includes('browser') || low.includes('web') || low.includes('internet')) {
+                        reply = "Provisioning air-gapped Quantum Ghost Browser in volatile RAM.";
+                        WM.open('browser', 'Quantum Ghost Browser (Air-Gapped Virtual Sandbox)', 920, 620);
                     }
 
                     response.textContent = `"${reply}"`;
                     status.textContent = "Aegis Voice: Ready for next command.";
 
-                    if ('speechSynthesis' in window) {
+                    // Check if voice window is still open before initiating speech
+                    if (WM.windows.has('voice') && 'speechSynthesis' in window) {
                         try {
+                            window.speechSynthesis.cancel();
                             const utter = new SpeechSynthesisUtterance(reply);
                             utter.rate = 1.05;
                             window.speechSynthesis.speak(utter);
@@ -1327,8 +1645,9 @@
         results: null,
         selectedIndex: 0,
         items: [
+            { title: "Quantum Ghost Browser", sub: "Air-gapped disposable web sandbox; zero host trace", app: "browser", icon: "browser" },
             { title: "Aegis Mind AI Controller", sub: "Autonomous system copilot: execute any high-level task", app: "ai", icon: "ai" },
-            { title: "Files & Tiered Storage Manager", sub: "AegisFS file browser, block deduplication & TRIM", app: "files", icon: "files" },
+            { title: "Files & Tiered Storage Manager", sub: "AegisFS file browser, in-window editor, deduplication & TRIM", app: "files", icon: "files" },
             { title: "CyberSec Arsenal", sub: "Deep packet inspection, vulnerability audit & malware sandbox", app: "cybersec", icon: "cybersec" },
             { title: "Terminal (aegis_shell)", sub: "Interactive microkernel shell and command console", app: "terminal", icon: "terminal" },
             { title: "Neural Activity Monitor", sub: "Live entropy waveforms, telemetry and thread graphs", app: "neural", icon: "neural" },
@@ -1340,6 +1659,9 @@
             { title: "Aegis Voice Assistant", sub: "Voice command interpreter and audio agent", app: "voice", icon: "voice" },
             { title: "Switch Theme: Cyberpunk Amber", sub: "High-contrast glowing amber interface", action: () => setTheme('cyberpunk-amber'), icon: "theme" },
             { title: "Switch Theme: Quantum Cyan", sub: "Default futuristic cyan glass interface", action: () => setTheme('quantum-cyan'), icon: "theme" },
+            { title: "Switch Layout: Windows Mode", sub: "Bottom taskbar with start menu and system tray", action: () => setLayout('windows'), icon: "layout" },
+            { title: "Switch Layout: Aegis Hybrid", sub: "Floating dock with universal top HUD bar", action: () => setLayout('hybrid'), icon: "layout" }
+        ],
             { title: "Switch Layout: Windows Mode", sub: "Bottom taskbar with start menu and system tray", action: () => setLayout('windows'), icon: "layout" },
             { title: "Switch Layout: Aegis Hybrid", sub: "Floating dock with universal top HUD bar", action: () => setLayout('hybrid'), icon: "layout" }
         ],
@@ -1527,6 +1849,7 @@
             btn.addEventListener('click', () => {
                 const app = btn.dataset.app;
                 const labels = {
+                    browser: 'Quantum Ghost Browser (Air-Gapped Virtual Sandbox)',
                     ai: 'Aegis Mind AI Controller',
                     files: 'Files & Storage Manager',
                     cybersec: 'CyberSecurity Arsenal',
@@ -1540,7 +1863,9 @@
                     settings: 'Settings Center',
                     voice: 'Aegis Voice Assistant'
                 };
-                WM.open(app, labels[app] || app.toUpperCase(), app === 'ai' ? 820 : 760, app === 'ai' ? 560 : 500);
+                const w = app === 'browser' ? 920 : app === 'ai' ? 840 : app === 'files' ? 820 : 760;
+                const h = app === 'browser' ? 620 : app === 'ai' ? 560 : app === 'files' ? 530 : 500;
+                WM.open(app, labels[app] || app.toUpperCase(), w, h);
             });
         });
 

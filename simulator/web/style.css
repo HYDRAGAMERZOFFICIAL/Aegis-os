@@ -254,14 +254,16 @@ html, body {
 
 /* Window Titlebar */
 .win-header {
-    height: 38px;
+    height: 40px;
     background: var(--window-header);
     border-bottom: 1px solid var(--border-glass);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px;
+    padding: 0 14px;
     cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .win-title {
@@ -272,6 +274,17 @@ html, body {
     font-weight: 600;
     letter-spacing: 0.5px;
     color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.win-title span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .win-title svg {
@@ -280,30 +293,81 @@ html, body {
     stroke: var(--accent);
     stroke-width: 2;
     fill: none;
+    flex-shrink: 0;
 }
 
 .win-controls {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-left: 14px;
+    z-index: 100;
+    pointer-events: auto;
 }
 
 .win-btn {
-    width: 13px;
-    height: 13px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
-    border: none;
+    border: 1px solid rgba(0, 0, 0, 0.25);
     cursor: pointer;
-    transition: opacity var(--trans-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.7);
+    line-height: 1;
+    padding: 0;
+    outline: none;
+    transition: transform 0.15s ease, filter 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 .win-btn:hover {
-    opacity: 0.85;
+    transform: scale(1.18);
+    filter: brightness(1.1);
 }
 
-.win-btn-close { background-color: #ff5f56; }
-.win-btn-min   { background-color: #ffbd2e; }
-.win-btn-max   { background-color: #27c93f; }
+.win-btn:active {
+    transform: scale(0.95);
+}
+
+.win-btn-close { 
+    background-color: #ff5f56; 
+    box-shadow: 0 0 6px rgba(255, 95, 86, 0.4);
+}
+.win-btn-close::after {
+    content: '×';
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.win-btn-min { 
+    background-color: #ffbd2e; 
+    box-shadow: 0 0 6px rgba(255, 189, 46, 0.4);
+}
+.win-btn-min::after {
+    content: '−';
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    margin-top: -1px;
+}
+
+.win-btn-max { 
+    background-color: #27c93f; 
+    box-shadow: 0 0 6px rgba(39, 201, 63, 0.4);
+}
+.win-btn-max::after {
+    content: '+';
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.win-header:hover .win-btn::after {
+    opacity: 1;
+}
 
 /* Window Content Body */
 .win-body {
@@ -2217,4 +2281,514 @@ body.layout-linux .dock-app-btn:hover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
+}
+
+/* ==========================================================================
+   QUANTUM GHOST BROWSER (AIR-GAPPED DISPOSABLE SANDBOX)
+   ========================================================================== */
+.app-browser {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #080c14;
+    border-radius: 8px;
+}
+
+.browser-nav-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.browser-nav-btns {
+    display: flex;
+    gap: 5px;
+}
+
+.nav-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--trans-fast);
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent);
+}
+
+.nav-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--text-primary);
+    stroke-width: 2;
+    fill: none;
+}
+
+.browser-omnibox-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-glass);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.browser-omnibox-wrapper:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.omnibox-ssl {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 8px;
+    background: rgba(0, 255, 170, 0.1);
+    border-right: 1px solid rgba(0, 255, 170, 0.25);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--status-ok);
+    user-select: none;
+}
+
+.omnibox-ssl svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--status-ok);
+    stroke-width: 2;
+    fill: none;
+}
+
+.browser-omnibox {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+.btn-browser-go {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 6px 12px;
+    font-weight: 700;
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--trans-fast);
+}
+
+.btn-browser-go:hover {
+    filter: brightness(1.15);
+}
+
+.browser-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-browser-action {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.15s;
+    border: 1px solid transparent;
+}
+
+.btn-save-bookmark {
+    background: rgba(255, 170, 0, 0.15);
+    border-color: rgba(255, 170, 0, 0.4);
+    color: #ffaa00;
+}
+
+.btn-save-bookmark:hover {
+    background: #ffaa00;
+    color: #000;
+}
+
+.btn-save-bookmark svg {
+    width: 13px;
+    height: 13px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+.btn-shred-container {
+    background: rgba(255, 51, 102, 0.15);
+    border-color: rgba(255, 51, 102, 0.4);
+    color: var(--status-err);
+}
+
+.btn-shred-container:hover {
+    background: var(--status-err);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(255, 51, 102, 0.5);
+}
+
+.btn-shred-container svg {
+    width: 13px;
+    height: 13px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+.browser-security-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 7px 12px;
+    background: rgba(0, 243, 255, 0.04);
+    border-bottom: 1px solid rgba(0, 243, 255, 0.15);
+}
+
+.sec-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.browser-badge {
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.4px;
+}
+
+.badge-container-id {
+    background: rgba(0, 243, 255, 0.15);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+}
+
+.badge-ram-airgap {
+    background: rgba(0, 255, 170, 0.15);
+    color: var(--status-ok);
+    border: 1px solid var(--status-ok);
+}
+
+.badge-zero-trust {
+    background: rgba(255, 170, 0, 0.15);
+    color: #ffaa00;
+    border: 1px solid #ffaa00;
+}
+
+.sec-banner-text {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+
+.browser-bookmarks-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--border-glass);
+    overflow-x: auto;
+    font-size: 11px;
+}
+
+.bookmark-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.bookmark-label svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--accent);
+    stroke-width: 2;
+    fill: none;
+}
+
+.bookmark-items {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bookmark-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 11px;
+    transition: var(--trans-fast);
+}
+
+.bookmark-pill:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent);
+}
+
+.browser-telemetry-strip {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 4px 12px;
+    background: rgba(0, 0, 0, 0.45);
+    border-bottom: 1px solid var(--border-glass);
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+}
+
+.browser-telemetry-strip b {
+    color: var(--accent);
+}
+
+.browser-viewport-container {
+    flex: 1;
+    position: relative;
+    background: #060910;
+    overflow: hidden;
+}
+
+.browser-viewport-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #fff;
+}
+
+.browser-fallback-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #090e17;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    z-index: 10;
+}
+
+.fallback-hero {
+    max-width: 650px;
+}
+
+.fallback-crest svg {
+    width: 48px;
+    height: 48px;
+    stroke: var(--accent);
+    stroke-width: 2;
+    fill: none;
+    margin-bottom: 12px;
+}
+
+.fallback-search-box {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.fallback-search-box input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-glass);
+    color: #fff;
+    font-size: 13px;
+    outline: none;
+}
+
+.fallback-search-box input:focus {
+    border-color: var(--accent);
+}
+
+.fallback-quicklinks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.quicklink-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    color: var(--text-primary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--trans-fast);
+}
+
+.quicklink-btn:hover {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+}
+
+/* ==========================================================================
+   INTEGRATED AEGISFS CODE & TEXT FILE EDITOR
+   ========================================================================== */
+.file-editor-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #090e17;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.editor-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.editor-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #ffaa00;
+    background: rgba(255, 170, 0, 0.15);
+    border: 1px solid rgba(255, 170, 0, 0.3);
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.editor-path-input {
+    flex: 1;
+    max-width: 320px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-glass);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.editor-path-input:focus {
+    border-color: var(--accent);
+}
+
+.editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.editor-enc-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.editor-body {
+    flex: 1;
+    display: flex;
+    background: #05080e;
+    overflow: hidden;
+}
+
+.editor-line-numbers {
+    width: 44px;
+    padding: 12px 6px;
+    background: #04060a;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 20px;
+    color: rgba(255, 255, 255, 0.25);
+    text-align: right;
+    user-select: none;
+    overflow: hidden;
+}
+
+.editor-textarea {
+    flex: 1;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 20px;
+    color: #a4eaff;
+    resize: none;
+    overflow-y: auto;
+    white-space: pre;
+    tab-size: 4;
+}
+
+.editor-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid var(--border-glass);
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
 }
