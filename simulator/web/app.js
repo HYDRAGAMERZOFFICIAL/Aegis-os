@@ -575,6 +575,7 @@
 
             const executePrompt = async (promptText) => {
                 if (!promptText) return;
+                document.dispatchEvent(new CustomEvent('aegis:ai-prompt', { detail: { prompt: promptText } }));
 
                 // Append user message
                 const userMsg = document.createElement('div');
