@@ -27,6 +27,8 @@ test('mission starts and progresses only through valid objectives', () => {
 test('threat lifecycle requires detection before containment', () => {
   const game = new GameManager();
   const threat = game.spawnThreat('ransomware-stager');
+  assert.equal(game.threats.contain(threat.instanceId), false);
+  assert.equal(game.threats.detect(threat.instanceId), true);
   assert.equal(game.threats.contain(threat.instanceId), true);
   assert.equal(game.threats.list()[0].status, 'contained');
 });
