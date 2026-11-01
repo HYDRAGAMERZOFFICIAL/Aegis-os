@@ -25,6 +25,7 @@ const authManager = new AuthManager(aegisDataDir);
 const gameSaves = new SaveManager(path.join(aegisDataDir, 'saves'));
 const campaignDataDir = path.join(aegisDataDir, 'campaigns');
 fs.mkdirSync(campaignDataDir, { recursive: true });
+const campaignMemoryCache = new Map();
 const playerGames = new Map();
 function playerSaveSlot(user) { return 'player_' + user.id; }
 function getPlayerGame(user) {
@@ -528,11 +529,19 @@ function handleApi(req, res, pathname, url) {
         if (!safeUserId) return sendJson(res, 401, { error: 'Invalid operator identity.' });
         const savePath = path.join(campaignDataDir, safeUserId + '.json');
         if (req.method === 'GET') {
+            if (campaignMemoryCache.has(safeUserId)) {
+                const cached = campaignMemoryCache.get(safeUserId);
+                return sendJson(res, 200, { state: cached.state || null, updatedAt: cached.updatedAt || null, cached: true });
+            }
             try {
                 const saved = JSON.parse(fs.readFileSync(savePath, 'utf8'));
-                return sendJson(res, 200, { state: saved.state || null, updatedAt: saved.updatedAt || null });
+                campaignMemoryCache.set(safeUserId, { state: saved.state || null, updatedAt: saved.updatedAt || null });
+                return sendJson(res, 200, { state: saved.state || null, updatedAt: saved.updatedAt || null, cached: false });
             } catch (error) {
-                if (error.code === 'ENOENT') return sendJson(res, 200, { state: null, updatedAt: null });
+                if (error.code === 'ENOENT') {
+                    campaignMemoryCache.set(safeUserId, { state: null, updatedAt: null });
+                    return sendJson(res, 200, { state: null, updatedAt: null, cached: true });
+                }
                 return sendJson(res, 500, { error: 'Campaign save could not be read.' });
             }
         }
@@ -547,9 +556,10 @@ function handleApi(req, res, pathname, url) {
                 }
                 const tempPath = savePath + '.tmp';
                 try {
+                    campaignMemoryCache.set(safeUserId, { state: data.state, updatedAt: Date.now() });
                     fs.writeFileSync(tempPath, serialized, { mode: 0o600 });
                     fs.renameSync(tempPath, savePath);
-                    return sendJson(res, 200, { success: true, updatedAt: Date.now() });
+                    return sendJson(res, 200, { success: true, updatedAt: Date.now(), cached: true });
                 } catch (error) {
                     try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } catch (_) {}
                     return sendJson(res, 500, { error: 'Campaign save could not be written.' });
@@ -653,6 +663,47 @@ function handleApi(req, res, pathname, url) {
     // ----------------------------------------------------
     // FILE RECOVERY & CRYPTOGRAPHIC CARVER ENDPOINTS
     // ----------------------------------------------------
+    
+    // ----------------------------------------------------
+    // CRITICAL BREACH FILE WIPE & RECOVERY PROTOCOL
+    // ----------------------------------------------------
+    if (pathname === '/api/system/trigger-wiped' && req.method === 'POST') {
+        const userFiles = systemState.filesystem.files.filter(f => f.path.startsWith('/userland/data/'));
+        userFiles.forEach(f => {
+            f.content = "[CORRUPTED INODE: DATA PURGED BY CRITICAL ZERO-DAY BREACH]\nRestore this file using the File Recovery & Hex Carver in Files & Storage.";
+            f.size = Buffer.byteLength(f.content, 'utf8');
+            f.sizeStr = `${Math.max(1, Math.round(f.size / 1024))} KB`;
+            f.hash = "0xBAD_WIPED_" + Math.random().toString(16).substring(2, 6);
+        });
+
+        const list = systemState.filesystem.corruptedFiles || [];
+        const vaultCorrupt = list.find(f => f.name === 'user_vault.dat.corrupt');
+        if (!vaultCorrupt) {
+            list.push({
+                id: `corrupt-wiped-${Date.now()}`,
+                name: "user_vault.dat.corrupt",
+                path: "/userland/data/user_vault.dat.corrupt",
+                damageType: "RANSOMWARE_WIPED_HEADER",
+                originalName: "user_vault.dat",
+                recoveredPath: "/userland/data/user_vault.dat",
+                rawHex: "00 00 00 00 55 53 45 52 5f 56 41 55 4c 54 5f 53 45 43 55 52 45 5f 30 31",
+                asciiDump: "....USER_VAULT_SEC_01",
+                corruptOffset: "0x00000000",
+                expectedMagic: "56 41 55 4c",
+                expectedAscii: "VAULT_ENC",
+                hint: "Wiped user vault header. Replace null bytes with magic header '56 41 55 4c' ('VAUL') to restore cryptographic enclave.",
+                status: "UNRECOVERED",
+                cleanContent: "CLASSIFIED USER VAULT\nUser: Root Administrator\nAuth Method: Biometric + Hardware Token\nStatus: Restored and Verified Clean."
+            });
+        }
+        systemState.filesystem.status = "CORRUPTED";
+        return sendJson(res, 200, {
+            success: true,
+            message: "Critical breach executed: local files wiped and moved to corrupted manifest. Recovery protocol initiated.",
+            wipedCount: userFiles.length
+        });
+    }
+
     if (pathname === '/api/files/corrupted-list' && req.method === 'GET') {
         return sendJson(res, 200, {
             corruptedFiles: systemState.filesystem.corruptedFiles || []
