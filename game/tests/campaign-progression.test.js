@@ -7,8 +7,13 @@ test('campaign operations unlock sequentially after the previous operation is se
   const game = new GameManager();
   assert.throws(() => game.startMission('mission-02'), /Complete The Silent Intrusion/);
   game.startMission('mission-01');
-  for (const action of ['inspect_process', 'trace_origin', 'configure_firewall', 'quarantine_process', 'restore_files', 'submit_report']) {
-    const result = game.performAction(action);
+  const steps = [
+    ['inspect_process', {}], ['trace_origin', { answer: '185.220.101.5' }],
+    ['configure_firewall', { answer: 'deny-untrusted' }], ['quarantine_process', {}],
+    ['restore_files', { answer: 'chkpt-0003' }], ['submit_report', { answer: 'critical-contained' }]
+  ];
+  for (const [action, payload] of steps) {
+    const result = game.performAction(action, payload);
     assert.equal(result.ok, true, action + ' should advance the mission');
   }
   const missions = game.getState().missions;
