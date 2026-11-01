@@ -28,9 +28,11 @@
     $('#posture').textContent = r.stability >= 70 ? 'OPERATIONAL' : r.stability >= 35 ? 'DEGRADED' : 'CRITICAL';
     $('#posture').style.color = r.stability >= 70 ? 'var(--green)' : r.stability >= 35 ? 'var(--amber)' : 'var(--red)';
     const mission = state.currentMission;
-    $('#mission-title').textContent = mission ? 'The Silent Intrusion' : 'Awaiting deployment';
+    $('#mission-title').textContent = mission ? mission.title : 'Awaiting deployment';
     $('#mission-status').textContent = mission ? mission.status.toUpperCase() : 'NO ACTIVE MISSION';
-    $('#mission-copy').textContent = mission ? 'Work through the incident response sequence. Complete each objective to secure the operation.' : 'Aegis Command is standing by. Begin the first operation to receive your briefing and objectives.';
+    $('#mission-copy').textContent = mission ? mission.description : 'Aegis Command is standing by. Begin the first operation to receive your briefing and objectives.';
+    $('#briefing').textContent = mission ? mission.briefing : '';
+    $('#briefing').classList.toggle('hidden', !mission || !mission.briefing);
     $('#start-mission').disabled = !!mission && mission.status === 'active';
     $('#start-mission').textContent = mission ? (mission.status === 'completed' ? 'Mission completed' : 'Mission deployed') : 'Deploy Mission 01 →';
     const objectives = $('#objectives'); objectives.replaceChildren();
