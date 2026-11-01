@@ -9,6 +9,9 @@
   let user = null;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
   // Universal Custom Cyberpunk Dialog
   window.AegisDialog = {
     alert(message, title = 'SYSTEM NOTIFICATION') {
@@ -91,8 +94,11 @@
     }
   };
 
+<<<<<<< HEAD
 =======
 >>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
+=======
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
   const request = async (path, body) => {
     const response = await fetch(path, {
       method: body ? 'POST' : 'GET',
@@ -105,9 +111,13 @@
     return data;
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
+=======
+
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
   const showMode = (next) => {
     mode = next;
     loginForm.hidden = mode !== 'login';
@@ -119,6 +129,7 @@
     $('#aegis-login-error').textContent = '';
     $('#aegis-register-error').textContent = '';
   };
+<<<<<<< HEAD
 <<<<<<< HEAD
 
   const enter = (account, shouldAnimateBoot = false) => {
@@ -199,30 +210,89 @@
 
 =======
   const enter = (account) => {
+=======
+
+  const enter = (account, shouldAnimateBoot = false) => {
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
     user = account;
-    root.classList.remove('aegis-locked');
     gate.hidden = true;
-    let badge = $('#aegis-operator-badge');
-    if (!badge) {
-      badge = document.createElement('button');
-      badge.id = 'aegis-operator-badge';
-      badge.type = 'button';
-      badge.className = 'aegis-operator-badge';
-      $('#top-bar .top-right')?.appendChild(badge);
-      badge.addEventListener('click', async () => {
-        if (!confirm('Sign out of this AegisOS operator profile?')) return;
-        try { await request('/api/auth/logout', {}); } catch (error) { alert(error.message); return; }
-        user = null;
-        root.classList.add('aegis-locked');
-        gate.hidden = false;
-        showMode('login');
-      });
+
+    const bootScreen = $('#aegis-boot-screen');
+    const bootConsole = $('#boot-console');
+    const bootBar = $('#boot-bar-fill');
+    const bootStatus = $('#boot-status');
+
+    const finalizeDesktop = () => {
+      root.classList.remove('aegis-locked');
+      if (bootScreen) bootScreen.classList.add('hidden');
+
+      let badge = $('#aegis-operator-badge');
+      if (!badge) {
+        badge = document.createElement('button');
+        badge.id = 'aegis-operator-badge';
+        badge.type = 'button';
+        badge.className = 'aegis-operator-badge';
+        $('#top-bar .top-right')?.appendChild(badge);
+        badge.addEventListener('click', async () => {
+          const ok = await window.AegisDialog.confirm('Sign out of this AegisOS operator profile?', 'OPERATOR SIGN-OUT');
+          if (!ok) return;
+          try {
+            await request('/api/auth/logout', {});
+          } catch (error) {
+            await window.AegisDialog.alert(error.message, 'SIGN-OUT ERROR');
+            return;
+          }
+          user = null;
+          root.classList.add('aegis-locked');
+          gate.hidden = false;
+          showMode('login');
+        });
+      }
+      badge.textContent = 'OPERATOR // ' + (account.displayName || account.username) + '  ↗';
+      window.AegisAuth = { get user() { return user; }, logout: () => badge.click() };
+      document.dispatchEvent(new CustomEvent('aegis:authenticated', { detail: { user: account } }));
+    };
+
+    if (shouldAnimateBoot && bootScreen && bootConsole && bootBar) {
+      bootScreen.classList.remove('hidden');
+      bootBar.style.width = '0%';
+      bootConsole.innerHTML = '<div class="boot-line">&gt; [  0.000000] Initializing Dual-Kernel Hybrid Architecture v2.0-Alpha...</div>';
+
+      const bootLines = [
+        '[  0.035000] Loading Microkernel ASLR & Page Table Isolation...',
+        '[  0.082000] Mounting AegisDB In-Memory Relational Engine...',
+        '[  0.145000] Initializing High-Speed Memory Cache Subsystem (100% Hit Target)...',
+        '[  0.210000] Establishing Zero-Trust Capability Token Registry...',
+        '[  0.280000] Mounting Cryptographic Merkle Root Filesystem (Self-Healing)...',
+        '[  0.355000] Welcome to your virtual system, Operator ' + (account.displayName || account.username).toUpperCase() + '!'
+      ];
+
+      let idx = 0;
+      const interval = setInterval(() => {
+        if (idx < bootLines.length) {
+          const div = document.createElement('div');
+          div.className = 'boot-line';
+          div.textContent = '> ' + bootLines[idx];
+          bootConsole.appendChild(div);
+          bootConsole.scrollTop = bootConsole.scrollHeight;
+          const pct = Math.round(((idx + 1) / bootLines.length) * 100);
+          bootBar.style.width = pct + '%';
+          if (bootStatus) bootStatus.textContent = 'INITIALIZING SYSTEM // ' + pct + '%';
+          idx++;
+        } else {
+          clearInterval(interval);
+          setTimeout(finalizeDesktop, 350);
+        }
+      }, 150);
+    } else {
+      finalizeDesktop();
     }
-    badge.textContent = 'OPERATOR // ' + (account.displayName || account.username) + '  ↗';
-    window.AegisAuth = { get user() { return user; }, logout: () => badge.click() };
-    document.dispatchEvent(new CustomEvent('aegis:authenticated', { detail: { user: account } }));
   };
+<<<<<<< HEAD
 >>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
+=======
+
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
   const submit = async (form, endpoint, errorSelector) => {
     const button = form.querySelector('button[type="submit"]');
     const label = button.textContent;
@@ -234,10 +304,14 @@
       const result = await request(endpoint, values);
       form.reset();
 <<<<<<< HEAD
+<<<<<<< HEAD
       enter(result.user, true); // Trigger boot screen animation on login and signup!
 =======
       enter(result.user);
 >>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
+=======
+      enter(result.user, true); // Trigger boot screen animation on login and signup!
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
     } catch (error) {
       $(errorSelector).textContent = error.message;
     } finally {
@@ -246,24 +320,35 @@
     }
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   $('#aegis-auth-switch').addEventListener('click', () => showMode(mode === 'login' ? 'register' : 'login'));
 
 =======
   $('#aegis-auth-switch').addEventListener('click', () => showMode(mode === 'login' ? 'register' : 'login'));
 >>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
+=======
+
+  $('#aegis-auth-switch').addEventListener('click', () => showMode(mode === 'login' ? 'register' : 'login'));
+
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
   loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
     submit(loginForm, '/api/auth/login', '#aegis-login-error');
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
+=======
+
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
   registerForm.addEventListener('submit', (event) => {
     event.preventDefault();
     submit(registerForm, '/api/auth/register', '#aegis-register-error');
   });
+<<<<<<< HEAD
 <<<<<<< HEAD
 
   (async () => {
@@ -276,6 +361,13 @@
       const session = await request('/api/auth/me');
       if (session.authenticated) enter(session.user);
 >>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
+=======
+
+  (async () => {
+    try {
+      const session = await request('/api/auth/me');
+      if (session.authenticated) enter(session.user, false);
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
       else {
         gate.hidden = false;
         showMode(session.needsProfile ? 'register' : 'login');

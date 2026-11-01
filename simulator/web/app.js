@@ -2210,6 +2210,7 @@
             });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             btnClear?.addEventListener('click', async () => {
                 const ok = window.AegisDialog ? await window.AegisDialog.confirm('Clear all notepad content from editor?', 'CLEAR CASE NOTES') : true;
                 if (ok) {
@@ -2217,6 +2218,11 @@
             btnClear?.addEventListener('click', () => {
                 if (confirm('Clear notepad content?')) {
 >>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
+=======
+            btnClear?.addEventListener('click', async () => {
+                const ok = window.AegisDialog ? await window.AegisDialog.confirm('Clear all notepad content from editor?', 'CLEAR CASE NOTES') : true;
+                if (ok) {
+>>>>>>> cda2135325ba34c5149cf732d8c618787ff1f4d3
                     textarea.value = '';
                     updateStats();
                 }
