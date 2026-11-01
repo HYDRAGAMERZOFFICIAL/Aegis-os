@@ -340,7 +340,7 @@ function handleApi(req, res, pathname, url) {
     // Player identity endpoints are local to this AegisOS instance.
     if (pathname === '/api/auth/me' && req.method === 'GET') {
         const session = authManager.getSession(req);
-        return sendJson(res, 200, { authenticated: !!session, user: session ? session.user : null, needsProfile: !authManager.hasAccounts() });
+        return sendJson(res, 200, { authenticated: !!session, user: session ? session.user : null, needsProfile: !authManager.hasAccounts(), storageMode: 'local' });
     }
     if (pathname === '/api/auth/register' && req.method === 'POST') {
         parseBody(req, (err, data) => {
