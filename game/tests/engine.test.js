@@ -11,6 +11,8 @@ global.localStorage = {
 require("../engine/missions.js");
 require("../engine/engine.js");
 
+test.beforeEach(()=>store.clear());
+
 test("mission objectives must be completed in order",()=>{
   const game=new AegisGameEngine();
   assert.equal(game.startMission("silent-intrusion").ok,true);
