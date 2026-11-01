@@ -1,0 +1,26 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const web = path.join(__dirname, '..', '..', 'simulator', 'web');
+const campaign = fs.readFileSync(path.join(web, 'native-campaign.js'), 'utf8');
+const desktop = fs.readFileSync(path.join(web, 'index.html'), 'utf8');
+
+test('native campaign is mounted inside the original desktop, not as a launcher app', () => {
+  assert.match(desktop, /native-campaign\.js/);
+  assert.doesNotMatch(desktop, /Aegis Campaign/);
+  assert.match(campaign, /aegis:wm-open/);
+  assert.match(campaign, /aegis:terminal-command/);
+});
+
+test('campaign contains three long investigations with evidence and decision gates', () => {
+  for (const title of ['THE SILENT INTRUSION', 'GHOST IN THE KERNEL', 'BLACKOUT PROTOCOL']) {
+    assert.ok(campaign.includes(title), 'missing operation ' + title);
+  }
+  assert.match(campaign, /mission-report-btn/);
+  assert.match(campaign, /state\.decision\[m\.id\]===undefined/);
+  assert.match(campaign, /s\[3\]\.every/);
+  assert.match(campaign, /evidence\(\)\.length<m\.steps\.filter/);
+});
