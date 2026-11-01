@@ -1269,7 +1269,9 @@
                 { id: 3, name: "Allow HTTPS Web Traffic", proto: "TCP", port: 443, dir: "OUTBOUND", action: "ALLOW", enabled: true },
                 { id: 4, name: "Block Outbound Tor Relays", proto: "TCP", port: 9001, dir: "OUTBOUND", action: "DENY", enabled: true },
                 { id: 5, name: "Zero-Trust Kernel IPC Gate", proto: "IPC", port: 0, dir: "INTERNAL", action: "ALLOW", enabled: true },
-                { id: 6, name: "Block Unverified DNS over HTTP", proto: "UDP", port: 853, dir: "OUTBOUND", action: "DENY", enabled: true }
+                { id: 6, name: "Block Unverified DNS over HTTP", proto: "UDP", port: 853, dir: "OUTBOUND", action: "DENY", enabled: true },
+                { id: 7, name: "Block Suspected C2 Endpoint (185.220.101.5:8443)", proto: "TCP", port: 8443, dir: "OUTBOUND", action: "DENY", enabled: false },
+                { id: 8, name: "Adaptive Ingress Shaping (Priority Edge)", proto: "TCP", port: 443, dir: "INBOUND", action: "RATE-LIMIT", enabled: false }
             ];
 
             tbody.innerHTML = rules.map(r => `
