@@ -81,11 +81,19 @@
     if (!response.ok) throw new Error(data.error || data.reason || 'Request failed');
     return data;
   };
+  const isCloudProfile = () => window.AegisAuth && window.AegisAuth.storageMode === 'cloud';
+  const savedLabel = () => isCloudProfile() ? 'CLOUD SAVE SYNCED' : 'LOCAL SAVE WRITTEN';
   const setCloudStatus = (message, healthy = true) => {
     const status = $('#cloud-sync');
     if (!status) return;
     status.textContent = message;
     status.classList.toggle('offline', !healthy);
+  };
+  const configureStorageMode = () => {
+    const cloud = isCloudProfile();
+    setCloudStatus(cloud ? 'CLOUD SAVE READY' : 'LOCAL SAVE MODE');
+    $('#save').textContent = cloud ? 'Save to cloud' : 'Save locally';
+    $('#profile-storage-label').textContent = cloud ? 'AEGIS CORE / CLOUD PROFILE' : 'AEGIS CORE / LOCAL PROFILE';
   };
   const addText = (tag, className, value) => {
     const element = document.createElement(tag);
@@ -136,6 +144,7 @@
     if (!state) return;
     latestState = state;
     if (state.saveUpdatedAt) setCloudStatus('CLOUD SAVE SYNCED');
+    else if (!isCloudProfile()) setCloudStatus('LOCAL SAVE MODE');
     const r = state.resources;
     $('#resources').replaceChildren(
       metric('Credits', r.credits), metric('Research', r.research), metric('CPU capacity', r.cpu, '%'),
@@ -258,8 +267,8 @@
     try {
       const result = await api('/api/game/action', { action, payload });
       activeChallenge = null;
-      setCloudStatus('CLOUD SAVE SYNCED');
-      log((result.detail || action) + ' · cloud save confirmed', 'success');
+      setCloudStatus(savedLabel());
+      log((result.detail || action) + (isCloudProfile() ? ' · cloud save confirmed' : ' · local save written'), 'success');
       if (result.progress && result.progress.completed) log('OPERATION SECURED — campaign rewards transferred to your profile.', 'success');
       render(result.state);
     } catch (error) { log(error.message, 'warning'); $('#mission-feedback').textContent = error.message; }
@@ -267,8 +276,8 @@
   const unlock = async (nodeId) => {
     try {
       const result = await api('/api/game/research', { nodeId });
-      setCloudStatus('CLOUD SAVE SYNCED');
-      log('Research unlocked: ' + result.node.name + ' · cloud save confirmed', 'success');
+      setCloudStatus(savedLabel());
+      log('Research unlocked: ' + result.node.name + (isCloudProfile() ? ' · cloud save confirmed' : ' · local save written'), 'success');
       render(result.state);
     } catch (error) { log(error.message, 'warning'); }
   };
@@ -280,21 +289,22 @@
   $('#start-mission').addEventListener('click', async () => {
     try {
       const result = await api('/api/game/start', { missionId: selectedMissionId });
-      setCloudStatus('CLOUD SAVE SYNCED');
-      log('Operation deployed: ' + result.mission.title + ' · cloud save confirmed', 'success');
+      setCloudStatus(savedLabel());
+      log('Operation deployed: ' + result.mission.title + (isCloudProfile() ? ' · cloud save confirmed' : ' · local save written'), 'success');
       render(result.state);
     } catch (error) { $('#mission-feedback').textContent = error.message; log(error.message, 'warning'); }
   });
   $('#save').addEventListener('click', async () => {
-    try { const result = await api('/api/game/save', { slot: 'cloud-profile' }); setCloudStatus('CLOUD SAVE SYNCED'); log('Cloud campaign saved at ' + result.savedAt, 'success'); }
+    try { const result = await api('/api/game/save', { slot: 'cloud-profile' }); setCloudStatus(savedLabel()); log((isCloudProfile() ? 'Cloud' : 'Local') + ' campaign saved at ' + result.savedAt, 'success'); }
     catch (error) { log(error.message, 'warning'); }
   });
   $('#load').addEventListener('click', async () => {
-    try { const result = await api('/api/game/load', { slot: 'cloud-profile' }); setCloudStatus('CLOUD SAVE RESTORED'); render(result.state); log('Your cloud campaign was restored.', 'success'); }
+    try { const result = await api('/api/game/load', { slot: 'cloud-profile' }); setCloudStatus(isCloudProfile() ? 'CLOUD SAVE RESTORED' : 'LOCAL SAVE RESTORED'); render(result.state); log('Your ' + (isCloudProfile() ? 'cloud' : 'local') + ' campaign was restored.', 'success'); }
     catch (error) { log(error.message, 'warning'); }
   });
 
   window.addEventListener('aegis:authenticated', () => {
+    configureStorageMode();
     $('#mission-feedback').textContent = '';
     refresh().then(() => log('Authenticated player profile loaded. Welcome to Aegis Command.', 'success')).catch(error => {
       $('#connection').textContent = 'OFFLINE';
