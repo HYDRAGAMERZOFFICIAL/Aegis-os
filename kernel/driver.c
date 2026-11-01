@@ -180,7 +180,7 @@ int driver_unregister(u64 driver_id)
     return -1;
 }
 
-int driver_load(const char *driver_path)
+int kernel_driver_load(const char *driver_path)
 {
     if (!driver_path) return -1;
 
@@ -213,7 +213,7 @@ int driver_load(const char *driver_path)
     return 0;
 }
 
-int driver_unload(u64 driver_id)
+int kernel_driver_unload(u64 driver_id)
 {
     for (u32 i = 0; i < driver_state.driver_count; i++) {
         if (driver_state.drivers[i]->id == driver_id) {

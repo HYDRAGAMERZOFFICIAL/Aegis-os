@@ -20,6 +20,11 @@ void sha256_update(sha256_ctx_t *ctx, const u8 *data, u64 len);
 void sha256_final(sha256_ctx_t *ctx, u8 digest[32]);
 
 int aes_encrypt(const u8 *key, u32 key_size, const u8 *plaintext, u8 *ciphertext, u64 size);
+int aes_decrypt(const u8 *key, u32 key_size, const u8 *ciphertext, u8 *plaintext, u64 size);
+int crypto_aes_encrypt(void *data, int len, void *key);
+int crypto_aes_decrypt(void *data, int len, void *key);
+int crypto_sha256(const u8 *data, u64 len, u8 *hash_out);
+int random_bytes(u8 *buffer, u64 size);
 
 #endif
 

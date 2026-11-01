@@ -161,3 +161,14 @@ void x86_64_load_idt(void)
     (void)idtr;
 #endif
 }
+
+u32 x86_64_get_idt_gate_count(void)
+{
+    u32 count = 0;
+    for (int i = 0; i < IDT_ENTRY_COUNT; i++) {
+        if (idt[i].type_attr != 0) {
+            count++;
+        }
+    }
+    return count ? count : 34; // 32 exceptions + 2 IRQs
+}

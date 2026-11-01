@@ -6,6 +6,7 @@
 
 #include <kernel/filesystem.h>
 #include <security/crypto_engine.h>
+#include <common/crypto.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -65,7 +66,7 @@ int aegisfs_init(void)
 {
     memset(&fs_state, 0, sizeof(fs_state));
 
-    fs_state.superblock.magic = 0x4147495300000000UL; // "AGIS"
+    fs_state.superblock.magic = 0x41474953U; // "AGIS"
     fs_state.superblock.total_blocks = FS_MAX_BLOCKS;
     fs_state.superblock.free_blocks = FS_MAX_BLOCKS;
     fs_state.superblock.block_size = FS_BLOCK_SIZE;

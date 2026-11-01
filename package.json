@@ -7,7 +7,7 @@
     "start": "node simulator/server.js",
     "sim": "node simulator/server.js",
     "sim:native": ".\\aegis_sim.exe --demo",
-    "test": "node -e \"console.log('Use ./aegis_sim.exe --demo to run architecture tests')\""
+    "test": ".\\aegis_tests.exe"
   },
   "keywords": [
     "operating-system",

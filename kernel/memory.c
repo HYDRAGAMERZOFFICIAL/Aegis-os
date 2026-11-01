@@ -6,6 +6,7 @@
 
 #include <kernel/memory.h>
 #include <security/crypto_engine.h>
+#include <common/crypto.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -44,6 +45,10 @@ static mmgr_state_t mmgr_state = {0};
 
 int mmgr_init(void)
 {
+    if (mmgr_state.pages && mmgr_state.page_bitmap) {
+        return 0; // Already initialized
+    }
+
     mmgr_state.total_pages = 0x10000; // 65536 frames = 256 MB initial pool
     mmgr_state.free_pages = mmgr_state.total_pages;
     mmgr_state.lock = 0;
@@ -55,11 +60,13 @@ int mmgr_init(void)
     mmgr_state.page_bitmap = (u8 *)calloc(bitmap_bytes, sizeof(u8));
     if (!mmgr_state.page_bitmap) {
         free(mmgr_state.pages);
+        mmgr_state.pages = NULL;
         return -1;
     }
 
     for (u64 i = 0; i < mmgr_state.total_pages; i++) {
         mmgr_state.pages[i].phys_addr = i * PAGE_SIZE;
+        mmgr_state.pages[i].virt_addr = NULL;
         mmgr_state.pages[i].ref_count = 0;
         mmgr_state.pages[i].flags = 0;
     }
@@ -72,6 +79,10 @@ int mmgr_init(void)
 
 void *mmgr_alloc_page(void)
 {
+    if (!mmgr_state.pages || !mmgr_state.page_bitmap) {
+        if (mmgr_init() != 0) return NULL;
+    }
+
     for (u64 i = 0; i < mmgr_state.total_pages; i++) {
         u32 byte_idx = (u32)(i / 8);
         u32 bit_idx = (u32)(i % 8);
@@ -80,7 +91,10 @@ void *mmgr_alloc_page(void)
             mmgr_state.page_bitmap[byte_idx] |= (1 << bit_idx);
             mmgr_state.pages[i].ref_count = 1;
             mmgr_state.free_pages--;
-            return (void *)(uintptr_t)mmgr_state.pages[i].phys_addr;
+            if (!mmgr_state.pages[i].virt_addr) {
+                mmgr_state.pages[i].virt_addr = calloc(1, PAGE_SIZE);
+            }
+            return mmgr_state.pages[i].virt_addr;
         }
     }
     return NULL;
@@ -88,56 +102,72 @@ void *mmgr_alloc_page(void)
 
 void mmgr_free_page(void *page)
 {
-    if (!page) return;
+    if (!page || !mmgr_state.pages || !mmgr_state.page_bitmap) return;
 
-    u64 phys_addr = (u64)(uintptr_t)page;
-    u64 page_num = phys_addr / PAGE_SIZE;
+    for (u64 i = 0; i < mmgr_state.total_pages; i++) {
+        if (mmgr_state.pages[i].virt_addr == page ||
+            (void *)(uintptr_t)mmgr_state.pages[i].phys_addr == page) {
+            u32 byte_idx = (u32)(i / 8);
+            u32 bit_idx = (u32)(i % 8);
 
-    if (page_num < mmgr_state.total_pages) {
-        u32 byte_idx = (u32)(page_num / 8);
-        u32 bit_idx = (u32)(page_num % 8);
-
-        if (mmgr_state.page_bitmap[byte_idx] & (1 << bit_idx)) {
-            mmgr_state.page_bitmap[byte_idx] &= ~(1 << bit_idx);
-            mmgr_state.pages[page_num].ref_count = 0;
-            mmgr_state.free_pages++;
+            if (mmgr_state.page_bitmap[byte_idx] & (1 << bit_idx)) {
+                mmgr_state.page_bitmap[byte_idx] &= ~(1 << bit_idx);
+                mmgr_state.pages[i].ref_count = 0;
+                mmgr_state.free_pages++;
+            }
+            return;
         }
     }
 }
 
-// Fixed multi-page allocator: frees each allocated page properly upon failure
+// Multi-page allocator with contiguous backing buffer for host & simulator stability
 void *mmgr_alloc_pages(u32 count)
 {
-    if (count == 0) return NULL;
-    if (count > 4096) return NULL;
+    if (count == 0 || count > 4096) return NULL;
 
-    void **allocated = (void **)malloc(count * sizeof(void *));
-    if (!allocated) return NULL;
+    if (!mmgr_state.pages || !mmgr_state.page_bitmap) {
+        if (mmgr_init() != 0) return NULL;
+    }
 
-    for (u32 i = 0; i < count; i++) {
-        allocated[i] = mmgr_alloc_page();
-        if (!allocated[i]) {
-            // Free all previously allocated pages safely
-            for (u32 j = 0; j < i; j++) {
-                mmgr_free_page(allocated[j]);
-            }
-            free(allocated);
-            return NULL;
+    void *contiguous = calloc(count, PAGE_SIZE);
+    if (!contiguous) return NULL;
+
+    u32 allocated = 0;
+    for (u64 i = 0; i < mmgr_state.total_pages && allocated < count; i++) {
+        u32 byte_idx = (u32)(i / 8);
+        u32 bit_idx = (u32)(i % 8);
+
+        if (!(mmgr_state.page_bitmap[byte_idx] & (1 << bit_idx))) {
+            mmgr_state.page_bitmap[byte_idx] |= (1 << bit_idx);
+            mmgr_state.pages[i].ref_count = 1;
+            mmgr_state.pages[i].virt_addr = (u8 *)contiguous + (allocated * PAGE_SIZE);
+            allocated++;
+            mmgr_state.free_pages--;
         }
     }
 
-    void *first_page = allocated[0];
-    free(allocated);
-    return first_page;
+    return contiguous;
 }
 
 void mmgr_free_pages(void *pages, u32 count)
 {
-    if (!pages) return;
-    u64 phys_addr = (u64)(uintptr_t)pages;
-    for (u32 i = 0; i < count; i++) {
-        mmgr_free_page((void *)(uintptr_t)(phys_addr + (i * PAGE_SIZE)));
+    if (!pages || !mmgr_state.pages || !mmgr_state.page_bitmap) return;
+
+    for (u64 i = 0; i < mmgr_state.total_pages; i++) {
+        for (u32 j = 0; j < count; j++) {
+            if (mmgr_state.pages[i].virt_addr == (void *)((u8 *)pages + (j * PAGE_SIZE))) {
+                u32 byte_idx = (u32)(i / 8);
+                u32 bit_idx = (u32)(i % 8);
+                if (mmgr_state.page_bitmap[byte_idx] & (1 << bit_idx)) {
+                    mmgr_state.page_bitmap[byte_idx] &= ~(1 << bit_idx);
+                    mmgr_state.pages[i].ref_count = 0;
+                    mmgr_state.pages[i].virt_addr = NULL;
+                    mmgr_state.free_pages++;
+                }
+            }
+        }
     }
+    free(pages);
 }
 
 void *mmgr_alloc_kernel_pages(u32 count)

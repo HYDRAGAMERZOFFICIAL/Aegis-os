@@ -178,3 +178,12 @@ int random_bytes(u8 *buffer, u64 size)
     extern int crypto_generate_random(u8 *buffer, u64 size);
     return crypto_generate_random(buffer, size);
 }
+
+int crypto_sha256(const u8 *data, u64 len, u8 *hash_out)
+{
+    if (!data || !hash_out) return -1;
+    sha256_init(NULL);
+    sha256_update(NULL, data, len);
+    sha256_final(NULL, hash_out);
+    return 0;
+}

@@ -61,8 +61,8 @@ typedef struct {
 int driver_mgr_init(void);
 driver_t *driver_register(const char *name, driver_type_t type, driver_ops_t *ops);
 int driver_unregister(u64 driver_id);
-int driver_load(const char *driver_path);
-int driver_unload(u64 driver_id);
+int kernel_driver_load(const char *driver_path);
+int kernel_driver_unload(u64 driver_id);
 int driver_set_sandbox_mode(u64 driver_id, sandbox_mode_t mode);
 int driver_set_permissions(u64 driver_id, u32 permissions);
 int driver_probe_devices(void);

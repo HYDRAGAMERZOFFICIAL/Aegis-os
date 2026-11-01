@@ -56,7 +56,7 @@ goto end
 :test_suite
 echo.
 echo Running AegisOS Integration Architecture Tests...
-"%~dp0aegis_sim.exe" --demo
+"%~dp0aegis_tests.exe"
 pause
 goto end
 

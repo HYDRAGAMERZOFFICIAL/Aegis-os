@@ -135,8 +135,8 @@ static void run_demo(void) {
 
     printf("\n[4] Scanning Hardware PCI Bus & Initializing Drivers...\n");
     driver_mgr_init();
-    driver_load("storage/ahci");
-    driver_load("net/e1000");
+    kernel_driver_load("storage/ahci");
+    kernel_driver_load("net/e1000");
     driver_probe_devices();
     printf("    -> PCI Devices Found: ICH9 AHCI SATA, NVMe SSD, Intel e1000 NIC, VirtIO Net, Bochs VGA.\n");
     printf("    -> Driver Manager: Ring-3 WebAssembly sandbox boundaries active.\n");

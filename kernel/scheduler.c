@@ -162,6 +162,11 @@ int scheduler_balance_load(void)
         }
     }
 
+    (void)overloaded_cpus;
+    (void)underloaded_cpus;
+    (void)over_count;
+    (void)under_count;
+
     return 0;
 }
 
