@@ -22,6 +22,8 @@ const AuthManager = require('../game/auth/AuthManager');
 const aegisDataDir = path.join(os.homedir(), '.aegis-os');
 const authManager = new AuthManager(aegisDataDir);
 const gameSaves = new SaveManager(path.join(aegisDataDir, 'saves'));
+const campaignDataDir = path.join(aegisDataDir, 'campaigns');
+fs.mkdirSync(campaignDataDir, { recursive: true });
 const playerGames = new Map();
 function playerSaveSlot(user) { return 'player_' + user.id; }
 function getPlayerGame(user) {
@@ -377,6 +379,47 @@ function handleApi(req, res, pathname, url) {
         authManager.logout(req);
         clearSessionCookie(res);
         return sendJson(res, 200, { success: true });
+    }
+
+    // Per-account native desktop campaign progress. The browser is only a cache;
+    // authoritative progress is stored in the authenticated operator's server-side slot.
+    if (pathname === '/api/campaign/state') {
+        const session = authManager.getSession(req);
+        if (!session) return sendJson(res, 401, { error: 'Authenticate to access campaign progress.' });
+        const safeUserId = String(session.user.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        if (!safeUserId) return sendJson(res, 401, { error: 'Invalid operator identity.' });
+        const savePath = path.join(campaignDataDir, safeUserId + '.json');
+        if (req.method === 'GET') {
+            try {
+                const saved = JSON.parse(fs.readFileSync(savePath, 'utf8'));
+                return sendJson(res, 200, { state: saved.state || null, updatedAt: saved.updatedAt || null });
+            } catch (error) {
+                if (error.code === 'ENOENT') return sendJson(res, 200, { state: null, updatedAt: null });
+                return sendJson(res, 500, { error: 'Campaign save could not be read.' });
+            }
+        }
+        if (req.method === 'POST') {
+            parseBody(req, (err, data) => {
+                if (err || !data || !data.state || data.state.v !== 1 || !Number.isInteger(data.state.index) || data.state.index < 0 || data.state.index > 2 || !Array.isArray(data.state.done) || !Array.isArray(data.state.log)) {
+                    return sendJson(res, 400, { error: 'Invalid campaign save payload.' });
+                }
+                const serialized = JSON.stringify({ state: data.state, updatedAt: Date.now() });
+                if (serialized.length > 100000 || data.state.done.length > 3 || data.state.log.length > 200) {
+                    return sendJson(res, 413, { error: 'Campaign save exceeds allowed limits.' });
+                }
+                const tempPath = savePath + '.tmp';
+                try {
+                    fs.writeFileSync(tempPath, serialized, { mode: 0o600 });
+                    fs.renameSync(tempPath, savePath);
+                    return sendJson(res, 200, { success: true, updatedAt: Date.now() });
+                } catch (error) {
+                    try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } catch (_) {}
+                    return sendJson(res, 500, { error: 'Campaign save could not be written.' });
+                }
+            });
+            return;
+        }
+        return sendJson(res, 405, { error: 'Method not allowed.' });
     }
 
     // ----------------------------------------------------
