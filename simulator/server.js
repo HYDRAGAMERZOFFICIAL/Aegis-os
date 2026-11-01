@@ -768,14 +768,7 @@ function handleApi(req, res, pathname, url) {
         if (!session || !session.user) return sendJson(res, 401, { error: 'Operator authentication required to sync database vault.' });
         
         parseBody(req, (err, data) => {
-<<<<<<< HEAD
-            if (err || !data) {
-                console.error('[VAULT SYNC ERROR]', err, data);
-                return sendJson(res, 400, { error: 'Invalid vault payload: ' + (err ? err.message : 'no data') });
-            }
-=======
             if (err || !data) return sendJson(res, 400, { error: 'Invalid vault payload.' });
->>>>>>> 4106ad8184c5b9e0ac917e8107dc17030a4f844e
             const userId = session.user.id;
             const safeUserId = String(userId).replace(/[^a-zA-Z0-9_-]/g, '');
 
@@ -787,6 +780,17 @@ function handleApi(req, res, pathname, url) {
                         credits: data.profile.credits !== undefined ? data.profile.credits : profiles[0].credits,
                         rank: data.profile.rank || profiles[0].rank,
                         completedMissions: data.profile.completedMissions !== undefined ? data.profile.completedMissions : profiles[0].completedMissions
+                    });
+                } else {
+                    aegisDB.insert('user_profiles', {
+                        id: 'prf_' + safeUserId,
+                        userId: userId,
+                        rank: data.profile.rank || 'Field Investigator',
+                        xp: data.profile.xp !== undefined ? data.profile.xp : 250,
+                        credits: data.profile.credits !== undefined ? data.profile.credits : 500,
+                        specialization: 'Tactical Cybersecurity Operations',
+                        completedMissions: data.profile.completedMissions || 0,
+                        sideQuestsDone: 0
                     });
                 }
             }
