@@ -49,6 +49,18 @@ test('research enforces prerequisites and spends points once', () => {
   assert.equal(game.getState().resources.research, 60);
 });
 
+test('three campaign missions can be completed with their dedicated action sequences', () => {
+  const game = new GameManager();
+  assert.equal(game.getState().missions.length, 3);
+  game.startMission('mission-02');
+  for (const action of ['inspect_memory','revoke_token','apply_patch','quarantine_process','audit_kernel']) assert.equal(game.performAction(action).ok, true, action);
+  assert.equal(game.getState().currentMission.status, 'completed');
+  game.startMission('mission-03');
+  for (const action of ['analyze_traffic','rate_limit','reroute_traffic','restore_service','submit_report']) assert.equal(game.performAction(action).ok, true, action);
+  assert.equal(game.getState().currentMission.status, 'completed');
+  assert.equal(game.getState().missions.filter(item => item.completed).length, 2);
+});
+
 test('save manager round-trips game state and rejects unsafe slots', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-game-'));
   try {
