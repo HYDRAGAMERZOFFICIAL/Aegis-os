@@ -295,8 +295,8 @@ const server = http.createServer((req, res) => {
     const isGameAsset = pathname === '/game' || pathname.startsWith('/game/');
     const assetRoot = isGameAsset ? GAME_DIR : WEB_DIR;
     const relativeAssetPath = isGameAsset
-        ? pathname.replace(/^\\/game\\/?/, '')
-        : (pathname === '/' ? 'index.html' : pathname.replace(/^\\//, ''));
+        ? pathname.replace(/^\/game\/?/, '')
+        : (pathname === '/' ? 'index.html' : pathname.replace(/^\//, ''));
     let filePath = path.resolve(assetRoot, relativeAssetPath || 'index.html');
     const safeRoot = assetRoot.toLowerCase() + path.sep;
 
