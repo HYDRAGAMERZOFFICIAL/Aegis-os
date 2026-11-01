@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/[...route].js", "use": "@vercel/node" },
+    { "src": "simulator/web/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/[...route].js" },
+    { "src": "/game/?$", "dest": "/simulator/web/game.html" },
+    { "src": "/(.*)", "dest": "/simulator/web/$1" }
+  ]
+}
