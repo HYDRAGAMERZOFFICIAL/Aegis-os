@@ -17,6 +17,9 @@ test('player profiles store password hashes and issue an authenticated session',
   assert.equal(stored.accounts[0].passwordHash.includes('correct-horse-42'), false);
   assert.notEqual(stored.accounts[0].passwordHash, 'correct-horse-42');
 
+  const restartedAuth = new AuthManager(directory);
+  const signedIn = restartedAuth.login({ username: 'operator_one', password: 'correct-horse-42' }, '127.0.0.1');
+  assert.equal(signedIn.user.id, created.user.id);
   const request = { headers: { cookie: 'aegis_session=' + created.token }, socket: { remoteAddress: '127.0.0.1' } };
   assert.equal(auth.getSession(request).user.id, created.user.id);
   assert.equal(auth.unlock(created.user.id, 'correct-horse-42', '127.0.0.1'), true);
