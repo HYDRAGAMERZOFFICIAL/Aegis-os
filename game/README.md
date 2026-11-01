@@ -9,7 +9,7 @@ This directory contains the first modular game layer for the AegisOS cyberwarfar
 - Threat lifecycle: spawn, detect, contain and turn-based pressure.
 - Mission framework with objectives, completion and rewards.
 - Versioned, atomic local save files.
-- Mission 01: The Silent Intrusion.
+- Three campaign missions: The Silent Intrusion, Ghost in the Kernel, and Blackout Protocol.
 
 All threats, attacks, files and recovery operations are fictional game-state objects. The game layer must never execute malware, scan external networks, or alter host files.
 
