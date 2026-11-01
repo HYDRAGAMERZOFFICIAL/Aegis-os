@@ -166,9 +166,9 @@ module.exports = async function handler(req, res) {
 
     if (pathname === '/api/auth/me' && req.method === 'GET') {
       const session = await currentSession(req, res);
-      if (!session) return send(res, 200, { authenticated: false, user: null, needsProfile: false });
+      if (!session) return send(res, 200, { authenticated: false, user: null, needsProfile: false, storageMode: 'cloud' });
       const user = await profileFor(session.user, session.access);
-      return send(res, 200, { authenticated: true, user });
+      return send(res, 200, { authenticated: true, user, storageMode: 'cloud' });
     }
 
     if (pathname === '/api/auth/register' && req.method === 'POST') {
