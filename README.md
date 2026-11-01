@@ -460,3 +460,8 @@ Follow [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) and apply the SQL migration 
 The Electron desktop launcher continues to use local profiles and local saves. Cloud accounts are the Vercel deployment path; Steamworks achievements, leaderboards, SteamPipe depots, final artwork, and Steam release QA remain separate release tasks.
 
 All game threats and recovery actions are simulated. The game does not execute malware or operate on the player's real network or host files.
+
+
+### Complete game vision and specification
+
+The canonical game concept, campaign design, notification-driven gameplay, desktop-tool responsibilities, account and cloud-save model, safety boundaries, architecture, and release acceptance criteria are documented in **[AEGISOS_GAME_VISION.md](docs/AEGISOS_GAME_VISION.md)**.
