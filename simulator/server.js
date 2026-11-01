@@ -1,6 +1,13 @@
 /**
  * AegisOS Desktop Environment & System Simulator Server
  * Pure Node.js implementation - Zero external dependencies required.
+ * 
+ * Features:
+ * - Dual-Kernel Microkernel & Userland Simulation
+ * - Cryptographic File Management (AegisFS)
+ * - Tiered Storage & Block Deduplication Optimizer
+ * - Comprehensive Cybersecurity Suite (DPI Sniffer, Vulnerability Scanner, Malware Sandbox, Zero-Trust Broker)
+ * - Agentic AI Assistant ("Aegis Mind") capable of multi-step autonomous task execution
  */
 
 const http = require('http');
@@ -12,7 +19,9 @@ const PORT = process.env.PORT || 3000;
 const WEB_DIR = path.join(__dirname, 'web');
 const SIM_EXE = path.join(__dirname, '..', 'aegis_sim.exe');
 
-// In-Memory Simulation State
+// ==========================================
+// IN-MEMORY SIMULATION STATE
+// ==========================================
 const systemState = {
     kernelVersion: "2.0.0-Alpha",
     architecture: "Dual-Kernel Microkernel (Aegis Core + Linux ABI)",
@@ -20,35 +29,60 @@ const systemState = {
     layout: "hybrid", // "hybrid" | "windows" | "linux"
     theme: "quantum-cyan",
     optimizerMode: "WORK",
+    
+    // Security Status
     securityStatus: {
         firewallActive: true,
         idsActive: true,
         guardAccuracy: 98.7,
         zeroTrustPolicy: "DEFAULT_DENY",
-        threatsBlocked: 14,
+        threatsBlocked: 19,
         quarantinedFiles: [
-            { id: 'THR-8821', name: 'ransom_injector.bin', type: 'Ransomware Heuristic', threatLevel: 'CRITICAL', time: '10 mins ago', blocked: true },
-            { id: 'THR-8822', name: 'mem_escalate_poc', type: 'Privilege Escalation', threatLevel: 'HIGH', time: '25 mins ago', blocked: true }
+            { id: 'THR-8821', name: 'ransom_injector.bin', type: 'Ransomware Heuristic', threatLevel: 'CRITICAL', time: '10 mins ago', blocked: true, hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' },
+            { id: 'THR-8822', name: 'mem_escalate_poc', type: 'Privilege Escalation', threatLevel: 'HIGH', time: '25 mins ago', blocked: true, hash: 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb' },
+            { id: 'THR-8823', name: 'nop_sled_shellcode.raw', type: 'Buffer Overflow Gadget', threatLevel: 'CRITICAL', time: '3 mins ago', blocked: true, hash: '8743b52063cd84097a65d1633f5c74f5' }
         ],
         firewallRules: [
             { id: 1, name: "Block Inbound Telnet (23)", proto: "TCP", port: 23, direction: "INBOUND", action: "DENY", enabled: true },
             { id: 2, name: "Allow Secure Shell (SSH)", proto: "TCP", port: 22, direction: "INBOUND", action: "ALLOW", enabled: true },
             { id: 3, name: "Allow HTTPS Web Traffic", proto: "TCP", port: 443, direction: "OUTBOUND", action: "ALLOW", enabled: true },
             { id: 4, name: "Block Outbound Tor Relays", proto: "TCP", port: 9001, direction: "OUTBOUND", action: "DENY", enabled: true },
-            { id: 5, name: "Zero-Trust Kernel IPC Gate", proto: "IPC", port: 0, direction: "INTERNAL", action: "ALLOW", enabled: true }
+            { id: 5, name: "Zero-Trust Kernel IPC Gate", proto: "IPC", port: 0, direction: "INTERNAL", action: "ALLOW", enabled: true },
+            { id: 6, name: "Block Unverified DNS over HTTP", proto: "UDP", port: 853, direction: "OUTBOUND", action: "DENY", enabled: true }
+        ],
+        zeroTrustTokens: [
+            { tokenId: "TOK-9921", subject: "aegis_ui_compositor", capability: "CAP_FRAMEBUFFER_WRITE", ttl: "3600s", status: "VALID" },
+            { tokenId: "TOK-9922", subject: "neural_monitor", capability: "CAP_KERNEL_TELEMETRY", ttl: "1800s", status: "VALID" },
+            { tokenId: "TOK-9923", subject: "aegis_shield_daemon", capability: "CAP_NET_RAW_SOCKET", ttl: "7200s", status: "VALID" }
+        ],
+        vulnerabilities: [
+            { cveId: "CVE-2026-AEGIS-01", name: "Ring 3 Driver Memory Barrier Validation", severity: "LOW", status: "PATCHED", desc: "User-space driver IOCTL required additional boundary validation." },
+            { cveId: "CVE-2026-AEGIS-02", name: "Entropy Whitening in /dev/urandom", severity: "INFO", status: "VERIFIED", desc: "Cryptographic pseudo-random generator passed FIPS 140-3 test suites." },
+            { cveId: "CVE-2026-AEGIS-03", name: "Shadow Stack Canary Drift", severity: "MEDIUM", status: "PATCHED", desc: "Automated canary randomization applied on thread spawn." }
         ]
     },
+
+    // Merkle Filesystem & Explorer State
     filesystem: {
         merkleRoot: "0x8f4d92a15c8e43f07a1b3d5c9e2a7b6f4c8d1e3a5b7c9d0e1f2a3b4c5d6e7f8",
         status: "INTEGRITY_VERIFIED",
         corruptedBlock: null,
         blocks: [
-            { id: "blk-0", path: "/boot/vmlinuz-aegis", hash: "a4f912c...", size: "14.2 MB", status: "HEALTHY" },
-            { id: "blk-1", path: "/boot/initramfs-aegis.img", hash: "6b2e98d...", size: "28.5 MB", status: "HEALTHY" },
-            { id: "blk-2", path: "/system/lib/libaegis_kernel.so", hash: "3e1a77f...", size: "8.4 MB", status: "HEALTHY" },
-            { id: "blk-3", path: "/system/security/zero_trust.db", hash: "9d4c21b...", size: "1.2 MB", status: "HEALTHY" },
-            { id: "blk-4", path: "/userland/data/user_vault.dat", hash: "8f4d92a...", size: "54.1 MB", status: "HEALTHY" },
-            { id: "blk-5", path: "/filesystem/merkle_journal.log", hash: "7c5e31a...", size: "512 KB", status: "HEALTHY" }
+            { id: "blk-0", path: "/boot/vmlinuz-aegis", hash: "a4f912c498e72b1...", size: "14.2 MB", status: "HEALTHY", tier: "NVMe" },
+            { id: "blk-1", path: "/boot/initramfs-aegis.img", hash: "6b2e98d13a948c2...", size: "28.5 MB", status: "HEALTHY", tier: "NVMe" },
+            { id: "blk-2", path: "/system/lib/libaegis_kernel.so", hash: "3e1a77f98d1a45b...", size: "8.4 MB", status: "HEALTHY", tier: "RAM" },
+            { id: "blk-3", path: "/system/security/zero_trust.db", hash: "9d4c21b56ef24a1...", size: "1.2 MB", status: "HEALTHY", tier: "NVMe" },
+            { id: "blk-4", path: "/userland/data/user_vault.dat", hash: "8f4d92a15c8e43f...", size: "54.1 MB", status: "HEALTHY", tier: "SSD" },
+            { id: "blk-5", path: "/filesystem/merkle_journal.log", hash: "7c5e31a89c423e7...", size: "512 KB", status: "HEALTHY", tier: "NVMe" }
+        ],
+        files: [
+            { id: "f-1", name: "vmlinuz-aegis", path: "/boot/vmlinuz-aegis", size: 14889984, sizeStr: "14.2 MB", perm: "rwxr-xr-x", ring: "Ring 0", encrypted: false, hash: "a4f912c...", modified: "2026-11-01 10:14", type: "kernel" },
+            { id: "f-2", name: "zero_trust.db", path: "/system/security/zero_trust.db", size: 1258291, sizeStr: "1.2 MB", perm: "rw-------", ring: "Ring 0", encrypted: true, hash: "9d4c21b...", modified: "2026-11-01 14:22", type: "db" },
+            { id: "f-3", name: "libaegis_kernel.so", path: "/system/lib/libaegis_kernel.so", size: 8808038, sizeStr: "8.4 MB", perm: "rwxr-xr-x", ring: "Ring 1", encrypted: false, hash: "3e1a77f...", modified: "2026-11-01 12:05", type: "library" },
+            { id: "f-4", name: "user_vault.dat", path: "/userland/data/user_vault.dat", size: 56728576, sizeStr: "54.1 MB", perm: "rw-rw----", ring: "Ring 3", encrypted: true, hash: "8f4d92a...", modified: "2026-11-01 14:50", type: "data" },
+            { id: "f-5", name: "merkle_journal.log", path: "/filesystem/merkle_journal.log", size: 524288, sizeStr: "512 KB", perm: "rw-r--r--", ring: "Ring 0", encrypted: true, hash: "7c5e31a...", modified: "2026-11-01 15:10", type: "log" },
+            { id: "f-6", name: "firewall_rules.conf", path: "/etc/aegis/firewall_rules.conf", size: 4096, sizeStr: "4 KB", perm: "rw-r--r--", ring: "Ring 2", encrypted: false, hash: "1b9a4c8...", modified: "2026-11-01 13:30", type: "config" },
+            { id: "f-7", name: "classified_payload.enc", path: "/vault/classified_payload.enc", size: 10485760, sizeStr: "10.0 MB", perm: "r--------", ring: "Ring 0", encrypted: true, hash: "fe248a9...", modified: "2026-11-01 09:00", type: "vault" }
         ],
         snapshots: [
             { id: "chkpt-0001", name: "Clean Boot Baseline", timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(), size: "482 MB", bootable: true },
@@ -56,6 +90,28 @@ const systemState = {
             { id: "chkpt-0003", name: "System Restore Point Alpha", timestamp: new Date(Date.now() - 300000).toLocaleTimeString(), size: "515 MB", bootable: true }
         ]
     },
+
+    // Tiered Storage & Optimization Engine State
+    storage: {
+        totalCapacityGb: 2560,
+        usedCapacityGb: 785.4,
+        freeCapacityGb: 1774.6,
+        dedupSavingsGb: 48.2,
+        dedupRatio: "1.28x",
+        compressionSavingsGb: 64.5,
+        compressionRatio: "2.35x (ZSTD/LZ4)",
+        fragmentationPercent: 3.8,
+        ssdHealthPercent: 99.4,
+        trimActive: true,
+        tiers: [
+            { id: "tier-1", name: "Tier 1: L1 RAM Buffer", type: "DDR5 ECC RAM", capacityGb: 16, usedGb: 5.6, latencyUs: 0.04, bandwidthMbps: 12800, status: "OPTIMAL" },
+            { id: "tier-2", name: "Tier 2: L2 NVMe SSD", type: "PCIe 4.0 NVMe", capacityGb: 512, usedGb: 142.8, latencyUs: 22.0, bandwidthMbps: 4800, status: "OPTIMAL" },
+            { id: "tier-3", name: "Tier 3: L3 SATA SSD", type: "SATA III TLC", capacityGb: 2048, usedGb: 637.0, latencyUs: 140.0, bandwidthMbps: 560, status: "HEALTHY" },
+            { id: "tier-4", name: "Tier 4: Cold Archive", type: "Immutable Snapshots", capacityGb: 1024, usedGb: 124.0, latencyUs: 850.0, bandwidthMbps: 250, status: "ENCRYPTED" }
+        ]
+    },
+
+    // Live Telemetry
     telemetry: {
         cpuUsage: 18.4,
         ramUsage: 34.2,
@@ -64,7 +120,7 @@ const systemState = {
         networkKbps: 420.5,
         entropyRate: 0.88,
         activeProcesses: 54,
-        totalEventsLogged: 48920,
+        totalEventsLogged: 49450,
         eventRates: { fileOps: 142, memoryOps: 890, networkPackets: 210, processSpawns: 3 }
     }
 };
@@ -82,7 +138,6 @@ const MIME_TYPES = {
     '.woff2': 'font/woff2'
 };
 
-// Helper to send JSON response
 function sendJson(res, statusCode, data) {
     res.writeHead(statusCode, {
         'Content-Type': 'application/json',
@@ -93,9 +148,21 @@ function sendJson(res, statusCode, data) {
     res.end(JSON.stringify(data));
 }
 
-// Request dispatcher
+function parseBody(req, callback) {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+        try {
+            const data = body ? JSON.parse(body) : {};
+            callback(null, data);
+        } catch (e) {
+            callback(e);
+        }
+    });
+}
+
+// Request Server
 const server = http.createServer((req, res) => {
-    // Handle CORS preflight
     if (req.method === 'OPTIONS') {
         res.writeHead(204, {
             'Access-Control-Allow-Origin': '*',
@@ -118,7 +185,6 @@ const server = http.createServer((req, res) => {
     let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : pathname);
     filePath = path.normalize(filePath);
 
-    // Prevent directory traversal
     if (!filePath.startsWith(WEB_DIR)) {
         res.writeHead(403, { 'Content-Type': 'text/plain' });
         return res.end('Access Denied');
@@ -126,7 +192,6 @@ const server = http.createServer((req, res) => {
 
     fs.stat(filePath, (err, stats) => {
         if (err || !stats.isFile()) {
-            // Fallback to index.html for SPA if not an asset request
             if (!path.extname(pathname)) {
                 filePath = path.join(WEB_DIR, 'index.html');
             } else {
@@ -149,23 +214,11 @@ const server = http.createServer((req, res) => {
     });
 });
 
-// Parse POST body helper
-function parseBody(req, callback) {
-    let body = '';
-    req.on('data', chunk => { body += chunk; });
-    req.on('end', () => {
-        try {
-            const data = body ? JSON.parse(body) : {};
-            callback(null, data);
-        } catch (e) {
-            callback(e);
-        }
-    });
-}
-
-// API Handler
+// API Dispatcher
 function handleApi(req, res, pathname, url) {
-    // 1. System Info & Status
+    // ----------------------------------------------------
+    // 1. SYSTEM STATUS & TELEMETRY
+    // ----------------------------------------------------
     if (pathname === '/api/system/status' && req.method === 'GET') {
         const uptimeSeconds = Math.floor((Date.now() - systemState.startTime) / 1000);
         return sendJson(res, 200, {
@@ -175,18 +228,13 @@ function handleApi(req, res, pathname, url) {
         });
     }
 
-    // 2. Neural Activity Telemetry
     if (pathname === '/api/neural/telemetry' && req.method === 'GET') {
-        // Generate minor jitter for real-time visualization
         const cpuJitter = (Math.sin(Date.now() / 1500) * 5) + (Math.random() * 4);
-        const ramJitter = (Math.cos(Date.now() / 3000) * 2);
-        
         let targetCpu = 18;
         if (systemState.optimizerMode === 'GAME') targetCpu = 42;
         else if (systemState.optimizerMode === 'ECO') targetCpu = 10;
         
         systemState.telemetry.cpuUsage = Math.max(5, Math.min(99, Math.round((targetCpu + cpuJitter) * 10) / 10));
-        systemState.telemetry.ramUsage = Math.max(15, Math.min(90, Math.round((34 + ramJitter) * 10) / 10));
         systemState.telemetry.totalEventsLogged += Math.floor(Math.random() * 25) + 10;
 
         return sendJson(res, 200, {
@@ -195,7 +243,194 @@ function handleApi(req, res, pathname, url) {
         });
     }
 
-    // 3. Shield Firewall & IDS
+    // ----------------------------------------------------
+    // 2. FILE MANAGEMENT (AegisFS Cryptographic Explorer)
+    // ----------------------------------------------------
+    if (pathname === '/api/files/list' && req.method === 'GET') {
+        return sendJson(res, 200, {
+            files: systemState.filesystem.files,
+            totalFiles: systemState.filesystem.files.length,
+            merkleRoot: systemState.filesystem.merkleRoot,
+            status: systemState.filesystem.status
+        });
+    }
+
+    if (pathname === '/api/files/create' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.name) return sendJson(res, 400, { error: 'File name required' });
+            const newFile = {
+                id: `f-${Date.now()}`,
+                name: data.name,
+                path: data.path || `/userland/data/${data.name}`,
+                size: (data.content ? data.content.length : 128),
+                sizeStr: `${Math.max(1, Math.round((data.content ? data.content.length : 128) / 1024))} KB`,
+                perm: data.perm || "rw-r--r--",
+                ring: data.ring || "Ring 3",
+                encrypted: !!data.encrypted,
+                hash: Math.random().toString(16).substring(2, 10) + "...",
+                modified: new Date().toISOString().substring(0, 16).replace('T', ' '),
+                type: data.type || "text",
+                content: data.content || "AegisOS Protected Document Payload"
+            };
+            systemState.filesystem.files.push(newFile);
+            return sendJson(res, 200, { success: true, file: newFile });
+        });
+        return;
+    }
+
+    if (pathname === '/api/files/toggle-encryption' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.fileId) return sendJson(res, 400, { error: 'File ID required' });
+            const target = systemState.filesystem.files.find(f => f.id === data.fileId);
+            if (!target) return sendJson(res, 404, { error: 'File not found' });
+            target.encrypted = !target.encrypted;
+            target.hash = Math.random().toString(16).substring(2, 10) + "...";
+            return sendJson(res, 200, {
+                success: true,
+                encrypted: target.encrypted,
+                file: target,
+                cipher: target.encrypted ? "AES-256-XTS Hardware Accelerated" : "Plaintext Decrypted"
+            });
+        });
+        return;
+    }
+
+    if (pathname === '/api/files/delete' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.fileId) return sendJson(res, 400, { error: 'File ID required' });
+            const idx = systemState.filesystem.files.findIndex(f => f.id === data.fileId);
+            if (idx === -1) return sendJson(res, 404, { error: 'File not found' });
+            const deleted = systemState.filesystem.files.splice(idx, 1)[0];
+            return sendJson(res, 200, { success: true, deletedFile: deleted });
+        });
+        return;
+    }
+
+    // ----------------------------------------------------
+    // 3. STORAGE OPTIMIZER & TIERED ENGINE
+    // ----------------------------------------------------
+    if (pathname === '/api/storage/info' && req.method === 'GET') {
+        return sendJson(res, 200, {
+            storage: systemState.storage,
+            timestamp: Date.now()
+        });
+    }
+
+    if (pathname === '/api/storage/optimize' && req.method === 'POST') {
+        // Simulate TRIM, deduplication pass, and defragmentation
+        const reclaimedMb = Math.floor(Math.random() * 850) + 420;
+        systemState.storage.dedupSavingsGb = Math.round((systemState.storage.dedupSavingsGb + (reclaimedMb / 1024)) * 10) / 10;
+        systemState.storage.fragmentationPercent = Math.max(0.4, Math.round((systemState.storage.fragmentationPercent * 0.4) * 10) / 10);
+        systemState.storage.freeCapacityGb = Math.round((systemState.storage.freeCapacityGb + (reclaimedMb / 1024)) * 10) / 10;
+        systemState.storage.usedCapacityGb = Math.round((systemState.storage.usedCapacityGb - (reclaimedMb / 1024)) * 10) / 10;
+
+        return sendJson(res, 200, {
+            success: true,
+            reclaimedSpaceMb: reclaimedMb,
+            newFragmentation: `${systemState.storage.fragmentationPercent}%`,
+            newFreeGb: systemState.storage.freeCapacityGb,
+            message: `Storage optimization complete! Reclaimed ${reclaimedMb} MB via block deduplication & TRIM wear leveling.`
+        });
+    }
+
+    // ----------------------------------------------------
+    // 4. POWERFUL CYBERSECURITY SUITE
+    // ----------------------------------------------------
+    // 4a. Live Packet Sniffer Feed
+    if (pathname === '/api/cybersec/packets' && req.method === 'GET') {
+        const protocols = ['TLS 1.3', 'HTTPS', 'SSH-2.0', 'DNS-SEC', 'TCP SYN', 'ICMP', 'QUIC'];
+        const samplePackets = [];
+        for (let i = 0; i < 6; i++) {
+            const proto = protocols[Math.floor(Math.random() * protocols.length)];
+            const isSuspicious = Math.random() < 0.2;
+            samplePackets.push({
+                id: `pkt-${Math.random().toString(16).substring(2, 8)}`,
+                timestamp: new Date().toLocaleTimeString(),
+                protocol: proto,
+                srcIp: `192.168.1.${Math.floor(Math.random() * 200) + 10}`,
+                dstIp: `10.0.0.${Math.floor(Math.random() * 50) + 1}`,
+                port: proto.includes('HTTPS') ? 443 : proto.includes('SSH') ? 22 : proto.includes('DNS') ? 53 : 8080,
+                status: isSuspicious ? 'FLAGGED_INSPECTION' : 'ALLOWED',
+                payloadFlag: isSuspicious ? 'Unusual entropy anomaly / Potential probe' : 'Encrypted application frame'
+            });
+        }
+        return sendJson(res, 200, { packets: samplePackets, blockedCount: systemState.securityStatus.threatsBlocked });
+    }
+
+    // 4b. Vulnerability Assessment Scanner
+    if (pathname === '/api/cybersec/vulnerability-scan' && req.method === 'POST') {
+        return sendJson(res, 200, {
+            status: "AUDIT_COMPLETE",
+            systemHardenScore: "98/100 (EXTREME DEFENSE)",
+            auditPoints: [
+                { title: "64-bit ASLR Entropy", status: "PASS", detail: "Stack, heap, mmap, and kernel text fully randomized with high entropy." },
+                { title: "Hardware IOMMU / DMA Sandboxing", status: "PASS", detail: "Ring 3 user-space drivers strictly isolated from direct physical DMA." },
+                { title: "Shadow Call Stack & Heap Canaries", status: "PASS", detail: "Active return address protection on all microkernel syscall gates." },
+                { title: "Cryptographic Merkle Root Invariance", status: systemState.filesystem.status === "INTEGRITY_VERIFIED" ? "PASS" : "WARN", detail: "SHA-256 hash trees verify zero unauthorized file alterations." },
+                { title: "Zero-Trust Default Deny Access", status: "PASS", detail: "Every hardware call requires signed, ephemeral capability tokens." },
+                { title: "Stateful Packet Inspection (SPI)", status: "PASS", detail: "Port knocking and NOP sled detection active on network tap." }
+            ],
+            cveList: systemState.securityStatus.vulnerabilities
+        });
+    }
+
+    // 4c. Detonate in Isolated Malware Sandbox
+    if (pathname === '/api/cybersec/sandbox-detonate' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            const sampleName = data.sampleName || "unknown_suspicious_payload.bin";
+            const threatScore = Math.floor(Math.random() * 15) + 85; // 85-99%
+            return sendJson(res, 200, {
+                success: true,
+                sampleName,
+                sandboxPid: 8492,
+                quarantineId: `THR-${Math.floor(Math.random() * 9000) + 1000}`,
+                threatConfidence: `${threatScore}%`,
+                detectedBehaviors: [
+                    "Attempted unauthorized hook on Kernel Syscall Table (Blocked by Ring 0 Gate)",
+                    "Attempted rapid traversal of /userland/data/ to encrypt file headers (Ransomware Tripwire Fired)",
+                    "Attempted raw socket injection to external IP 185.220.101.5 (Dropped by Aegis Shield)"
+                ],
+                actionTaken: "AUTOMATICALLY QUARANTINED TO IMMUTABLE MERKLE VAULT",
+                systemCompromised: false
+            });
+        });
+        return;
+    }
+
+    // 4d. Issue Zero-Trust Token
+    if (pathname === '/api/cybersec/issue-token' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            const token = {
+                tokenId: `TOK-${Math.floor(Math.random() * 9000) + 1000}`,
+                subject: data.subject || "aegis_user_app",
+                capability: data.capability || "CAP_NETWORK_CLIENT",
+                ttl: "300s (5 Minutes)",
+                status: "VALID",
+                issuedAt: new Date().toLocaleTimeString()
+            };
+            systemState.securityStatus.zeroTrustTokens.unshift(token);
+            return sendJson(res, 200, { success: true, token });
+        });
+        return;
+    }
+
+    // ----------------------------------------------------
+    // 5. AGENTIC AI ASSISTANT ("Aegis Mind")
+    // ----------------------------------------------------
+    if (pathname === '/api/ai/execute' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.prompt) return sendJson(res, 400, { error: 'Prompt required' });
+            const prompt = data.prompt.trim();
+            handleAIAssistant(prompt, (response) => {
+                return sendJson(res, 200, response);
+            });
+        });
+        return;
+    }
+
+    // ----------------------------------------------------
+    // 6. EXISTING AEGIS CONTROLS (Shield, Merkle, Opt, Term)
+    // ----------------------------------------------------
     if (pathname === '/api/shield/toggle-rule' && req.method === 'POST') {
         parseBody(req, (err, data) => {
             if (err || !data.ruleId) return sendJson(res, 400, { error: 'Invalid payload' });
@@ -207,7 +442,6 @@ function handleApi(req, res, pathname, url) {
         return;
     }
 
-    // 4. Run Guard Intrusion Scan
     if (pathname === '/api/guard/scan' && req.method === 'POST') {
         return sendJson(res, 200, {
             scannedProcesses: 68,
@@ -218,50 +452,34 @@ function handleApi(req, res, pathname, url) {
         });
     }
 
-    // 5. System Troubleshooter 7-Point Scan
     if (pathname === '/api/troubleshoot/run' && req.method === 'POST') {
-        setTimeout(() => {
-            const diagnosticPoints = [
-                { id: 1, name: "Kernel ASLR & Microkernel Page Table Isolation", status: "PASS", message: "Kernel space randomized with 64-bit entropy. No overlapping rings detected." },
-                { id: 2, name: "Zero-Trust Driver Sandboxes (Ring 3 Isolation)", status: "PASS", message: "12 registered user-space drivers strictly sandboxed without direct DMA." },
-                { id: 3, name: "Merkle Tree Filesystem Hash Consistency", status: systemState.filesystem.status === "HEALTHY" || systemState.filesystem.status === "INTEGRITY_VERIFIED" ? "PASS" : "FAIL", message: systemState.filesystem.status === "FAIL" ? "Hash mismatch detected in block #4!" : "All Merkle branches match cryptographic root." },
-                { id: 4, name: "Dynamic Memory Leak & Double-Free Heuristics", status: "PASS", message: "Heap canary markers intact. 0 unfreed memory chunks older than TTL." },
-                { id: 5, name: "Aegis Shield Stateful Packet Inspection & TLS 1.3", status: "PASS", message: "Firewall rules enforced. Zero open debug ports." },
-                { id: 6, name: "System Checkpoint & Snapshot Storage State", status: "PASS", message: "3 valid restore points found. Sub-10s rollback ready." },
-                { id: 7, name: "CFS Scheduler & Task Optimizer Affinity", status: "PASS", message: `Active Mode: ${systemState.optimizerMode}. Priority threads tuned.` }
-            ];
-            return sendJson(res, 200, { diagnosticPoints, timestamp: Date.now() });
-        }, 300);
-        return;
+        const diagnosticPoints = [
+            { id: 1, name: "Kernel ASLR & Microkernel Page Table Isolation", status: "PASS", message: "Kernel space randomized with 64-bit entropy. No overlapping rings detected." },
+            { id: 2, name: "Zero-Trust Driver Sandboxes (Ring 3 Isolation)", status: "PASS", message: "12 registered user-space drivers strictly sandboxed without direct DMA." },
+            { id: 3, name: "Merkle Tree Filesystem Hash Consistency", status: systemState.filesystem.status === "INTEGRITY_VERIFIED" ? "PASS" : "FAIL", message: systemState.filesystem.status === "FAIL" ? "Hash mismatch detected in block #4!" : "All Merkle branches match cryptographic root." },
+            { id: 4, name: "Dynamic Memory Leak & Double-Free Heuristics", status: "PASS", message: "Heap canary markers intact. 0 unfreed memory chunks older than TTL." },
+            { id: 5, name: "Aegis Shield Stateful Packet Inspection & TLS 1.3", status: "PASS", message: "Firewall rules enforced. Zero open debug ports." },
+            { id: 6, name: "System Checkpoint & Snapshot Storage State", status: "PASS", message: "3 valid restore points found. Sub-10s rollback ready." },
+            { id: 7, name: "CFS Scheduler & Task Optimizer Affinity", status: "PASS", message: `Active Mode: ${systemState.optimizerMode}. Priority threads tuned.` }
+        ];
+        return sendJson(res, 200, { diagnosticPoints, timestamp: Date.now() });
     }
 
-    // 6. Task Optimizer Mode Switch
     if (pathname === '/api/optimizer/set-mode' && req.method === 'POST') {
         parseBody(req, (err, data) => {
             if (err || !data.mode) return sendJson(res, 400, { error: 'Invalid mode' });
             systemState.optimizerMode = data.mode.toUpperCase();
-            return sendJson(res, 200, {
-                success: true,
-                mode: systemState.optimizerMode,
-                profile: {
-                    GAME: { cpuBoost: "+25%", gpuBoost: "+30%", backgroundPaused: true, audioLatency: "1.2ms" },
-                    WORK: { cpuBoost: "Balanced", gpuBoost: "Standard", backgroundPaused: false, audioLatency: "8.0ms" },
-                    STREAMING: { cpuBoost: "+15%", gpuBoost: "+20%", backgroundPaused: false, networkQoS: "High" },
-                    ECO: { cpuBoost: "-30%", gpuBoost: "-40%", backgroundPaused: true, powerWattage: "9W" }
-                }[systemState.optimizerMode] || {}
-            });
+            return sendJson(res, 200, { success: true, mode: systemState.optimizerMode });
         });
         return;
     }
 
-    // 7. Merkle Tree Corruption Simulation (Ransomware Attack)
     if (pathname === '/api/merkle/corrupt' && req.method === 'POST') {
-        const targetBlock = systemState.filesystem.blocks[4]; // /userland/data/user_vault.dat
+        const targetBlock = systemState.filesystem.blocks[4];
         targetBlock.status = "CORRUPTED";
         targetBlock.hash = "0xBAD_RANSOMWARE_ENCRYPTED_BLOCK";
         systemState.filesystem.status = "CORRUPTED";
         systemState.filesystem.corruptedBlock = targetBlock.id;
-
         return sendJson(res, 200, {
             success: true,
             alert: "CRITICAL: Merkle tree cryptographic divergence detected!",
@@ -273,45 +491,177 @@ function handleApi(req, res, pathname, url) {
         });
     }
 
-    // 8. Atomic Sub-10s Rollback Simulation
     if (pathname === '/api/merkle/rollback' && req.method === 'POST') {
-        const startRollback = Date.now();
-        // Restore all blocks
         systemState.filesystem.blocks.forEach(b => {
             b.status = "HEALTHY";
             if (b.id === "blk-4") b.hash = "8f4d92a...";
         });
         systemState.filesystem.status = "INTEGRITY_VERIFIED";
         systemState.filesystem.corruptedBlock = null;
-
-        const duration = (Date.now() - startRollback + 1420) / 1000; // Simulated 1.42s atomic recovery
-
         return sendJson(res, 200, {
             success: true,
             restoredCheckpoint: systemState.filesystem.snapshots[systemState.filesystem.snapshots.length - 1],
-            recoveryTimeSeconds: duration,
+            recoveryTimeSeconds: 1.42,
             blocksRestored: 1,
             dataLossBytes: 0,
             merkleRoot: systemState.filesystem.merkleRoot,
-            message: `Atomic sub-10s rollback completed in ${duration.toFixed(2)}s. Zero data loss.`
+            message: "Atomic sub-10s rollback completed in 1.42s. Zero data loss."
         });
     }
 
-    // 9. Interactive Aegis Terminal Execution
     if (pathname === '/api/terminal/exec' && req.method === 'POST') {
         parseBody(req, (err, data) => {
             if (err || !data.command) return sendJson(res, 400, { error: 'Command missing' });
-            const cmd = data.command.trim();
-
-            executeShellCommand(cmd, (output) => {
+            executeShellCommand(data.command.trim(), (output) => {
                 return sendJson(res, 200, { output });
             });
         });
         return;
     }
 
-    // Default 404 for unknown API
     sendJson(res, 404, { error: `Endpoint not found: ${pathname}` });
+}
+
+// ==========================================
+// AGENTIC AI ASSISTANT REASONING & EXECUTION
+// ==========================================
+function handleAIAssistant(prompt, callback) {
+    const p = prompt.toLowerCase();
+    
+    // Action 1: Optimize Storage / Defrag / TRIM
+    if (p.includes('storage') || p.includes('dedup') || p.includes('trim') || p.includes('clean disk')) {
+        const reclaimed = Math.floor(Math.random() * 800) + 400;
+        systemState.storage.dedupSavingsGb += Math.round((reclaimed / 1024) * 10) / 10;
+        systemState.storage.fragmentationPercent = Math.max(0.4, Math.round((systemState.storage.fragmentationPercent * 0.4) * 10) / 10);
+        
+        return callback({
+            role: "assistant",
+            intent: "STORAGE_OPTIMIZATION",
+            reply: `I have analyzed and optimized the AegisOS tiered storage hierarchy.
+Here is what I performed:
+1. Ran real-time deduplication pass across Tier 2 (NVMe) & Tier 3 (SATA SSD). Reclaimed ${reclaimed} MB of duplicate blocks.
+2. Dispatched I/O TRIM commands to SSD controller wear-leveling ring.
+3. Compacted kernel memory pages in Tier 1 RAM Buffer. Current fragmentation is now down to ${systemState.storage.fragmentationPercent}%.`,
+            actionsExecuted: [
+                { task: "Block Deduplication Sweep", result: `Reclaimed ${reclaimed} MB` },
+                { task: "I/O TRIM Wear-Leveling", result: "Complete" },
+                { task: "Tier 1 Page Compaction", result: "Optimal" }
+            ],
+            suggestedFollowups: ["Show storage tiers", "Encrypt all user files", "Run system diagnostics"]
+        });
+    }
+
+    // Action 2: Security Hardening / Vulnerability Scan
+    if (p.includes('security') || p.includes('vulnerabilit') || p.includes('harden') || p.includes('audit')) {
+        return callback({
+            role: "assistant",
+            intent: "SECURITY_AUDIT",
+            reply: `Comprehensive cybersecurity audit complete. All AegisOS defenses are operating at maximum readiness (Score: 98/100).
+- **Aegis Shield Firewall**: Stateful Packet Inspection active, 19 attack vectors mitigated.
+- **Aegis Guard AI**: Heuristic accuracy is 98.7% with active zero-day honeypot tripwires.
+- **Microkernel Isolation**: ASLR 64-bit entropy verified; user-space drivers strictly sandboxed in Ring 3.`,
+            actionsExecuted: [
+                { task: "Audit ASLR & Shadow Stack Canaries", result: "PASS (64-bit entropy verified)" },
+                { task: "Evaluate Firewall Rules", result: "6 rules enforced, 0 open debug ports" },
+                { task: "Verify Zero-Trust Microkernel Gates", result: "Default-Deny strictly enforced" }
+            ],
+            suggestedFollowups: ["Detonate sample in malware sandbox", "Sniff network packets", "Switch to game mode"]
+        });
+    }
+
+    // Action 3: Simulate Ransomware Attack & Heal
+    if (p.includes('ransomware') || p.includes('attack') || p.includes('corrupt') || p.includes('heal') || p.includes('rollback')) {
+        if (p.includes('rollback') || p.includes('heal') || p.includes('repair')) {
+            systemState.filesystem.blocks.forEach(b => b.status = "HEALTHY");
+            systemState.filesystem.status = "INTEGRITY_VERIFIED";
+            return callback({
+                role: "assistant",
+                intent: "RESTORE_MERKLE",
+                reply: `Atomic Sub-10s Rollback completed in 1.42 seconds! The Merkle tree cryptographic root inode has been re-pointed to clean restore point 'chkpt-0003'. All filesystem blocks are verified healthy with zero data loss.`,
+                actionsExecuted: [
+                    { task: "Lookup Snapshot Checkpoint", result: "chkpt-0003 verified" },
+                    { task: "Atomic Root Pointer Pivot", result: "1.42s execution time" },
+                    { task: "SHA-256 Hash Verification", result: "100% integrity match" }
+                ],
+                suggestedFollowups: ["Check filesystem status", "Optimize storage", "Audit vulnerabilities"]
+            });
+        } else {
+            systemState.filesystem.blocks[4].status = "CORRUPTED";
+            systemState.filesystem.status = "CORRUPTED";
+            return callback({
+                role: "assistant",
+                intent: "CORRUPT_MERKLE_ALERT",
+                reply: `ALERT: I have simulated a ransomware attack targeting block '/userland/data/user_vault.dat'. Aegis Guard immediately caught the cryptographic divergence!
+Would you like me to execute an atomic rollback to restore the system?`,
+                actionsExecuted: [
+                    { task: "Simulate Ransomware Payload Injection", result: "Hash diverged on blk-4" },
+                    { task: "Aegis Guard Detection Tripwire", result: "ALARM TRIGGERED (Confidence: 99.2%)" }
+                ],
+                suggestedFollowups: ["Execute atomic rollback", "Run system diagnostics"]
+            });
+        }
+    }
+
+    // Action 4: Mode Switching (Game / Eco / Work)
+    if (p.includes('game') || p.includes('gaming') || p.includes('boost') || p.includes('fps')) {
+        systemState.optimizerMode = "GAME";
+        return callback({
+            role: "assistant",
+            intent: "MODE_CHANGE",
+            reply: `I have activated Game Mode via the Aegis Dynamic Task Optimizer!
+- **CPU Scheduler**: Priority boosted by +25%, dynamic frequency raised to 4.85 GHz.
+- **GPU Pipeline**: Overclock boost +30% enabled.
+- **Background Tasks**: Indexing, telemetry logging, and updates paused.
+- **Audio Subsystem**: Switched to ultra-low 1.2ms latency mode.`,
+            actionsExecuted: [
+                { task: "Set CFS Scheduler Priority", result: "Boost +25%" },
+                { task: "GPU Pipeline Clock", result: "+30% Overclock" },
+                { task: "Background Tasks", result: "Suspended" }
+            ],
+            suggestedFollowups: ["Revert to work mode", "Check CPU telemetry", "Run security audit"]
+        });
+    }
+
+    // Action 5: File Encryption / Management
+    if (p.includes('encrypt') || p.includes('file') || p.includes('files') || p.includes('vault')) {
+        return callback({
+            role: "assistant",
+            intent: "FILE_MANAGEMENT",
+            reply: `AegisFS Cryptographic File Manager is monitoring ${systemState.filesystem.files.length} system and userland files.
+- All files in '/vault' and '/system/security' are secured with per-file AES-256-XTS encryption.
+- Merkle root integrity: ${systemState.filesystem.merkleRoot.substring(0, 24)}...
+- Zero-Trust permissions isolate Ring 0 kernel files from unprivileged Ring 3 applications.`,
+            actionsExecuted: [
+                { task: "Inspect File Allocation Table", result: `${systemState.filesystem.files.length} active inodes` },
+                { task: "Validate Hardware Cryptographic Engine", result: "AES-NI Hardware Acceleration Active" }
+            ],
+            suggestedFollowups: ["Show storage tiers", "Clean up disk space", "Check security status"]
+        });
+    }
+
+    // Default general assistant response
+    return callback({
+        role: "assistant",
+        intent: "GENERAL_EXECUTION",
+        reply: `I am **Aegis Mind**, the integrated AI system controller. I have full ring-0 access to execute any instruction across microkernel scheduling, tiered storage, Aegis Shield firewall, Merkle filesystem, and diagnostic repairs.
+
+You can ask me to:
+- *"Optimize storage and clean duplicate blocks"*
+- *"Run a full cybersecurity vulnerability scan"*
+- *"Simulate a ransomware attack and heal with 10s rollback"*
+- *"Activate Game Mode for maximum CPU/GPU boost"*
+- *"Inspect and encrypt files in the user vault"*`,
+        actionsExecuted: [
+            { task: "Parse Natural Language Intent", result: "Ready" },
+            { task: "Check System Health", result: "Normal (CPU: 18%, Security: Optimal)" }
+        ],
+        suggestedFollowups: [
+            "Optimize storage now",
+            "Run security vulnerability scan",
+            "Switch to game mode",
+            "Simulate ransomware attack"
+        ]
+    });
 }
 
 // Shell command executor
@@ -335,9 +685,45 @@ function executeShellCommand(cmd, callback) {
   checkpoint [list|heal]  - Manage snapshots and 10s rollback recovery
   neural                  - Dump real-time neural telemetry counters
   fs [ls|cat|corrupt|heal]- Test Merkle filesystem operations
+  storage [info|optimize] - Inspect tiered storage and run block deduplication
+  cybersec [scan|sniff]   - Run vulnerability audit or deep packet inspection
+  ai <prompt>             - Send command directly to Aegis Mind AI Controller
   theme [cyan|amber|dark] - Switch Adaptive UI visual theme
   layout [hybrid|win|linux]- Switch desktop interface paradigm
   clear                   - Clear terminal display`);
+
+        case 'storage':
+            if (arg === 'optimize' || arg === 'trim') {
+                systemState.storage.dedupSavingsGb += 0.6;
+                systemState.storage.fragmentationPercent = 1.2;
+                return callback(`[Tiered Storage Optimizer] Defrag & TRIM complete! Reclaimed 614 MB of duplicate blocks. Fragmentation down to 1.2%.`);
+            }
+            return callback(`AegisOS Tiered Storage Engine:
+  Total Capacity: ${systemState.storage.totalCapacityGb} GB (Used: ${systemState.storage.usedCapacityGb} GB, Free: ${systemState.storage.freeCapacityGb} GB)
+  Block Deduplication: ${systemState.storage.dedupSavingsGb} GB saved (${systemState.storage.dedupRatio})
+  Compression: ${systemState.storage.compressionSavingsGb} GB saved (${systemState.storage.compressionRatio})
+  Tier 1 (L1 RAM Buffer): 16 GB | Latency: 0.04 us
+  Tier 2 (L2 NVMe SSD):   512 GB | Latency: 22.0 us
+  Tier 3 (L3 SATA SSD):   2048 GB | Latency: 140.0 us`);
+
+        case 'cybersec':
+            if (arg === 'sniff') {
+                return callback(`[Deep Packet Inspector] Sniffing live frames...
+  TLS 1.3 frame from 192.168.1.42:443 -> PASS (Encrypted payload)
+  TCP SYN probe on port 23 -> BLOCKED (Telnet rule enforced)
+  SSH-2.0 frame on port 22 -> PASS (Verified key handshake)`);
+            }
+            return callback(`Aegis Cybersecurity Status:
+  Overall Security Rating: 98/100 (EXTREME DEFENSE)
+  Vulnerabilities: 0 Critical, 0 High, 3 Patched
+  ASLR: 64-bit Entropy Verified | Shadow Stack: Active | Microkernel Sandbox: Enforced`);
+
+        case 'ai':
+            const promptText = parts.slice(1).join(' ') || 'help';
+            handleAIAssistant(promptText, (res) => {
+                return callback(`[Aegis Mind AI Response]\n${res.reply}`);
+            });
+            return;
 
         case 'sysinfo':
             return callback(`========================================================================
@@ -348,7 +734,9 @@ Architecture: x86_64 Microkernel + Linux ABI Emulation
 Active CPU Cores: 8 (Hyperthreaded) | RAM: 16384 MB (ASLR Enabled)
 Scheduler: Completely Fair Scheduler (CFS) with Adaptive Mode
 Filesystem: AegisFS (Cryptographic Merkle Tree Integrity)
-Security: Aegis Shield (IDS/IPS) + Aegis Guard AI + Zero-Trust Engine`);
+Storage: Tiered Storage Engine (L1 RAM -> L2 NVMe -> L3 SATA)
+Security: Aegis Shield (IDS/IPS) + Aegis Guard AI + Zero-Trust Engine
+AI Subsystem: Aegis Mind Autonomous Controller Active`);
 
         case 'ps':
             return callback(`PID   PPID  USER      CPU%  MEM(MB)  STATE   NAME
@@ -357,6 +745,8 @@ Security: Aegis Shield (IDS/IPS) + Aegis Guard AI + Zero-Trust Engine`);
   8      1  system     0.8     32.1  RUN     aegis_shield_daemon
   9      1  system     1.4     48.5  RUN     aegis_guard_ai
  12      1  system     0.2     16.0  SLEEP   zero_trust_broker
+ 15      1  system     0.5     24.0  RUN     tiered_storage_mgr
+ 18      1  system     1.8     64.0  RUN     aegis_mind_ai_engine
  24      1  user       2.1     85.0  RUN     aegis_ui_compositor
  45     24  user       1.2     64.2  RUN     neural_activity_monitor
  98     24  user       0.5     22.1  RUN     aegis_shell`);
@@ -417,7 +807,7 @@ Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
   RAM Usage:       ${systemState.telemetry.ramUsage}% (${systemState.telemetry.usedRamMb} / ${systemState.telemetry.totalRamMb} MB)
   Active Procs:    ${systemState.telemetry.activeProcesses}
   Network Rate:    ${systemState.telemetry.networkKbps} KB/s
-  Events Logged:   ${systemState.telemetry.totalEventsLogged} (Files: ${systemState.telemetry.eventRates.fileOps}/s, Mem: ${systemState.telemetry.eventRates.memoryOps}/s)`);
+  Events Logged:   ${systemState.telemetry.totalEventsLogged}`);
 
         case 'fs':
             if (arg === 'corrupt') {
@@ -444,4 +834,3 @@ server.listen(PORT, () => {
     console.log(`   Direct API: http://localhost:${PORT}/api/system/status`);
     console.log(`========================================================================`);
 });
-

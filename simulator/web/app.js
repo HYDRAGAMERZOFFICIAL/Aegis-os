@@ -1,6 +1,14 @@
 /**
  * AegisOS - Interactive Web Desktop Simulator Controller
  * Full-fidelity client-side environment for testing and demonstrating AegisOS architecture.
+ * 
+ * Features:
+ * - Dynamic Window Compositor (WM)
+ * - Aegis Mind Autonomous AI System Controller
+ * - Cryptographic File Manager & Tiered Storage Optimizer
+ * - Cybersecurity Arsenal (DPI Sniffer, Vulnerability Hunter, Malware Sandbox, Zero-Trust Broker)
+ * - Self-Healing Merkle Filesystem (< 10s Atomic Rollback)
+ * - Task Optimizer (Game/Work/Stream/Eco Modes)
  */
 
 (function () {
@@ -37,9 +45,9 @@
                     osc.stop(now + 0.3);
                 } else if (type === 'success') {
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
                     gain.gain.setValueAtTime(0.1, now);
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
                     osc.start(now);
@@ -52,9 +60,7 @@
                     osc.start(now);
                     osc.stop(now + 0.15);
                 }
-            } catch (e) {
-                // Ignore audio restriction errors
-            }
+            } catch (e) { }
         }
     };
 
@@ -75,7 +81,6 @@
             this.resize();
             window.addEventListener('resize', () => this.resize());
 
-            // Initialize subtle cyber particles
             const count = Math.floor((this.width * this.height) / 25000);
             for (let i = 0; i < count; i++) {
                 this.particles.push({
@@ -100,7 +105,6 @@
             const ctx = this.ctx;
             ctx.clearRect(0, 0, this.width, this.height);
 
-            // Subtle cyber grid
             const isDark = !document.body.classList.contains('theme-crystal-light');
             ctx.strokeStyle = isDark ? 'rgba(0, 243, 255, 0.03)' : 'rgba(0, 120, 215, 0.05)';
             ctx.lineWidth = 1;
@@ -119,7 +123,6 @@
                 ctx.stroke();
             }
 
-            // Draw neural floating particles
             ctx.fillStyle = isDark ? 'rgba(0, 243, 255, 0.35)' : 'rgba(0, 120, 215, 0.35)';
             for (let i = 0; i < this.particles.length; i++) {
                 const p = this.particles[i];
@@ -135,7 +138,6 @@
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Draw connecting links between nearby nodes
                 for (let j = i + 1; j < this.particles.length; j++) {
                     const p2 = this.particles[j];
                     const dx = p.x - p2.x;
@@ -198,7 +200,7 @@
             this.container = document.getElementById('wm-container');
         },
 
-        open(appId, title, width = 720, height = 480) {
+        open(appId, title, width = 740, height = 500) {
             if (this.windows.has(appId)) {
                 const win = this.windows.get(appId);
                 win.classList.remove('minimized');
@@ -212,14 +214,12 @@
                 return;
             }
 
-            // Create window element
             const win = document.createElement('div');
             win.className = 'aegis-window active';
             win.dataset.appId = appId;
             win.style.width = `${Math.min(width, window.innerWidth - 40)}px`;
             win.style.height = `${Math.min(height, window.innerHeight - 100)}px`;
 
-            // Stagger position
             const offset = (this.windows.size * 28) % 140;
             win.style.top = `${70 + offset}px`;
             win.style.left = `${Math.max(20, (window.innerWidth - width) / 2 + offset)}px`;
@@ -245,10 +245,8 @@
             this.container.appendChild(win);
             this.windows.set(appId, win);
 
-            // Update dock icon running indicator
             this.updateDockState(appId, true);
 
-            // Setup Window Controls
             win.querySelector('.win-btn-close').addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.close(appId);
@@ -262,13 +260,8 @@
                 win.classList.toggle('maximized');
             });
 
-            // Focus on click
             win.addEventListener('mousedown', () => this.bringToFront(win));
-
-            // Dragging behavior
             this.setupDrag(win);
-
-            // Initialize app logic
             this.initAppLogic(appId, win);
             AudioEngine.playChime('info');
         },
@@ -326,6 +319,9 @@
 
         initAppLogic(appId, win) {
             switch (appId) {
+                case 'ai': AIApp.init(win); break;
+                case 'files': FilesApp.init(win); break;
+                case 'cybersec': CyberSecApp.init(win); break;
                 case 'terminal': TerminalApp.init(win); break;
                 case 'neural': NeuralApp.init(win); break;
                 case 'shield': ShieldApp.init(win); break;
@@ -340,7 +336,434 @@
     };
 
     // ==========================================
-    // 5. TERMINAL APPLICATION CONTROLLER
+    // 5. AGENTIC AI CONTROLLER ("Aegis Mind")
+    // ==========================================
+    const AIApp = {
+        init(win) {
+            const chatBox = win.querySelector('#ai-chat-stream');
+            const input = win.querySelector('#ai-user-input');
+            const btnSend = win.querySelector('#btn-ai-send');
+
+            const executePrompt = async (promptText) => {
+                if (!promptText) return;
+
+                // Append user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'ai-msg ai-msg-user';
+                userMsg.innerHTML = `<div class="msg-bubble">${escapeHtml(promptText)}</div>`;
+                chatBox.appendChild(userMsg);
+
+                input.value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Typing indicator
+                const botTyping = document.createElement('div');
+                botTyping.className = 'ai-msg ai-msg-bot';
+                botTyping.innerHTML = `<div class="msg-bubble" style="color: #ffaa00;">Aegis Mind reasoning and executing system actions...</div>`;
+                chatBox.appendChild(botTyping);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                try {
+                    const res = await fetch('/api/ai/execute', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: promptText })
+                    });
+                    const data = await res.json();
+                    botTyping.remove();
+
+                    // Render Bot Reply
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'ai-msg ai-msg-bot';
+
+                    let actionsHtml = '';
+                    if (data.actionsExecuted && data.actionsExecuted.length) {
+                        actionsHtml = `
+                            <div style="margin-top: 8px; border-top: 1px solid rgba(255, 170, 0, 0.2); padding-top: 6px;">
+                                <div style="font-size: 10px; font-weight: 700; color: #ffaa00; margin-bottom: 4px;">ACTIONS EXECUTED:</div>
+                                ${data.actionsExecuted.map(a => `
+                                    <div class="ai-action-step">
+                                        <span style="color: #22dd66;">✔</span>
+                                        <strong>${escapeHtml(a.task)}</strong>: <span style="color: var(--text-muted);">${escapeHtml(a.result)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    let followupsHtml = '';
+                    if (data.suggestedFollowups && data.suggestedFollowups.length) {
+                        followupsHtml = `
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">
+                                ${data.suggestedFollowups.map(f => `<button class="ai-pill followup-pill" data-text="${escapeHtml(f)}">➜ ${escapeHtml(f)}</button>`).join('')}
+                            </div>
+                        `;
+                    }
+
+                    botMsg.innerHTML = `
+                        <div class="msg-bubble">
+                            ${data.reply.replace(/\n/g, '<br>')}
+                            ${actionsHtml}
+                            ${followupsHtml}
+                        </div>
+                    `;
+                    chatBox.appendChild(botMsg);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    // Bind follow-up buttons
+                    botMsg.querySelectorAll('.followup-pill').forEach(btn => {
+                        btn.addEventListener('click', () => executePrompt(btn.dataset.text));
+                    });
+
+                    AudioEngine.playChime('success');
+
+                    // Voice output if available
+                    if ('speechSynthesis' in window) {
+                        try {
+                            const utter = new SpeechSynthesisUtterance(data.reply.split('\n')[0]);
+                            utter.rate = 1.05;
+                            window.speechSynthesis.speak(utter);
+                        } catch (e) { }
+                    }
+                } catch (err) {
+                    botTyping.remove();
+                    const errMsg = document.createElement('div');
+                    errMsg.className = 'ai-msg ai-msg-bot';
+                    errMsg.innerHTML = `<div class="msg-bubble" style="color: var(--status-err);">Error contacting Aegis Mind AI: ${err.message}</div>`;
+                    chatBox.appendChild(errMsg);
+                }
+            };
+
+            btnSend.addEventListener('click', () => executePrompt(input.value.trim()));
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') executePrompt(input.value.trim());
+            });
+
+            // Quick action pills
+            win.querySelectorAll('.ai-pill[data-prompt]').forEach(btn => {
+                btn.addEventListener('click', () => executePrompt(btn.dataset.prompt));
+            });
+        }
+    };
+
+    // ==========================================
+    // 6. FILES & TIERED STORAGE CONTROLLER
+    // ==========================================
+    const FilesApp = {
+        init(win) {
+            const tabs = win.querySelectorAll('.tab-btn');
+            const contents = win.querySelectorAll('.tab-content');
+            tabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.add('hidden'));
+                    btn.classList.add('active');
+                    win.querySelector(`#${btn.dataset.tab}`).classList.remove('hidden');
+                });
+            });
+
+            const tableBody = win.querySelector('#files-table-body');
+            const searchInput = win.querySelector('#files-search-input');
+            const btnRefresh = win.querySelector('#btn-refresh-files');
+            const btnCreate = win.querySelector('#btn-create-file-modal');
+            const btnTrim = win.querySelector('#btn-run-trim-optimize');
+            const tiersContainer = win.querySelector('#storage-tiers-container');
+
+            let cachedFiles = [];
+
+            const renderFiles = (filter = '') => {
+                const filtered = cachedFiles.filter(f =>
+                    f.name.toLowerCase().includes(filter.toLowerCase()) ||
+                    f.path.toLowerCase().includes(filter.toLowerCase()) ||
+                    f.hash.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                tableBody.innerHTML = filtered.map(f => `
+                    <tr>
+                        <td>
+                            <strong>${escapeHtml(f.name)}</strong>
+                            <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">${escapeHtml(f.path)}</div>
+                        </td>
+                        <td>${f.sizeStr}</td>
+                        <td><span class="status-pill ${f.ring === 'Ring 0' ? 'pill-blocked' : 'pill-secure'}">${f.ring}</span></td>
+                        <td><code>${f.perm}</code></td>
+                        <td>
+                            <button class="btn-action-small btn-toggle-enc" data-id="${f.id}" style="font-size: 10px;">
+                                ${f.encrypted ? '🔒 AES-256 (Encrypted)' : '🔓 Plaintext'}
+                            </button>
+                        </td>
+                        <td><code style="font-size: 10px; color: var(--accent);">${f.hash}</code></td>
+                        <td>
+                            <button class="btn-action-small btn-del-file" data-id="${f.id}" style="color: var(--status-err); border-color: var(--status-err);">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                tableBody.querySelectorAll('.btn-toggle-enc').forEach(b => {
+                    b.addEventListener('click', async () => {
+                        const res = await fetch('/api/files/toggle-encryption', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ fileId: b.dataset.id })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            Notifications.show('AegisFS Encryption', `File ${data.file.name}: ${data.cipher}`, 'success');
+                            loadFiles();
+                        }
+                    });
+                });
+
+                tableBody.querySelectorAll('.btn-del-file').forEach(b => {
+                    b.addEventListener('click', async () => {
+                        const res = await fetch('/api/files/delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ fileId: b.dataset.id })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            Notifications.show('File Deleted', `Removed inode ${data.deletedFile.name} safely.`, 'info');
+                            loadFiles();
+                        }
+                    });
+                });
+            };
+
+            const loadFiles = async () => {
+                try {
+                    const res = await fetch('/api/files/list');
+                    const data = await res.json();
+                    cachedFiles = data.files || [];
+                    renderFiles(searchInput.value);
+                } catch (e) { }
+            };
+            loadFiles();
+
+            searchInput.addEventListener('input', () => renderFiles(searchInput.value));
+            btnRefresh.addEventListener('click', loadFiles);
+
+            // Create file modal action
+            btnCreate.addEventListener('click', async () => {
+                const name = prompt("Enter new filename (e.g., secret_vault.dat):", "classified_doc.dat");
+                if (!name) return;
+                const content = prompt("Enter file content / payload:", "TOP_SECRET_AEGIS_ENCRYPTED_DATA");
+                const encrypted = confirm("Enable per-file AES-256 hardware encryption?");
+
+                await fetch('/api/files/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, content, encrypted, ring: encrypted ? "Ring 0" : "Ring 3" })
+                });
+                Notifications.show('File Created', `Created ${name} with SHA-256 Merkle leaf registered.`, 'success');
+                loadFiles();
+            });
+
+            // Tiered storage render
+            const loadStorageTiers = async () => {
+                try {
+                    const res = await fetch('/api/storage/info');
+                    const data = await res.json();
+                    const s = data.storage;
+
+                    tiersContainer.innerHTML = s.tiers.map(t => {
+                        const pct = Math.round((t.usedGb / t.capacityGb) * 100);
+                        return `
+                            <div class="tier-card">
+                                <div class="tier-card-top">
+                                    <div>
+                                        <div class="tier-name">${t.name}</div>
+                                        <div class="tier-type">${t.type}</div>
+                                    </div>
+                                    <span class="status-pill pill-secure">${t.status}</span>
+                                </div>
+                                <div class="tier-bar-track">
+                                    <div class="tier-bar-fill" style="width: ${pct}%;"></div>
+                                </div>
+                                <div class="tier-specs">
+                                    <span>${t.usedGb} / ${t.capacityGb} GB (${pct}%)</span>
+                                    <span>Latency: ${t.latencyUs} µs</span>
+                                    <span>${t.bandwidthMbps} MB/s</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (e) { }
+            };
+            loadStorageTiers();
+
+            // Run TRIM & Deduplication
+            btnTrim.addEventListener('click', async () => {
+                btnTrim.disabled = true;
+                btnTrim.textContent = "Running Deduplication & TRIM...";
+                try {
+                    const res = await fetch('/api/storage/optimize', { method: 'POST' });
+                    const data = await res.json();
+                    Notifications.show('Storage Optimized', data.message, 'success');
+                    loadStorageTiers();
+                } catch (e) { }
+                btnTrim.disabled = false;
+                btnTrim.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Run Deduplication & TRIM Optimizer`;
+            });
+        }
+    };
+
+    // ==========================================
+    // 7. CYBERSECURITY ARSENAL CONTROLLER
+    // ==========================================
+    const CyberSecApp = {
+        init(win) {
+            const tabs = win.querySelectorAll('.tab-btn');
+            const contents = win.querySelectorAll('.tab-content');
+            tabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.add('hidden'));
+                    btn.classList.add('active');
+                    win.querySelector(`#${btn.dataset.tab}`).classList.remove('hidden');
+                });
+            });
+
+            // 1. DPI Sniffer
+            const dpiFeed = win.querySelector('#dpi-feed-list');
+            const btnPauseSniffer = win.querySelector('#btn-toggle-sniffer');
+            const btnClearSniffer = win.querySelector('#btn-clear-sniffer');
+            let snifferActive = true;
+
+            const pollPackets = async () => {
+                if (!snifferActive || !document.body.contains(win)) return;
+                try {
+                    const res = await fetch('/api/cybersec/packets');
+                    const data = await res.json();
+                    data.packets.forEach(p => {
+                        const row = document.createElement('div');
+                        row.className = `packet-row ${p.status === 'FLAGGED_INSPECTION' ? 'packet-flagged' : ''}`;
+                        row.innerHTML = `
+                            <span>${p.timestamp}</span>
+                            <strong>${p.protocol}</strong>
+                            <span>${p.srcIp}</span>
+                            <span>${p.dstIp}:${p.port}</span>
+                            <span style="color: ${p.status === 'ALLOWED' ? 'var(--status-ok)' : 'var(--status-err)'};">${p.status}</span>
+                            <span style="font-size: 10px; color: var(--text-muted);">${p.payloadFlag}</span>
+                        `;
+                        dpiFeed.prepend(row);
+                        if (dpiFeed.children.length > 30) dpiFeed.lastChild.remove();
+                    });
+                } catch (e) { }
+            };
+
+            for (let i = 0; i < 3; i++) pollPackets();
+            const snifferTimer = setInterval(pollPackets, 2000);
+            win.addEventListener('remove', () => clearInterval(snifferTimer));
+
+            btnPauseSniffer.addEventListener('click', () => {
+                snifferActive = !snifferActive;
+                btnPauseSniffer.textContent = snifferActive ? "Pause Sniffer" : "Resume Sniffer";
+            });
+            btnClearSniffer.addEventListener('click', () => dpiFeed.innerHTML = '');
+
+            // 2. Vulnerability Scan
+            const btnVuln = win.querySelector('#btn-run-vuln-scan');
+            const vulnList = win.querySelector('#vuln-results-list');
+
+            btnVuln.addEventListener('click', async () => {
+                vulnList.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--accent);">Running Deep Vulnerability Assessment across Kernel & Ring-3 Sandboxes...</div>`;
+                try {
+                    const res = await fetch('/api/cybersec/vulnerability-scan', { method: 'POST' });
+                    const data = await res.json();
+                    vulnList.innerHTML = data.auditPoints.map(p => `
+                        <div class="diag-item">
+                            <div class="status-pill pill-secure">${p.status}</div>
+                            <div>
+                                <div class="diag-name">${p.title}</div>
+                                <div class="diag-msg">${p.detail}</div>
+                            </div>
+                        </div>
+                    `).join('') + `
+                        <div style="margin-top: 10px; padding: 10px; background: rgba(0, 255, 170, 0.05); border: 1px solid var(--status-ok); border-radius: 8px;">
+                            <strong>Aegis Hardening Score: ${data.systemHardenScore}</strong>
+                            <div style="font-size: 11px; color: var(--text-muted);">Zero active zero-day vulnerabilities. All Ring 3 DMA boundaries enforced.</div>
+                        </div>
+                    `;
+                    Notifications.show('CyberSec Audit Complete', 'All 6 microkernel mitigation layers verified robust.', 'success');
+                } catch (e) { }
+            });
+
+            // 3. Malware Sandbox Detonator
+            const btnDetonate = win.querySelector('#btn-detonate-sample');
+            const sampleSelect = win.querySelector('#sandbox-sample-select');
+            const sandboxReport = win.querySelector('#sandbox-report');
+
+            btnDetonate.addEventListener('click', async () => {
+                sandboxReport.innerHTML = `<div style="text-align: center; color: var(--status-err); padding: 20px;">Detonating payload in isolated microkernel sandbox... Analyzing heap & syscall anomalies...</div>`;
+                try {
+                    const res = await fetch('/api/cybersec/sandbox-detonate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sampleName: sampleSelect.value })
+                    });
+                    const data = await res.json();
+                    sandboxReport.innerHTML = `
+                        <div style="border-left: 4px solid var(--status-err); padding-left: 12px; margin-bottom: 12px;">
+                            <div style="font-size: 14px; font-weight: 700; color: var(--status-err);">THREAT ISOLATED: ${data.sampleName} (Confidence: ${data.threatConfidence})</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Sandbox PID: ${data.sandboxPid} | Vault ID: ${data.quarantineId}</div>
+                        </div>
+                        <div style="font-size: 11px; font-weight: 700; color: #ffaa00; margin-bottom: 6px;">BEHAVIORAL ANOMALIES INTERCEPTED:</div>
+                        <ul style="font-size: 11px; line-height: 1.6; padding-left: 18px; color: var(--text-primary);">
+                            ${data.detectedBehaviors.map(b => `<li>${b}</li>`).join('')}
+                        </ul>
+                        <div style="margin-top: 12px; padding: 8px 12px; background: rgba(34, 221, 102, 0.15); border: 1px solid var(--status-ok); border-radius: 6px; font-size: 11px; color: var(--status-ok); font-weight: 600;">
+                            ACTION: ${data.actionTaken}
+                        </div>
+                    `;
+                    Notifications.show('Threat Neutralized', `Sample ${data.sampleName} was detonated and isolated with 0 system impact.`, 'error');
+                } catch (e) { }
+            });
+
+            // 4. Zero-Trust Token Broker
+            const btnIssueToken = win.querySelector('#btn-issue-zt-token');
+            const subjectInput = win.querySelector('#zt-subject-input');
+            const capSelect = win.querySelector('#zt-cap-select');
+            const tokenTable = win.querySelector('#zt-tokens-table-body');
+
+            const tokens = [
+                { id: "TOK-9921", subject: "aegis_ui_compositor", cap: "CAP_FRAMEBUFFER_WRITE", ttl: "3600s", status: "VALID" },
+                { id: "TOK-9922", subject: "neural_monitor", cap: "CAP_KERNEL_TELEMETRY", ttl: "1800s", status: "VALID" },
+                { id: "TOK-9923", subject: "aegis_shield_daemon", cap: "CAP_NET_RAW_SOCKET", ttl: "7200s", status: "VALID" }
+            ];
+
+            const renderTokens = () => {
+                tokenTable.innerHTML = tokens.map(t => `
+                    <tr>
+                        <td><strong>${t.id}</strong></td>
+                        <td><code>${t.subject}</code></td>
+                        <td><span class="status-pill pill-secure">${t.cap}</span></td>
+                        <td>${t.ttl}</td>
+                        <td><span class="status-pill pill-secure">● ${t.status}</span></td>
+                    </tr>
+                `).join('');
+            };
+            renderTokens();
+
+            btnIssueToken.addEventListener('click', () => {
+                const subj = subjectInput.value.trim() || 'user_service';
+                const cap = capSelect.value;
+                tokens.unshift({
+                    id: `TOK-${Math.floor(Math.random() * 9000) + 1000}`,
+                    subject: subj,
+                    cap: cap,
+                    ttl: "300s (5m)",
+                    status: "VALID"
+                });
+                renderTokens();
+                subjectInput.value = '';
+                Notifications.show('Zero-Trust Token Issued', `Capability ${cap} granted to ${subj}.`, 'success');
+            });
+        }
+    };
+
+    // ==========================================
+    // 8. TERMINAL APPLICATION CONTROLLER
     // ==========================================
     const TerminalApp = {
         init(win) {
@@ -360,7 +783,6 @@
                     commandHistory.push(cmd);
                     historyIndex = commandHistory.length;
 
-                    // Append user command
                     const line = document.createElement('div');
                     line.className = 'term-line';
                     line.innerHTML = `<span class="prompt-prefix">aegis@kernel-ring0:~$</span> ${escapeHtml(cmd)}`;
@@ -368,13 +790,11 @@
 
                     input.value = '';
 
-                    // Handle 'clear' locally
                     if (cmd.toLowerCase() === 'clear') {
                         history.innerHTML = '';
                         return;
                     }
 
-                    // Send to backend shell or fallback emulator
                     try {
                         const res = await fetch('/api/terminal/exec', {
                             method: 'POST',
@@ -413,7 +833,7 @@
                     e.preventDefault();
                 } else if (e.key === 'Tab') {
                     e.preventDefault();
-                    const list = ['help', 'sysinfo', 'ps', 'shield', 'guard', 'ztac', 'troubleshoot', 'opt', 'checkpoint', 'neural', 'fs', 'theme', 'layout', 'clear'];
+                    const list = ['help', 'sysinfo', 'ps', 'shield', 'guard', 'ztac', 'troubleshoot', 'opt', 'checkpoint', 'neural', 'fs', 'storage', 'cybersec', 'ai', 'theme', 'layout', 'clear'];
                     const val = input.value.toLowerCase();
                     const match = list.find(c => c.startsWith(val));
                     if (match) input.value = match;
@@ -423,7 +843,7 @@
     };
 
     // ==========================================
-    // 6. NEURAL ACTIVITY MONITOR CONTROLLER
+    // 9. NEURAL ACTIVITY MONITOR CONTROLLER
     // ==========================================
     const NeuralApp = {
         init(win) {
@@ -432,7 +852,6 @@
             const ctx = canvas.getContext('2d');
             const eventsList = win.querySelector('#neural-events-list');
 
-            // Render live dynamic waveforms
             let step = 0;
             const drawWave = () => {
                 if (!document.body.contains(win)) return;
@@ -442,7 +861,6 @@
                 ctx.fillStyle = 'rgba(6, 11, 20, 0.25)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Wave 1: CPU Entropy (Cyan)
                 ctx.beginPath();
                 ctx.strokeStyle = '#00f3ff';
                 ctx.lineWidth = 2;
@@ -453,7 +871,6 @@
                 }
                 ctx.stroke();
 
-                // Wave 2: Memory Page Fault Noise (Secondary)
                 ctx.beginPath();
                 ctx.strokeStyle = 'rgba(255, 170, 0, 0.45)';
                 ctx.lineWidth = 1.5;
@@ -466,7 +883,6 @@
             };
             drawWave();
 
-            // Seed event stream
             const eventPool = [
                 { type: 'FS_READ', desc: '/system/lib/libaegis.so (Page #402)', status: 'ALLOW' },
                 { type: 'MEM_VERIFY', desc: 'Canary checked on PID 24 (Stack OK)', status: 'ALLOW' },
@@ -497,7 +913,7 @@
     };
 
     // ==========================================
-    // 7. AEGIS SHIELD & ZERO-TRUST CONTROLLER
+    // 10. AEGIS SHIELD & ZERO-TRUST CONTROLLER
     // ==========================================
     const ShieldApp = {
         init(win) {
@@ -512,14 +928,14 @@
                 });
             });
 
-            // Populate Firewall rules
             const tbody = win.querySelector('#firewall-rules-body');
             const rules = [
                 { id: 1, name: "Block Inbound Telnet", proto: "TCP", port: 23, dir: "INBOUND", action: "DENY", enabled: true },
                 { id: 2, name: "Allow Secure Shell (SSH)", proto: "TCP", port: 22, dir: "INBOUND", action: "ALLOW", enabled: true },
                 { id: 3, name: "Allow HTTPS Web Traffic", proto: "TCP", port: 443, dir: "OUTBOUND", action: "ALLOW", enabled: true },
                 { id: 4, name: "Block Outbound Tor Relays", proto: "TCP", port: 9001, dir: "OUTBOUND", action: "DENY", enabled: true },
-                { id: 5, name: "Zero-Trust Kernel IPC Gate", proto: "IPC", port: 0, dir: "INTERNAL", action: "ALLOW", enabled: true }
+                { id: 5, name: "Zero-Trust Kernel IPC Gate", proto: "IPC", port: 0, dir: "INTERNAL", action: "ALLOW", enabled: true },
+                { id: 6, name: "Block Unverified DNS over HTTP", proto: "UDP", port: 853, dir: "OUTBOUND", action: "DENY", enabled: true }
             ];
 
             tbody.innerHTML = rules.map(r => `
@@ -541,19 +957,15 @@
                 });
             });
 
-            // Guard Scan Button
             win.querySelector('#btn-scan-guard').addEventListener('click', async () => {
-                Notifications.show('Aegis Guard', 'Executing AI heuristic intrusion detection scan across all processes...', 'info');
+                Notifications.show('Aegis Guard', 'Executing AI heuristic intrusion detection scan...', 'info');
                 try {
                     const res = await fetch('/api/guard/scan', { method: 'POST' });
                     const data = await res.json();
                     Notifications.show('Guard Scan Complete', `Scanned ${data.scannedProcesses} processes. 0 unmitigated intrusions. ML Accuracy: ${data.accuracy}%.`, 'success');
-                } catch (e) {
-                    Notifications.show('Guard Scan Complete', '68 processes scanned. AI model accuracy: 98.7%. Zero-Day traps operational.', 'success');
-                }
+                } catch (e) { }
             });
 
-            // Populate Quarantined files
             const qList = win.querySelector('#quarantine-items');
             qList.innerHTML = `
                 <div class="zt-item">
@@ -570,17 +982,23 @@
                     </div>
                     <span class="status-pill pill-blocked">QUARANTINED</span>
                 </div>
+                <div class="zt-item">
+                    <div>
+                        <strong style="color: var(--status-err);">THR-8823: nop_sled_shellcode.raw</strong>
+                        <div class="zt-desc">Buffer overflow payload intercepted by SPI hardware filter.</div>
+                    </div>
+                    <span class="status-pill pill-blocked">QUARANTINED</span>
+                </div>
             `;
         }
     };
 
     // ==========================================
-    // 8. MERKLE SELF-HEALING & ROLLBACK CONTROLLER
+    // 11. MERKLE SELF-HEALING & ROLLBACK CONTROLLER
     // ==========================================
     const MerkleApp = {
         init(win) {
             const blocksContainer = win.querySelector('#merkle-blocks-container');
-            const statusCard = win.querySelector('#merkle-status-card');
             const statusLabel = win.querySelector('#merkle-status-label');
             const indicator = win.querySelector('#merkle-indicator');
             const btnCorrupt = win.querySelector('#btn-corrupt-merkle');
@@ -611,7 +1029,6 @@
             };
             renderBlocks();
 
-            // Populate Snapshots
             const snapList = win.querySelector('#snapshots-list');
             snapList.innerHTML = `
                 <div class="snapshot-item">
@@ -628,7 +1045,6 @@
                 </div>
             `;
 
-            // 1. Simulate Ransomware Attack
             btnCorrupt.addEventListener('click', async () => {
                 try {
                     await fetch('/api/merkle/corrupt', { method: 'POST' });
@@ -645,7 +1061,6 @@
                 Notifications.show('CRITICAL: RANSOMWARE ATTACK DETECTED', 'Aegis Guard identified file corruption in block /userland/data/user_vault.dat. Automatic rollback recommended.', 'error', 6000);
             });
 
-            // 2. Execute 10s Atomic Rollback
             btnRollback.addEventListener('click', async () => {
                 timerBox.classList.remove('hidden');
                 timerBar.style.width = '0%';
@@ -659,7 +1074,6 @@
                         timerVal.textContent = '00.00s';
                         timerBox.classList.add('hidden');
 
-                        // Restore blocks
                         blocks.forEach(b => {
                             b.status = 'HEALTHY';
                             if (b.id === 'blk-4') b.hash = '8f4d92a...';
@@ -671,7 +1085,6 @@
                         statusLabel.style.color = 'var(--text-primary)';
 
                         Notifications.show('Self-Healing Completed', 'Sub-10s Atomic Rollback restored filesystem to baseline in 1.42 seconds. Zero data loss.', 'success', 5000);
-
                         fetch('/api/merkle/rollback', { method: 'POST' }).catch(() => {});
                     } else {
                         timerVal.textContent = `0${countdown.toFixed(2)}s`;
@@ -682,7 +1095,7 @@
     };
 
     // ==========================================
-    // 9. TASK OPTIMIZER CONTROLLER
+    // 12. TASK OPTIMIZER CONTROLLER
     // ==========================================
     const OptimizerApp = {
         init(win) {
@@ -752,7 +1165,7 @@
     };
 
     // ==========================================
-    // 10. SYSTEM TROUBLESHOOTER CONTROLLER
+    // 13. SYSTEM TROUBLESHOOTER CONTROLLER
     // ==========================================
     const TroubleshootApp = {
         init(win) {
@@ -793,7 +1206,7 @@
     };
 
     // ==========================================
-    // 11. APP STORE CONTROLLER
+    // 14. APP STORE & SETTINGS
     // ==========================================
     const StoreApp = {
         init(win) {
@@ -802,53 +1215,34 @@
                 { id: 'devstudio', name: 'Aegis DevStudio', author: 'Aegis Core Team', desc: 'Integrated Rust & C development environment with live microkernel debugger.', installed: true },
                 { id: 'cyberdeck', name: 'CyberDeck IDS', author: 'Quantum Security Labs', desc: 'Advanced packet graph visualizer and stateful intrusion forensics console.', installed: false },
                 { id: 'browser', name: 'Quantum Browser', author: 'Mozilla / Aegis Port', desc: 'Sandboxed Zero-Trust browser with per-tab micro-virtualization memory isolation.', installed: false },
-                { id: 'cryptsafe', name: 'CryptSafe Vault', author: 'Shield Foundation', desc: 'Hardware-backed AES-256 password & cryptographic identity manager.', installed: true },
-                { id: 'calc', name: 'Matrix Scientific Calc', author: 'Aegis Community', desc: 'High-precision tensor & floating point calculation workstation tool.', installed: false },
-                { id: 'monitor', name: 'SysProfiler Pro', author: 'Kernel Tools', desc: 'Flamegraph generator and CFS scheduler latency analysis suite.', installed: false }
+                { id: 'cryptsafe', name: 'CryptSafe Vault', author: 'Shield Foundation', desc: 'Hardware-backed AES-256 password & cryptographic identity manager.', installed: true }
             ];
 
-            const render = () => {
-                catalog.innerHTML = apps.map(app => `
-                    <div class="app-card">
-                        <div class="app-card-top">
-                            <div class="app-card-icon">
-                                <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                            </div>
-                            <div>
-                                <div class="app-card-title">${app.name}</div>
-                                <div class="app-card-author">${app.author}</div>
-                            </div>
+            catalog.innerHTML = apps.map(app => `
+                <div class="app-card">
+                    <div class="app-card-top">
+                        <div class="app-card-icon">
+                            <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
                         </div>
-                        <div class="app-card-desc">${app.desc}</div>
-                        <div class="app-card-footer">
-                            <span class="app-badge-verified">
-                                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified
-                            </span>
-                            <button class="btn-action-small btn-install" data-id="${app.id}">
-                                ${app.installed ? 'Installed' : 'Install'}
-                            </button>
+                        <div>
+                            <div class="app-card-title">${app.name}</div>
+                            <div class="app-card-author">${app.author}</div>
                         </div>
                     </div>
-                `).join('');
-
-                catalog.querySelectorAll('.btn-install').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const target = apps.find(a => a.id === btn.dataset.id);
-                        if (target) {
-                            target.installed = true;
-                            btn.textContent = 'Installed';
-                            Notifications.show('App Installed', `${target.name} has been provisioned into a Ring 3 sandbox.`, 'success');
-                        }
-                    });
-                });
-            };
-            render();
+                    <div class="app-card-desc">${app.desc}</div>
+                    <div class="app-card-footer">
+                        <span class="app-badge-verified">
+                            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified
+                        </span>
+                        <button class="btn-action-small btn-install" data-id="${app.id}">
+                            ${app.installed ? 'Installed' : 'Install'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
         }
     };
 
-    // ==========================================
-    // 12. SETTINGS APP CONTROLLER
-    // ==========================================
     const SettingsApp = {
         init(win) {
             const tabs = win.querySelectorAll('.settings-nav-btn');
@@ -862,29 +1256,20 @@
                 });
             });
 
-            // Layout selector in settings
             const layoutSel = win.querySelector('#settings-layout-select');
             if (layoutSel) {
                 layoutSel.value = document.body.className.match(/layout-(\w+)/)?.[1] || 'hybrid';
-                layoutSel.addEventListener('change', () => {
-                    setLayout(layoutSel.value);
-                });
+                layoutSel.addEventListener('change', () => setLayout(layoutSel.value));
             }
 
-            // Theme selector in settings
             const themeSel = win.querySelector('#settings-theme-select');
             if (themeSel) {
                 themeSel.value = document.body.className.match(/theme-([\w-]+)/)?.[1] || 'quantum-cyan';
-                themeSel.addEventListener('change', () => {
-                    setTheme(themeSel.value);
-                });
+                themeSel.addEventListener('change', () => setTheme(themeSel.value));
             }
         }
     };
 
-    // ==========================================
-    // 13. VOICE ASSISTANT SIMULATOR
-    // ==========================================
     const VoiceApp = {
         init(win) {
             const status = win.querySelector('#voice-status');
@@ -902,24 +1287,21 @@
                         reply = "Aegis Task Optimizer configured for Game Mode. Clocks boosted.";
                         WM.open('optimizer', 'Task Optimizer');
                         document.querySelector('.btn-opt-select[data-mode="GAME"]')?.click();
+                    } else if (low.includes('storage') || low.includes('disk')) {
+                        reply = "Optimizing tiered storage and running TRIM wear-leveling pass.";
+                        WM.open('files', 'Files & Storage Manager');
+                        document.querySelector('#btn-run-trim-optimize')?.click();
                     } else if (low.includes('security') || low.includes('scan')) {
                         reply = "Starting Aegis Guard AI heuristic sweep and diagnostic scan.";
-                        WM.open('shield', 'Aegis Shield');
-                    } else if (low.includes('integrity') || low.includes('filesystem')) {
-                        reply = "AegisFS Merkle tree integrity is verified. 0 corrupted blocks.";
-                        WM.open('merkle', 'Self-Healing Merkle Filesystem');
+                        WM.open('cybersec', 'CyberSec Arsenal');
                     } else if (low.includes('amber')) {
                         reply = "Switching adaptive theme to Cyberpunk Amber.";
                         setTheme('cyberpunk-amber');
-                    } else if (low.includes('checkpoint')) {
-                        reply = "System restore point snapshot created successfully.";
-                        Notifications.show('Checkpoint Created', 'Snapshot chkpt-0004 written to Merkle journal.', 'success');
                     }
 
                     response.textContent = `"${reply}"`;
                     status.textContent = "Aegis Voice: Ready for next command.";
 
-                    // Web Speech Synthesis if available
                     if ('speechSynthesis' in window) {
                         try {
                             const utter = new SpeechSynthesisUtterance(reply);
@@ -937,7 +1319,7 @@
     };
 
     // ==========================================
-    // 14. GLOBAL COMMAND PALETTE (CTRL+SPACE)
+    // 15. GLOBAL COMMAND PALETTE (CTRL+SPACE)
     // ==========================================
     const Palette = {
         overlay: null,
@@ -945,13 +1327,15 @@
         results: null,
         selectedIndex: 0,
         items: [
+            { title: "Aegis Mind AI Controller", sub: "Autonomous system copilot: execute any high-level task", app: "ai", icon: "ai" },
+            { title: "Files & Tiered Storage Manager", sub: "AegisFS file browser, block deduplication & TRIM", app: "files", icon: "files" },
+            { title: "CyberSec Arsenal", sub: "Deep packet inspection, vulnerability audit & malware sandbox", app: "cybersec", icon: "cybersec" },
             { title: "Terminal (aegis_shell)", sub: "Interactive microkernel shell and command console", app: "terminal", icon: "terminal" },
             { title: "Neural Activity Monitor", sub: "Live entropy waveforms, telemetry and thread graphs", app: "neural", icon: "neural" },
             { title: "Aegis Shield & Zero-Trust", sub: "Stateful packet firewall and threat quarantine vault", app: "shield", icon: "shield" },
             { title: "Self-Healing & Rollback Engine", sub: "Merkle tree integrity inspector and atomic rollback", app: "merkle", icon: "merkle" },
             { title: "Task Optimizer", sub: "Dynamic scheduler tuning (Game, Work, Stream, Eco)", app: "optimizer", icon: "optimizer" },
             { title: "7-Point System Diagnostics", sub: "Automated scan across memory, drivers, and network", app: "troubleshoot", icon: "troubleshoot" },
-            { title: "Aegis App Store", sub: "Curated ring-3 sandboxed application repository", app: "store", icon: "store" },
             { title: "Settings Center", sub: "Configure ASLR, display layouts, and theme palettes", app: "settings", icon: "settings" },
             { title: "Aegis Voice Assistant", sub: "Voice command interpreter and audio agent", app: "voice", icon: "voice" },
             { title: "Switch Theme: Cyberpunk Amber", sub: "High-contrast glowing amber interface", action: () => setTheme('cyberpunk-amber'), icon: "theme" },
@@ -965,7 +1349,6 @@
             this.input = document.getElementById('palette-input');
             this.results = document.getElementById('palette-results');
 
-            // Keyboard trigger Ctrl+Space
             window.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.code === 'Space') {
                     e.preventDefault();
@@ -975,10 +1358,7 @@
                 }
             });
 
-            // Search input filtering
             this.input.addEventListener('input', () => this.render());
-
-            // Arrow key navigation
             this.input.addEventListener('keydown', (e) => {
                 const filtered = this.getFiltered();
                 if (e.key === 'ArrowDown') {
@@ -997,12 +1377,10 @@
                 }
             });
 
-            // Click outside to close
             this.overlay.addEventListener('click', (e) => {
                 if (e.target === this.overlay) this.close();
             });
 
-            // Top bar search button
             document.getElementById('btn-palette')?.addEventListener('click', () => this.open());
         },
 
@@ -1063,22 +1441,18 @@
 
         execute(item) {
             this.close();
-            if (item.action) {
-                item.action();
-            } else if (item.app) {
-                WM.open(item.app, item.title);
-            }
+            if (item.action) item.action();
+            else if (item.app) WM.open(item.app, item.title);
         }
     };
 
     // ==========================================
-    // 15. THEME & LAYOUT DISPATCHERS
+    // 16. THEME & LAYOUT DISPATCHERS
     // ==========================================
     function setTheme(theme) {
         document.body.classList.remove('theme-quantum-cyan', 'theme-cyberpunk-amber', 'theme-deep-space-dark', 'theme-crystal-light');
         document.body.classList.add(`theme-${theme}`);
 
-        // Sync dropdowns
         const topSel = document.getElementById('theme-select');
         if (topSel) topSel.value = theme;
         const setSel = document.getElementById('settings-theme-select');
@@ -1091,7 +1465,6 @@
         document.body.classList.remove('layout-hybrid', 'layout-windows', 'layout-linux');
         document.body.classList.add(`layout-${layout}`);
 
-        // Sync dropdowns
         const topSel = document.getElementById('layout-select');
         if (topSel) topSel.value = layout;
         const setSel = document.getElementById('settings-layout-select');
@@ -1100,9 +1473,6 @@
         Notifications.show('Layout Paradigm Changed', `Active Interface Mode: ${layout.toUpperCase()}`, 'info');
     }
 
-    // ==========================================
-    // 16. LIVE TELEMETRY & CLOCK UPDATER
-    // ==========================================
     function startTelemetryLoop() {
         const topCpu = document.getElementById('top-cpu');
         const topCpuFill = document.getElementById('top-cpu-fill');
@@ -1112,13 +1482,11 @@
         const trayClock = document.getElementById('tray-clock');
 
         const tick = async () => {
-            // Update Clocks
             const now = new Date();
             const timeStr = now.toLocaleTimeString();
             if (hudClock) hudClock.textContent = timeStr;
             if (trayClock) trayClock.textContent = timeStr.substring(0, 5);
 
-            // Fetch live server telemetry or simulate jitter
             try {
                 const res = await fetch('/api/neural/telemetry');
                 if (res.ok) {
@@ -1131,7 +1499,6 @@
                     if (topRamFill) topRamFill.style.width = `${ram}%`;
                 }
             } catch (e) {
-                // Standalone local jitter fallback
                 const randCpu = Math.floor(18 + Math.random() * 8);
                 if (topCpu) topCpu.textContent = `${randCpu}%`;
                 if (topCpuFill) topCpuFill.style.width = `${randCpu}%`;
@@ -1142,7 +1509,6 @@
         setInterval(tick, 2000);
     }
 
-    // Helper HTML escape
     function escapeHtml(str) {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
@@ -1151,18 +1517,19 @@
     // 17. SYSTEM INITIALIZATION
     // ==========================================
     window.addEventListener('DOMContentLoaded', () => {
-        // Init Subsystems
         Wallpaper.init();
         Notifications.init();
         WM.init();
         Palette.init();
         startTelemetryLoop();
 
-        // Bind Desktop and Dock App Launchers
         document.querySelectorAll('[data-app]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const app = btn.dataset.app;
                 const labels = {
+                    ai: 'Aegis Mind AI Controller',
+                    files: 'Files & Storage Manager',
+                    cybersec: 'CyberSecurity Arsenal',
                     terminal: 'Terminal (aegis_shell)',
                     neural: 'Neural Activity Monitor',
                     shield: 'Aegis Shield Firewall & Zero-Trust',
@@ -1173,21 +1540,13 @@
                     settings: 'Settings Center',
                     voice: 'Aegis Voice Assistant'
                 };
-                WM.open(app, labels[app] || app.toUpperCase());
+                WM.open(app, labels[app] || app.toUpperCase(), app === 'ai' ? 820 : 760, app === 'ai' ? 560 : 500);
             });
         });
 
-        // Layout Dropdown
-        document.getElementById('layout-select')?.addEventListener('change', (e) => {
-            setLayout(e.target.value);
-        });
+        document.getElementById('layout-select')?.addEventListener('change', (e) => setLayout(e.target.value));
+        document.getElementById('theme-select')?.addEventListener('change', (e) => setTheme(e.target.value));
 
-        // Theme Dropdown
-        document.getElementById('theme-select')?.addEventListener('change', (e) => {
-            setTheme(e.target.value);
-        });
-
-        // Start Menu Toggle
         const startMenu = document.getElementById('start-menu');
         const startBtn = document.getElementById('dock-start-btn');
         const aegisBtn = document.getElementById('btn-aegis-menu');
@@ -1206,14 +1565,12 @@
             }
         });
 
-        // Start menu app launch
         startMenu?.querySelectorAll('.start-item[data-app]').forEach(item => {
             item.addEventListener('click', () => {
                 startMenu.classList.add('hidden');
             });
         });
 
-        // Architecture Demo Button in Start Menu
         document.getElementById('btn-run-demo')?.addEventListener('click', () => {
             startMenu.classList.add('hidden');
             WM.open('terminal', 'Terminal (aegis_shell)');
@@ -1226,13 +1583,12 @@
             }, 300);
         });
 
-        // Initial default open windows for high-impact experience
+        // Open Aegis Mind AI & Storage Manager on first load
         setTimeout(() => {
-            WM.open('neural', 'Neural Activity Monitor', 840, 520);
-            WM.open('merkle', 'Self-Healing Merkle Filesystem', 780, 500);
-            Notifications.show('AegisOS 2.0 Boot Verified', 'Dual-Kernel Microkernel active. Zero-Trust gate & Merkle filesystem verified healthy.', 'success', 5000);
+            WM.open('ai', 'Aegis Mind AI Controller', 840, 560);
+            WM.open('files', 'Files & Storage Manager', 800, 510);
+            Notifications.show('AegisOS 2.0 Ready', 'Aegis Mind AI online. Tiered storage & Cybersecurity Arsenal active.', 'success', 5000);
         }, 400);
     });
 
 })();
-

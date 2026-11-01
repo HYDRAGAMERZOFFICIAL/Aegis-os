@@ -1850,3 +1850,371 @@ body.layout-linux .dock-app-btn:hover {
 /* Utilities */
 .hidden { display: none !important; }
 
+
+/* ==========================================================================
+   NEW APPS: AEGIS MIND AI, FILES & STORAGE, CYBERSECURITY ARSENAL
+   ========================================================================== */
+
+/* 1. AGENTIC AI ASSISTANT ("Aegis Mind") */
+.app-ai {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ai-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 170, 0, 0.08);
+    border: 1px solid rgba(255, 170, 0, 0.3);
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+.ai-avatar-core {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ffaa00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 18px rgba(255, 170, 0, 0.6);
+}
+
+.ai-avatar-core svg {
+    width: 24px;
+    height: 24px;
+    stroke: #000;
+    stroke-width: 2;
+    fill: none;
+}
+
+.ai-header-info {
+    flex: 1;
+}
+
+.ai-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffaa00;
+}
+
+.ai-name span {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-left: 6px;
+}
+
+.ai-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    line-height: 1.35;
+}
+
+.ai-status-pill {
+    font-size: 10px;
+    font-weight: 700;
+    color: #22dd66;
+    background: rgba(34, 221, 102, 0.15);
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(34, 221, 102, 0.3);
+}
+
+.ai-quick-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ai-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    border-radius: 14px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--trans-fast);
+}
+
+.ai-pill:hover {
+    background: #ffaa00;
+    color: #000;
+    border-color: #ffaa00;
+}
+
+.ai-chat-box {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ai-msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 88%;
+}
+
+.ai-msg-bot {
+    align-self: flex-start;
+}
+
+.ai-msg-user {
+    align-self: flex-end;
+}
+
+.msg-bubble {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.ai-msg-bot .msg-bubble {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-glass);
+    color: var(--text-primary);
+}
+
+.ai-msg-user .msg-bubble {
+    background: #ffaa00;
+    color: #000;
+    font-weight: 600;
+}
+
+.ai-action-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 11px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+}
+
+.ai-input-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.ai-text-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: var(--trans-fast);
+}
+
+.ai-text-input:focus {
+    border-color: #ffaa00;
+    box-shadow: 0 0 10px rgba(255, 170, 0, 0.3);
+}
+
+/* 2. FILES & STORAGE MANAGER */
+.app-files {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.files-header-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.files-action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.tier-action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 14px;
+    font-size: 12px;
+}
+
+.tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.tier-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tier-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tier-name {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.tier-type {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.tier-bar-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tier-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+}
+
+.tier-specs {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+}
+
+/* 3. CYBERSECURITY ARSENAL */
+.app-cybersec {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cybersec-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.security-score-badge {
+    background: rgba(0, 255, 170, 0.1);
+    border: 1px solid var(--status-ok);
+    border-radius: 10px;
+    padding: 6px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.score-num {
+    font-size: 18px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    color: var(--status-ok);
+}
+
+.score-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.dpi-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.dpi-feed-box {
+    max-height: 280px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px solid var(--border-glass);
+}
+
+.packet-row {
+    display: grid;
+    grid-template-columns: 80px 90px 140px 130px 60px 1fr;
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    align-items: center;
+}
+
+.packet-flagged {
+    background: rgba(255, 51, 102, 0.15) !important;
+    border-left: 3px solid var(--status-err);
+}
+
+.sandbox-hero {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+}
+
+.sandbox-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--status-err);
+    stroke-width: 2;
+    fill: none;
+}
+
+.sandbox-report-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 14px;
+    min-height: 180px;
+}
+
+.vuln-top, .zt-token-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}

@@ -52,13 +52,14 @@ static void print_help(void) {
     printf("  6.  troubleshoot    - Run full 7-point diagnostic & auto-repair\n");
     printf("  7.  opt <mode>      - Switch Task Optimizer (game/work/streaming/eco)\n");
     printf("  8.  checkpoint      - List / create snapshots & test 10s rollback\n");
-    printf("  9.  theme <mode>    - Switch Adaptive UI theme (cyan/amber/dark/light)\n");
-    printf("  10. fs <cmd>        - Test AegisFS file creation, encryption & IO\n");
-    printf("  11. palette <query> - Search system Command Palette\n");
-    printf("  12. voice <phrase>  - Simulate voice command processing\n");
-    printf("  13. shell <cmd>     - Dispatch raw Aegis Shell command\n");
-    printf("  14. demo            - Run full automated system demonstration\n");
-    printf("  15. quit / exit     - Exit simulator\n\n");
+    printf("  9.  storage <opt>   - Inspect tiered storage & run deduplication/TRIM\n");
+    printf("  10. cybersec <cmd>  - Run CVE vulnerability audit or deep packet sniffer\n");
+    printf("  11. ai <prompt>     - Dispatch autonomous work instruction to Aegis Mind AI\n");
+    printf("  12. theme <mode>    - Switch Adaptive UI theme (cyan/amber/dark/light)\n");
+    printf("  13. fs <cmd>        - Test AegisFS file creation, encryption & IO\n");
+    printf("  14. palette <query> - Search system Command Palette\n");
+    printf("  15. demo            - Run full automated system demonstration\n");
+    printf("  16. quit / exit     - Exit simulator\n\n");
 }
 
 static void run_demo(void) {
@@ -257,6 +258,46 @@ int main(int argc, char **argv) {
             uint32_t est = 0;
             checkpoint_estimate_rollback_time("chkpt-0001", &est);
             printf("Estimated Rollback Recovery Time: %u seconds (Target < 10s)\n\n", est);
+        } else if (strncmp(line, "storage", 7) == 0) {
+            printf("\n--- Aegis Tiered Storage Engine & Block Optimizer ---\n");
+            printf("Total Capacity: 2560 GB | Used: 785.4 GB | Free: 1774.6 GB\n");
+            printf("Deduplication: 48.2 GB saved (1.28x) | ZSTD Compression: 2.35x\n");
+            printf("Tier 1 (L1 RAM Buffer): 16 GB DDR5  | Latency: 0.04 us | Bandwidth: 12,800 MB/s\n");
+            printf("Tier 2 (L2 NVMe SSD):   512 GB PCIe | Latency: 22.0 us | Bandwidth: 4,800 MB/s\n");
+            printf("Tier 3 (L3 SATA SSD):   2048 GB TLC | Latency: 140.0 us | Bandwidth: 560 MB/s\n");
+            if (strstr(line, "opt") || strstr(line, "trim")) {
+                printf("[ACTION] TRIM wear-leveling & deduplication sweep executed! Reclaimed 614 MB.\n");
+            }
+            printf("\n");
+        } else if (strncmp(line, "cybersec", 8) == 0) {
+            printf("\n--- Aegis Cybersecurity Arsenal & Deep Packet Inspector ---\n");
+            printf("Overall Defense Rating: 98/100 (EXTREME DEFENSE)\n");
+            printf("ASLR: 64-bit Entropy Verified | Shadow Stack: ACTIVE | Driver Sandbox: RING 3\n");
+            printf("Live Packet Tap: 3 attacks dropped (Telnet 23, Tor relay 9001, NOP sled)\n");
+            printf("Zero-Trust Broker: 3 valid capability tokens active (0 expired)\n\n");
+        } else if (strncmp(line, "ai", 2) == 0) {
+            const char *prompt = (strlen(line) > 3) ? line + 3 : "status";
+            printf("\n[Aegis Mind AI Controller]\n");
+            printf("Executing Work Instruction: \"%s\"\n", prompt);
+            if (strstr(prompt, "storage") || strstr(prompt, "trim") || strstr(prompt, "clean")) {
+                printf("  [Step 1] Ran real-time deduplication sweep across Tier 2 (NVMe) & Tier 3 (SATA).\n");
+                printf("  [Step 2] Reclaimed 614 MB duplicate blocks. Fragmentation down to 1.2%%.\n");
+                printf("  [Result] Tiered storage optimized successfully.\n\n");
+            } else if (strstr(prompt, "game") || strstr(prompt, "boost")) {
+                taskopt_apply_optimization(OPTIMIZE_MODE_GAME);
+                printf("  [Step 1] Boosted CPU CFS priority by +25%% (4.85 GHz).\n");
+                printf("  [Step 2] Enabled GPU overclock pipeline (+30%%).\n");
+                printf("  [Step 3] Suspended background indexing and set audio latency to 1.2ms.\n");
+                printf("  [Result] Game Mode engaged.\n\n");
+            } else if (strstr(prompt, "sec") || strstr(prompt, "audit") || strstr(prompt, "vuln")) {
+                printf("  [Step 1] Audited microkernel syscall gates and memory page tables.\n");
+                printf("  [Step 2] Verified ASLR 64-bit entropy and Ring-3 driver DMA sandboxes.\n");
+                printf("  [Step 3] Evaluated stateful firewall rules (6 rules enforced, 0 open debug ports).\n");
+                printf("  [Result] Security score verified at 98/100 (EXTREME DEFENSE).\n\n");
+            } else {
+                printf("  [Aegis Mind] Autonomous task dispatched across kernel subsystems.\n");
+                printf("  Subsystems active: CFS Scheduler, AegisFS Merkle Tree, Shield Firewall.\n\n");
+            }
         } else if (strncmp(line, "theme", 5) == 0) {
             if (strstr(line, "gaming") || strstr(line, "amber")) {
                 ui_theme_set_mode(UI_MODE_GAMING);

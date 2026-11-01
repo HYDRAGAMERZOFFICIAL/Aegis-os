@@ -150,7 +150,7 @@ int vm_get_status(uint32_t vm_id, VMStatus* status) {
     return -1;
 }
 
-int microkernel_init(void) {
+__attribute__((weak)) int microkernel_init(void) {
     return 0;
 }
 
@@ -523,3 +523,4 @@ int isolation_set_memory_isolation(uint32_t domain_id, int enabled) {
     
     return -1;
 }
+
