@@ -8,6 +8,7 @@
   let mode = 'login';
   let user = null;
 
+<<<<<<< HEAD
   // Universal Custom Cyberpunk Dialog
   window.AegisDialog = {
     alert(message, title = 'SYSTEM NOTIFICATION') {
@@ -90,6 +91,8 @@
     }
   };
 
+=======
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
   const request = async (path, body) => {
     const response = await fetch(path, {
       method: body ? 'POST' : 'GET',
@@ -101,7 +104,10 @@
     if (!response.ok) throw new Error(data.error || 'Authentication service unavailable.');
     return data;
   };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
   const showMode = (next) => {
     mode = next;
     loginForm.hidden = mode !== 'login';
@@ -113,6 +119,7 @@
     $('#aegis-login-error').textContent = '';
     $('#aegis-register-error').textContent = '';
   };
+<<<<<<< HEAD
 
   const enter = (account, shouldAnimateBoot = false) => {
     user = account;
@@ -190,6 +197,32 @@
     }
   };
 
+=======
+  const enter = (account) => {
+    user = account;
+    root.classList.remove('aegis-locked');
+    gate.hidden = true;
+    let badge = $('#aegis-operator-badge');
+    if (!badge) {
+      badge = document.createElement('button');
+      badge.id = 'aegis-operator-badge';
+      badge.type = 'button';
+      badge.className = 'aegis-operator-badge';
+      $('#top-bar .top-right')?.appendChild(badge);
+      badge.addEventListener('click', async () => {
+        if (!confirm('Sign out of this AegisOS operator profile?')) return;
+        try { await request('/api/auth/logout', {}); } catch (error) { alert(error.message); return; }
+        user = null;
+        root.classList.add('aegis-locked');
+        gate.hidden = false;
+        showMode('login');
+      });
+    }
+    badge.textContent = 'OPERATOR // ' + (account.displayName || account.username) + '  ↗';
+    window.AegisAuth = { get user() { return user; }, logout: () => badge.click() };
+    document.dispatchEvent(new CustomEvent('aegis:authenticated', { detail: { user: account } }));
+  };
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
   const submit = async (form, endpoint, errorSelector) => {
     const button = form.querySelector('button[type="submit"]');
     const label = button.textContent;
@@ -200,7 +233,11 @@
       const values = Object.fromEntries(new FormData(form).entries());
       const result = await request(endpoint, values);
       form.reset();
+<<<<<<< HEAD
       enter(result.user, true); // Trigger boot screen animation on login and signup!
+=======
+      enter(result.user);
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
     } catch (error) {
       $(errorSelector).textContent = error.message;
     } finally {
@@ -208,23 +245,37 @@
       button.textContent = label;
     }
   };
+<<<<<<< HEAD
 
   $('#aegis-auth-switch').addEventListener('click', () => showMode(mode === 'login' ? 'register' : 'login'));
 
+=======
+  $('#aegis-auth-switch').addEventListener('click', () => showMode(mode === 'login' ? 'register' : 'login'));
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
   loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
     submit(loginForm, '/api/auth/login', '#aegis-login-error');
   });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
   registerForm.addEventListener('submit', (event) => {
     event.preventDefault();
     submit(registerForm, '/api/auth/register', '#aegis-register-error');
   });
+<<<<<<< HEAD
 
   (async () => {
     try {
       const session = await request('/api/auth/me');
       if (session.authenticated) enter(session.user, false);
+=======
+  (async () => {
+    try {
+      const session = await request('/api/auth/me');
+      if (session.authenticated) enter(session.user);
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
       else {
         gate.hidden = false;
         showMode(session.needsProfile ? 'register' : 'login');

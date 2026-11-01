@@ -437,6 +437,7 @@ var TIMED_SCENARIOS = [
   }
 ];
 
+<<<<<<< HEAD
 
 var CLUE_CARDS = {
   op1: [
@@ -645,6 +646,8 @@ var CLUE_CARDS = {
   ]
 };
 
+=======
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
 var missions=[
 {id:'op1',title:'THE SILENT INTRUSION',brief:'At 02:13 an unauthorised service restart was followed by a low-volume encrypted session. The first alert may be a decoy. Establish what happened before containment.',pressure:'Containment can destroy volatile evidence. Separate the loudest signal from the root cause.',steps:[
 ['Establish a process baseline','Inspect Neural Monitor. Compare process ancestry and identify an anomalous parent-child relationship.','Look for a process whose parent does not match its declared service role.',['open:neural','click:neural-process-detail']],
@@ -952,6 +955,7 @@ function emergencyTimeOut(){
 function updateTabNav(){
   if(!tabNav)return;
   var tabs=tabNav.querySelectorAll('.aegis-dossier-tab');
+<<<<<<< HEAD
   if(tabs.length>=6){
     tabs[0].className='aegis-dossier-tab'+(currentTab==='cases'?' active':'');
     tabs[1].className='aegis-dossier-tab'+(currentTab==='sidequests'?' active':'');
@@ -960,6 +964,13 @@ function updateTabNav(){
     tabs[4].className='aegis-dossier-tab'+(currentTab==='achievements'?' active':'');
     tabs[4].textContent='🎖️ MEDALS ('+(state.achievements||[]).length+'/'+ACHIEVEMENTS.length+')';
     tabs[5].className='aegis-dossier-tab'+(currentTab==='drills'?' active':'');
+=======
+  if(tabs.length===3){
+    tabs[0].className='aegis-dossier-tab'+(currentTab==='cases'?' active':'');
+    tabs[1].className='aegis-dossier-tab'+(currentTab==='achievements'?' active':'');
+    tabs[1].textContent='🏅 MEDALS ('+(state.achievements||[]).length+'/'+ACHIEVEMENTS.length+')';
+    tabs[2].className='aegis-dossier-tab'+(currentTab==='drills'?' active':'');
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
   }
 }
 
@@ -1130,6 +1141,7 @@ var SIDE_QUESTS = [
   }
 ];
 
+<<<<<<< HEAD
 
 function openClueModal(clue, isUnlocked) {
   var modal = document.getElementById('aegis-clue-card-modal');
@@ -1305,6 +1317,8 @@ function renderClosedCasesView() {
   body.append(secIncidents);
 }
 
+=======
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
 function renderSideQuestsView() {
   state.sideQuests = state.sideQuests || {};
   var topBox = el('div', 'aegis-achievement-summary');
@@ -1448,8 +1462,11 @@ function showAiDialogue(badgeText, speech, options){
 function render(){
  if(!body)return;updateTabNav();body.replaceChildren();
  if(currentTab==='sidequests'){renderSideQuestsView();return;}
+<<<<<<< HEAD
  if(currentTab==='clues'){renderClueCardsView();return;}
  if(currentTab==='closed'){renderClosedCasesView();return;}
+=======
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
  if(currentTab==='achievements'){renderAchievementsView();return;}
  if(currentTab==='drills'){renderDrillsView();return;}
  var m=mission(),list=el('ol','mission-objectives');
@@ -1632,6 +1649,7 @@ function build(){
   var close=el('button','aegis-mission-close','×');close.type='button';
   actions.append(sfxBtn,close);
   top.append(brand,actions);
+<<<<<<< HEAD
     tabNav=el('div','aegis-dossier-nav');
   var bCase=el('button','aegis-dossier-tab active','📁 ACTIVE CASE');
   var bQuest=el('button','aegis-dossier-tab','🎯 SIDE QUESTS');
@@ -1648,6 +1666,18 @@ function build(){
   bDrill.addEventListener('click',function(){currentTab='drills';render();});
 
   tabNav.append(bCase,bQuest,bClues,bClosed,bAch,bDrill);
+=======
+  tabNav=el('div','aegis-dossier-nav');
+  var bCase=el('button','aegis-dossier-tab active','📁 CASES');
+  var bQuest=el('button','aegis-dossier-tab','🎯 SIDE QUESTS');
+  var bAch=el('button','aegis-dossier-tab','🏅 MEDALS');
+  var bDrill=el('button','aegis-dossier-tab','⚡ LIVE DRILLS');
+  bCase.addEventListener('click',function(){currentTab='cases';render();});
+  bQuest.addEventListener('click',function(){currentTab='sidequests';render();});
+  bAch.addEventListener('click',function(){currentTab='achievements';render();});
+  bDrill.addEventListener('click',function(){currentTab='drills';render();});
+  tabNav.append(bCase,bQuest,bAch,bDrill);
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
   body=el('div','aegis-mission-body');panel.append(top,tabNav,body);
   host.append(toggle,panel);document.body.append(host);
   toggle.addEventListener('click',function(){panel.hidden=!panel.hidden;render();});

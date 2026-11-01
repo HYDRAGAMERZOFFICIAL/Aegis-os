@@ -3641,6 +3641,7 @@ body.system-breached-critical {
     margin: 0;
     overflow-x: auto;
 }
+<<<<<<< HEAD
 
 /* ====================================================
    17. AEGIS DIALOG POPUP & CLUE CARD INSPECTOR MODAL
@@ -3819,3 +3820,5 @@ body.system-breached-critical {
     max-width: 440px;
     line-height: 1.4;
 }
+=======
+>>>>>>> 7f1049c949bd36b81559106b33dede59beddd866
