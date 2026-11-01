@@ -292,7 +292,7 @@ const server = http.createServer((req, res) => {
     let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : pathname);
     filePath = path.normalize(filePath);
 
-    if (!filePath.startsWith(WEB_DIR)) {
+    if (!filePath.toLowerCase().startsWith(WEB_DIR.toLowerCase())) {
         res.writeHead(403, { 'Content-Type': 'text/plain' });
         return res.end('Access Denied');
     }

@@ -295,6 +295,7 @@
                 }
 
                 const win = this.windows.get(appId);
+                win.dispatchEvent(new CustomEvent('aegis-close'));
                 win.remove();
                 this.windows.delete(appId);
                 this.updateDockState(appId, false);
@@ -955,7 +956,10 @@
             let snifferActive = true;
 
             const pollPackets = async () => {
-                if (!snifferActive || !document.body.contains(win)) return;
+                if (!snifferActive || !document.body.contains(win)) {
+                    clearInterval(snifferTimer);
+                    return;
+                }
                 try {
                     const res = await fetch('/api/cybersec/packets');
                     const data = await res.json();
@@ -978,7 +982,7 @@
 
             for (let i = 0; i < 3; i++) pollPackets();
             const snifferTimer = setInterval(pollPackets, 2000);
-            win.addEventListener('remove', () => clearInterval(snifferTimer));
+            win.addEventListener('aegis-close', () => clearInterval(snifferTimer));
 
             btnPauseSniffer.addEventListener('click', () => {
                 snifferActive = !snifferActive;
@@ -1216,7 +1220,10 @@
             ];
 
             const addEvent = () => {
-                if (!document.body.contains(win)) return;
+                if (!document.body.contains(win)) {
+                    clearInterval(timer);
+                    return;
+                }
                 const ev = eventPool[Math.floor(Math.random() * eventPool.length)];
                 const row = document.createElement('div');
                 row.className = 'event-row';
@@ -1232,7 +1239,7 @@
 
             for (let i = 0; i < 5; i++) addEvent();
             const timer = setInterval(addEvent, 1200);
-            win.addEventListener('remove', () => clearInterval(timer));
+            win.addEventListener('aegis-close', () => clearInterval(timer));
         }
     };
 
@@ -1564,6 +1571,21 @@
                     </div>
                 </div>
             `).join('');
+
+            catalog.querySelectorAll('.btn-install').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const target = apps.find(a => a.id === id);
+                    if (target) {
+                        target.installed = !target.installed;
+                        btn.textContent = target.installed ? 'Installed' : 'Install';
+                        btn.classList.toggle('installed', target.installed);
+                        Notifications.show(target.installed ? 'Package Installed' : 'Package Removed',
+                            `${target.name} has been ${target.installed ? 'isolated in Ring-3 sandbox' : 'uninstalled'}.`,
+                            target.installed ? 'success' : 'info');
+                    }
+                });
+            });
         }
     };
 
@@ -1576,7 +1598,8 @@
                     tabs.forEach(b => b.classList.remove('active'));
                     panels.forEach(p => p.classList.add('hidden'));
                     btn.classList.add('active');
-                    win.querySelector(`#${btn.dataset.tab}`).classList.remove('hidden');
+                    const target = win.querySelector(`#${btn.dataset.tab}`);
+                    if (target) target.classList.remove('hidden');
                 });
             });
 
@@ -1634,8 +1657,8 @@
                     response.textContent = `"${reply}"`;
                     status.textContent = "Aegis Voice: Ready for next command.";
 
-                    // Check if voice window is still open before initiating speech
-                    if (WM.windows.has('voice') && 'speechSynthesis' in window) {
+                    // Check if voice window is still open and unminimized before initiating speech
+                    if (WM.windows.has('voice') && !WM.windows.get('voice').classList.contains('minimized') && 'speechSynthesis' in window) {
                         try {
                             window.speechSynthesis.cancel();
                             const utter = new SpeechSynthesisUtterance(reply);
@@ -1645,6 +1668,12 @@
                     }
                 }, 500);
             };
+
+            const orb = win.querySelector('#voice-orb');
+            orb?.addEventListener('click', () => {
+                const cmd = prompt("Speak or enter voice command for Aegis Assistant:", "run security scan");
+                if (cmd) handleVoice(cmd);
+            });
 
             win.querySelectorAll('.voice-btn').forEach(btn => {
                 btn.addEventListener('click', () => handleVoice(btn.dataset.cmd));
