@@ -31,6 +31,7 @@
       return {ok:true,session:this.getSession()};
     }
     getSession() { if(!this.session) return null; return {...clone(this.session),mission:clone(this.getMission(this.session.missionId))}; }
+    abandonMission() { this.session=null; this.state.activeMission=null; this.save(); }
     perform(action) {
       if(!this.session) return {ok:false,message:"No active mission."};
       const s=this.session, m=this.getMission(s.missionId);
