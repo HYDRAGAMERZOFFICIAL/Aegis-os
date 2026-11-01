@@ -20,6 +20,8 @@ The game engine has a Node.js test suite. Run it with `npm run test:game`.
 - Objective sequence: inspect → contain → verify integrity → recover.
 - Persistent player profile with XP, credits, research points, level and service record.
 - Six research upgrades.
+- Evidence-based branching decisions, mission grades and bonus rewards.
+- Active mission sessions and selected decisions resume after a browser refresh.
 - Mission debriefs, chapter unlocks and local save/reset.
 - Responsive game UI that runs as an overlay on the existing AegisOS desktop.
 - A dedicated static asset mount at `/game/*`, constrained to the repository's root `game/` directory.
@@ -55,7 +57,8 @@ This is the first playable vertical slice, not the finished game. Recommended ne
 
 1. Add automated unit tests for mission ordering, save/load and reward calculations.
 2. Add richer branching mission decisions and evidence-based scoring.
-3. Connect mission events to existing simulator telemetry through a read-only adapter.
-4. Add sandbox and survival modes.
-5. Add audio, tutorial onboarding, accessibility review and balancing.
-6. Add a versioned save migration strategy before changing the save schema.
+3. Add mission-specific consequence branches and scenario simulation tests.
+4. Connect mission events to existing simulator telemetry through a read-only adapter.
+5. Add sandbox and survival modes.
+6. Add audio, tutorial onboarding, accessibility review and balancing.
+7. Add a versioned save migration strategy before changing the save schema.
