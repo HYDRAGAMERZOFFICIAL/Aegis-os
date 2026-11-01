@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07111b">
+  <title>AEGIS // Command</title>
+  <link rel="stylesheet" href="/game.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Return to AegisOS simulator"><span class="crest">A</span><span>AEGIS<span class="muted"> // COMMAND</span></span></a>
+    <div class="top-meta"><span class="live-dot"></span><span>SIMULATION ENVIRONMENT</span><span class="divider">/</span><span id="connection">CONNECTING</span></div>
+    <div class="top-actions"><button class="button button-quiet" id="save">Save</button><button class="button button-quiet" id="load">Load</button><a class="button button-quiet" href="/">OS Desktop ↗</a></div>
+  </header>
+  <main class="layout">
+    <section class="hero">
+      <div><p class="eyebrow">AEGIS DEFENCE NETWORK <span>•</span> OPERATIONS CENTRE</p><h1>Command the<br><em>defence.</em></h1><p class="intro">Investigate hostile activity, protect critical systems and keep the network operational. Every operation runs inside a fictional, isolated simulation.</p></div>
+      <div class="hero-status"><div class="radar"><div class="radar-ring"></div><div class="radar-ring ring-two"></div><div class="radar-sweep"></div><i></i><b></b></div><div><span class="eyebrow">DEFENCE POSTURE</span><strong id="posture">STANDBY</strong><small>AEGIS CORE / LOCAL INSTANCE</small></div></div>
+    </section>
+    <section class="resource-grid" id="resources" aria-label="System resources"></section>
+    <section class="main-grid">
+      <article class="panel mission-panel">
+        <div class="panel-head"><div><p class="eyebrow">01 / ACTIVE OPERATION</p><h2 id="mission-title">Awaiting deployment</h2></div><span class="status-pill" id="mission-status">NO ACTIVE MISSION</span></div>
+        <p class="mission-copy" id="mission-copy">Aegis Command is standing by. Begin the first operation to receive your briefing and objectives.</p>
+        <div id="briefing" class="briefing hidden"></div>
+        <div class="objective-list" id="objectives"><div class="empty-state">No active objectives. Deploy Mission 01 to begin.</div></div>
+        <div class="mission-footer"><button class="button button-primary" id="start-mission">Deploy Mission 01 <span>→</span></button><span id="mission-feedback" role="status"></span></div>
+      </article>
+      <aside class="side-stack">
+        <article class="panel threat-panel"><div class="panel-head"><div><p class="eyebrow">02 / THREAT INTELLIGENCE</p><h2>Threat activity</h2></div><span class="counter" id="threat-count">00</span></div><div id="threats" class="threat-list"><div class="empty-state">No threat telemetry.</div></div></article>
+        <article class="panel research-panel"><div class="panel-head"><div><p class="eyebrow">03 / DEVELOPMENT</p><h2>Research tree</h2></div><span class="counter">R&amp;D</span></div><div id="research" class="research-list"></div></article>
+      </aside>
+    </section>
+    <section class="panel event-panel"><div class="panel-head"><div><p class="eyebrow">04 / COMMAND LOG</p><h2>Operational feed</h2></div><span class="status-pill">LOCAL EVENT STREAM</span></div><div id="event-log" class="event-log" aria-live="polite"><p><time>BOOT</time> Aegis Command interface initialized.</p></div></section>
+    <footer><span>AEGISOS GAME FOUNDATION / ALPHA</span><span>NO HOST FILES • NO REAL NETWORK ACTIONS • SIMULATION ONLY</span></footer>
+  </main>
+  <script src="/game.js" defer></script>
+</body>
+</html>
