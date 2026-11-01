@@ -60,7 +60,8 @@
       return {ok:true,session:this.getSession(),message:"Objective complete."};
     }
     completeMission() {
-      const m=this.getMission(this.session.missionId), reward={...m.reward};\n      const decisionScore=this.session.decision?(this.session.decision.correct?100:60):100;\n      if(this.session.decision&&this.session.decision.correct){reward.xp+=50;reward.credits+=35;this.state.stats.perfectMissions++;}
+      const m=this.getMission(this.session.missionId), reward={...m.reward};;
+      const decisionScore=this.session.decision?(this.session.decision.correct?100:60):100;\n      if(this.session.decision&&this.session.decision.correct){reward.xp+=50;reward.credits+=35;this.state.stats.perfectMissions++;}
       this.state.completed.push(m.id); this.state.activeMission=null;
       this.state.player.xp+=reward.xp; this.state.player.credits+=reward.credits; this.state.player.research+=reward.research;
       this.state.player.reputation+=10; this.state.stats.incidentsResolved++; this.state.stats.systemsRestored++;
