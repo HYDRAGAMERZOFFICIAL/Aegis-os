@@ -26,7 +26,7 @@
         <p class="mission-copy" id="mission-copy">Aegis Command is standing by. Begin the first operation to receive your briefing and objectives.</p>
         <div id="briefing" class="briefing hidden"></div>
         <div class="objective-list" id="objectives"><div class="empty-state">No active objectives. Deploy Mission 01 to begin.</div></div>
-        <div class="mission-footer"><button class="button button-primary" id="start-mission">Deploy Mission 01 <span>→</span></button><span id="mission-feedback" role="status"></span></div>
+        <div class="mission-footer"><select id="mission-select" class="button" aria-label="Select campaign mission"><option value="mission-01">Mission 01 — The Silent Intrusion</option></select><button class="button button-primary" id="start-mission">Deploy mission <span>→</span></button><span id="mission-feedback" role="status"></span></div>
       </article>
       <aside class="side-stack">
         <article class="panel threat-panel"><div class="panel-head"><div><p class="eyebrow">02 / THREAT INTELLIGENCE</p><h2>Threat activity</h2></div><span class="counter" id="threat-count">00</span></div><div id="threats" class="threat-list"><div class="empty-state">No threat telemetry.</div></div></article>
