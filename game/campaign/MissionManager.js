@@ -5,9 +5,11 @@ class MissionManager {
   start(id) {
     const mission = this.missions.get(id); if (!mission) throw new Error('Mission not found.');
     if (this.completed.has(id)) throw new Error('Mission already completed.');
-    this.current = { id, startedAt: Date.now(), status: 'active', objectives: mission.objectives.map(item => ({ ...item, completed: false })), actions: [] };
+    if (this.current && this.current.status === 'active') throw new Error('Complete or abandon the active mission first.');
+    this.current = { id, title: mission.title, description: mission.description, briefing: mission.briefing || '', startedAt: Date.now(), status: 'active', objectives: mission.objectives.map(item => ({ ...item, completed: false })), actions: [] };
     this.events.emit('mission:started', this.getCurrent()); return this.getCurrent();
   }
+  canPerform(action) { if (!this.current || this.current.status !== 'active') return false; const next = this.current.objectives.find(item => !item.completed); return !!next && next.action === action; }
   recordAction(action) {
     if (!this.current || this.current.status !== 'active') return { ok: false, reason: 'No active mission.' };
     const nextObjective = this.current.objectives.find(item => !item.completed); const accepted = nextObjective && nextObjective.action === action ? [nextObjective] : [];
