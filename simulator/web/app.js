@@ -211,6 +211,7 @@
                 } else {
                     this.bringToFront(win);
                 }
+                window.dispatchEvent(new CustomEvent('aegis:app-opened', { detail: { appId } }));
                 return;
             }
 
@@ -279,6 +280,7 @@
             win.addEventListener('mousedown', () => this.bringToFront(win));
             this.setupDrag(win);
             this.initAppLogic(appId, win);
+            window.dispatchEvent(new CustomEvent('aegis:app-opened', { detail: { appId } }));
             AudioEngine.playChime('info');
         },
 
@@ -1107,6 +1109,7 @@
                 if (e.key === 'Enter') {
                     const cmd = input.value.trim();
                     if (!cmd) return;
+                    window.dispatchEvent(new CustomEvent('aegis:terminal-command', { detail: { command: cmd } }));
 
                     commandHistory.push(cmd);
                     historyIndex = commandHistory.length;
@@ -1884,6 +1887,7 @@
         Wallpaper.init();
         Notifications.init();
         WM.init();
+        window.AegisSystemNotify = (title, message, type = 'info', duration = 5000) => Notifications.show(title, message, type, duration);
         Palette.init();
         startTelemetryLoop();
 
