@@ -412,3 +412,43 @@ Maintained by [HYDRAGAMERZOFFICIAL](https://github.com/HYDRAGAMERZOFFICIAL).
   <strong>AegisOS — Explore a more resilient system architecture.</strong><br>
   <sub>Experimental software. Validate before real-world use.</sub>
 </p>
+
+
+---
+
+## 🎮 AegisOS Game (Early Development)
+
+AegisOS is also being developed into a standalone cyberwarfare strategy and operating-system simulation game. The existing desktop simulator remains available as a separate experience.
+
+### Launch the browser campaign prototype
+
+```bash
+npm install
+npm start
+```
+
+Open `http://localhost:3000/game`.
+
+### Launch the desktop application
+
+```bash
+npm install
+npm run start:desktop
+```
+
+### Run game tests and build installers
+
+```bash
+npm run test:game
+npm run dist:win
+```
+
+A Linux AppImage build target is also configured with `npm run dist:linux`.
+
+### Game foundation status
+
+The first development branch introduces a modular campaign engine, ordered mission objectives, simulated threat lifecycle, resource economy, research progression, local save/load, a dedicated command interface, and an Electron desktop launcher.
+
+**Current milestone:** playable first-mission foundation. Steamworks achievements, Cloud Saves, leaderboards, SteamPipe depots, final artwork, and release QA remain future work. The current build is not yet a Steam release candidate.
+
+All game threats and recovery actions are simulated. The game does not execute malware or operate on the player's real network or host files.
