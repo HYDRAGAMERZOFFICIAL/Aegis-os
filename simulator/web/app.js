@@ -187,6 +187,8 @@
             }, duration);
         }
     };
+    // Expose the original OS notification surface to native campaign events.
+    window.AegisSystemNotify = (title, desc, type = 'info') => Notifications.show(title, desc, type);
 
     // ==========================================
     // 4. WINDOW MANAGER (WM)
