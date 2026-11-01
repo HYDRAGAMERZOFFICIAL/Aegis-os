@@ -15,6 +15,11 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { spawn, exec } = require('child_process');
+const os = require('os');
+const GameManager = require('../game/core/GameManager');
+const SaveManager = require('../game/saves/SaveManager');
+const gameManager = new GameManager();
+const gameSaves = new SaveManager(path.join(os.homedir(), '.aegis-os', 'saves'));
 
 const PORT = process.env.PORT || 3000;
 const WEB_DIR = path.join(__dirname, 'web');
@@ -289,7 +294,7 @@ const server = http.createServer((req, res) => {
     }
 
     // Static Web File Serving
-    let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : pathname);
+    let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : (pathname === '/game' ? 'game.html' : pathname));
     filePath = path.normalize(filePath);
 
     if (!filePath.toLowerCase().startsWith(WEB_DIR.toLowerCase())) {
@@ -323,6 +328,55 @@ const server = http.createServer((req, res) => {
 
 // API Dispatcher
 function handleApi(req, res, pathname, url) {
+    // ----------------------------------------------------
+    // AEGIS GAME API - isolated fictional game state only
+    // ----------------------------------------------------
+    if (pathname === '/api/game/state' && req.method === 'GET') {
+        return sendJson(res, 200, gameManager.getState());
+    }
+    if (pathname === '/api/game/missions' && req.method === 'GET') {
+        return sendJson(res, 200, { missions: gameManager.missions.list() });
+    }
+    if (pathname === '/api/game/start' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err) return sendJson(res, 400, { error: 'Invalid JSON body.' });
+            try { const mission = gameManager.startMission((data && data.missionId) || 'mission-01'); return sendJson(res, 200, { success: true, mission, state: gameManager.getState() }); }
+            catch (error) { return sendJson(res, 400, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/game/action' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data || typeof data.action !== 'string') return sendJson(res, 400, { error: 'A valid action is required.' });
+            try { const result = gameManager.performAction(data.action, data.payload || {}); return sendJson(res, result.ok ? 200 : 409, result); }
+            catch (error) { return sendJson(res, 400, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/game/research' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data || typeof data.nodeId !== 'string') return sendJson(res, 400, { error: 'Research node ID is required.' });
+            const result = gameManager.unlockResearch(data.nodeId); return sendJson(res, result.ok ? 200 : 409, { ...result, state: gameManager.getState() });
+        });
+        return;
+    }
+    if (pathname === '/api/game/save' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err) return sendJson(res, 400, { error: 'Invalid JSON body.' });
+            try { return sendJson(res, 200, { success: true, ...gameSaves.save(gameManager, (data && data.slot) || 'profile') }); }
+            catch (error) { return sendJson(res, 400, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/game/load' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err) return sendJson(res, 400, { error: 'Invalid JSON body.' });
+            try { const payload = gameSaves.load((data && data.slot) || 'profile'); return sendJson(res, 200, { success: true, state: gameManager.restore(payload.game), savedAt: payload.savedAt }); }
+            catch (error) { return sendJson(res, 404, { error: 'Save could not be loaded: ' + error.message }); }
+        });
+        return;
+    }
+
     // ----------------------------------------------------
     // 1. SYSTEM STATUS & TELEMETRY
     // ----------------------------------------------------
