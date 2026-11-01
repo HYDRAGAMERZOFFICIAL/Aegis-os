@@ -178,3 +178,4 @@ if (!code.includes('window.alert = function(')) {
 
 fs.writeFileSync(appFile, code, 'utf8');
 console.log('Successfully updated app.js with category filters, Coming Soon banners, and AegisDialog polyfill!');
+

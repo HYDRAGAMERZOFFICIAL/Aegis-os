@@ -713,3 +713,4 @@ fs.writeFileSync(path.resolve('simulator/web/native-campaign.css'), fs.readFileS
 
 fs.writeFileSync(campaignFile, code, 'utf8');
 console.log('Successfully updated native-campaign.js with Clue Cards, Tactical Guides, and Closed Cases Archive!');
+

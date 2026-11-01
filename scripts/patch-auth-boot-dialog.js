@@ -246,3 +246,4 @@ const newDesktopAuth = `'use strict';
 
 fs.writeFileSync(authFile, newDesktopAuth, 'utf8');
 console.log('Successfully updated desktop-auth.js with boot screen animation and AegisDialog!');
+
