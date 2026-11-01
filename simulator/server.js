@@ -412,7 +412,11 @@ function handleApi(req, res, pathname, url) {
     if (pathname === '/api/game/research' && req.method === 'POST') {
         parseBody(req, (err, data) => {
             if (err || !data || typeof data.nodeId !== 'string') return sendJson(res, 400, { error: 'Research node ID is required.' });
-            const result = gameManager.unlockResearch(data.nodeId); if (result.ok) gameSaves.save(gameManager, playerSaveSlot(session.user)); return sendJson(res, result.ok ? 200 : 409, { ...result, state: gameManager.getState() });
+            try {
+                const result = gameManager.unlockResearch(data.nodeId);
+                if (result.ok) gameSaves.save(gameManager, playerSaveSlot(session.user));
+                return sendJson(res, result.ok ? 200 : 409, { ...result, state: gameManager.getState() });
+            } catch (error) { return sendJson(res, 400, { error: error.message }); }
         });
         return;
     }
