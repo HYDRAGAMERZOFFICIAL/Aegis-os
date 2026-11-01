@@ -1,13 +1,17 @@
 {
   "name": "aegis-os",
   "version": "2.0.0-alpha",
-  "description": "AegisOS - Hybrid Secure Intelligence Operating System Simulator & Environment",
-  "main": "simulator/server.js",
+  "description": "AegisOS - Hybrid Secure OS Simulator and Cyberwarfare Strategy Game",
+  "main": "launcher/electron-main.js",
   "scripts": {
     "start": "node simulator/server.js",
     "sim": "node simulator/server.js",
     "sim:native": ".\\aegis_sim.exe --demo",
-    "test": ".\\aegis_tests.exe"
+    "test": ".\\aegis_tests.exe",
+    "start:desktop": "electron .",
+    "test:game": "node --test game/tests",
+    "dist:win": "electron-builder --win nsis --x64",
+    "dist:linux": "electron-builder --linux AppImage --x64"
   },
   "keywords": [
     "operating-system",
@@ -18,6 +22,43 @@
     "simulator"
   ],
   "author": "AegisOS Team",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.hydragamerz.aegisos",
+    "productName": "AegisOS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "launcher/**/*",
+      "simulator/**/*",
+      "game/**/*",
+      "package.json",
+      "aegis_sim.exe",
+      "!game/tests/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "AegisOS-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Game"
+    },
+    "artifactName": "AegisOS-${version}-${os}-${arch}.${ext}"
+  }
 }
-
