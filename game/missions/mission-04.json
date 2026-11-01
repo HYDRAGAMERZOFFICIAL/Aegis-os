@@ -1,0 +1,46 @@
+{
+  "id": "mission-04",
+  "title": "Citadel Protocol",
+  "chapter": 4,
+  "difficulty": "expert",
+  "description": "A covert Spectre rootkit has subverted kernel memory and corrupted Merkle audit leaves. Neutralize rogue hooks, trap hostile execution threads in ephemeral sandboxes, and seal the Citadel.",
+  "briefing": "Kernel integrity alerts indicate corrupted ledger states and deep memory tampering. Audit the Merkle tree to find the divergent leaf hash, expose the rootkit descriptor, deploy an ephemeral zero-trust sandbox, purge hostile kernel hooks, and submit the citadel containment report.",
+  "objectives": [
+    {
+      "id": "obj-merkle",
+      "title": "Audit Merkle ledger integrity",
+      "description": "Scan cryptographic Merkle verification tree and detect divergent leaf hash.",
+      "action": "audit_merkle_tree"
+    },
+    {
+      "id": "obj-rootkit",
+      "title": "Trace and identify rootkit",
+      "description": "Trace memory hooks and expose active Spectre rootkit descriptor.",
+      "action": "identify_rootkit"
+    },
+    {
+      "id": "obj-sandbox",
+      "title": "Deploy ephemeral sandbox",
+      "description": "Trap rootkit execution threads inside a zero-trust ephemeral micro-sandbox.",
+      "action": "deploy_sandbox"
+    },
+    {
+      "id": "obj-purge",
+      "title": "Purge rootkit hooks",
+      "description": "Execute cryptographic kernel purge and sever rogue driver hooks.",
+      "action": "purge_rootkit"
+    },
+    {
+      "id": "obj-report",
+      "title": "Submit citadel report",
+      "description": "Document full containment and submit final report to Aegis Command.",
+      "action": "submit_report"
+    }
+  ],
+  "rewards": {
+    "credits": 1000,
+    "research": 150,
+    "reputation": 25
+  }
+}
+
