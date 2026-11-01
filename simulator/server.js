@@ -232,6 +232,56 @@ const systemState = {
                 content: "AEGIS TRAINING ARTEFACT\\nservice=sync-worker\\nparent=systemd\\nremote=185.220.101.5:8443\\nretry=15s\\nNOTE: simulated suspicious persistence artefact for campaign investigation only."
             }
         ],
+                corruptedFiles: [
+            {
+                id: "corrupt-1",
+                name: "financial_audit.db.corrupt",
+                path: "/userland/data/financial_audit.db.corrupt",
+                damageType: "HEADER_CORRUPTED",
+                originalName: "financial_audit.db",
+                recoveredPath: "/userland/data/financial_audit.db",
+                rawHex: "00 00 00 00 32 30 32 36 01 00 00 00 53 51 4c 49 54 45 5f 41 45 47 49 53",
+                asciiDump: "....2026....SQLITE_AEGIS",
+                corruptOffset: "0x00000000",
+                expectedMagic: "41 45 47 49",
+                expectedAscii: "AEGIS_DB",
+                hint: "Damaged SQLite/Aegis inode header. Replace null bytes 00000000 at offset 0x0 with magic header '41 45 47 49' ('AEGI').",
+                status: "UNRECOVERED",
+                cleanContent: "[AEGIS FINANCIAL AUDIT REPORT 2026]\nMERKLE_PROOF: 0x9f1a8e2b\nTOTAL_BALANCES_VERIFIED: $14,250,000.00\nINTEGRITY: 100% CLEAN - NO EMBEZZLEMENT OR UNAUTHORIZED OUTFLOWS FOUND."
+            },
+            {
+                id: "corrupt-2",
+                name: "kernel_symbols.map.enc",
+                path: "/vault/kernel_symbols.map.enc",
+                damageType: "RANSOMWARE_ENCRYPTED",
+                originalName: "kernel_symbols.map",
+                recoveredPath: "/system/kernel_symbols.map",
+                rawHex: "78 74 73 2d 61 65 73 2d 32 35 36 3a 30 78 61 65 39 31 35 5f 6b 72 6e 5f",
+                asciiDump: "xts-aes-256:0xae915_krn_",
+                corruptOffset: "0x00000000",
+                expectedMagic: "0xAE915_KRN_SEC",
+                expectedAscii: "SYM_TABLE",
+                hint: "Ransomware locked symbol table. Decryption key can be scraped from memory dump '/tmp/core.dump' or enter key: '0xAE915_KRN_SEC'.",
+                status: "UNRECOVERED",
+                cleanContent: "[AEGIS KERNEL SYMBOL MAP v2.0]\n0x0000000000001000 T _start\n0x0000000000001020 T microkernel_init\n0x0000000000001880 T cfs_schedule\n0x0000000000002100 T shield_packet_inspect\n0x0000000000003040 T merkle_commit_root"
+            },
+            {
+                id: "corrupt-3",
+                name: "net_filter.sys.damaged",
+                path: "/system/drivers/net_filter.sys.damaged",
+                damageType: "ELF_MAGIC_WIPED",
+                originalName: "net_filter.sys",
+                recoveredPath: "/system/drivers/net_filter.sys",
+                rawHex: "de ad be ef 02 01 01 00 00 00 00 00 00 00 00 00 03 00 3e 00 01 00 00 00",
+                asciiDump: "....>.......>...",
+                corruptOffset: "0x00000000",
+                expectedMagic: "7F 45 4C 46",
+                expectedAscii: ".ELF",
+                hint: "Driver binary magic bytes overwritten with DEADBEEF by rootkit. Restore ELF signature '7F 45 4C 46' ('\\x7fELF').",
+                status: "UNRECOVERED",
+                cleanContent: "\x7fELF\x02\x01\x01\x00 [AEGIS HIGH-PERFORMANCE NETWORK FILTER DRIVER v2.4 - SIGNED KERNEL RING 0 MODULE]"
+            }
+        ],
         snapshots: [
             { id: "chkpt-0001", name: "Clean Boot Baseline", timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(), size: "482 MB", bootable: true },
             { id: "chkpt-0002", name: "Pre-Update Snapshot", timestamp: new Date(Date.now() - 1800000).toLocaleTimeString(), size: "512 MB", bootable: true },
@@ -258,6 +308,79 @@ const systemState = {
             { id: "tier-4", name: "Tier 4: Cold Archive", type: "Immutable Snapshots", capacityGb: 1024, usedGb: 124.0, latencyUs: 850.0, bandwidthMbps: 250, status: "ENCRYPTED" }
         ]
     },
+
+    
+    // Live Server Services & Triage State
+    services: [
+        {
+            id: "svc-apigateway",
+            name: "aegis-apigateway.service",
+            displayName: "Aegis Public Ingress Gateway",
+            port: 8443,
+            proto: "TCP/HTTPS",
+            status: "PORT_CONFLICT",
+            roguePid: 4819,
+            rogueProcess: "rogue_c2_proxy",
+            issues: ["Port 8443 hijacked by unauthorized PID 4819 (rogue_c2_proxy)", "Public ingress dropping 94% of user requests"],
+            logs: [
+                "[02:13:01] BIND: Socket error EADDRINUSE 0.0.0.0:8443",
+                "[02:13:02] ALERT: Conflicting process PID 4819 (rogue_c2_proxy) occupying socket",
+                "[02:13:05] WARNING: Ingress gateway offline. Healthcheck failing."
+            ],
+            canKillRogue: true,
+            canRestart: true
+        },
+        {
+            id: "svc-authbroker",
+            name: "aegis-authbroker.service",
+            displayName: "Zero-Trust Identity & Token Broker",
+            port: 8080,
+            proto: "TCP/GRPC",
+            status: "ACTIVE",
+            issues: [],
+            logs: [
+                "[02:10:00] Ephemeral token ring online. 3 active grants.",
+                "[02:12:00] Public keys rotated successfully. 0 unauthorized transitions."
+            ],
+            canRestart: true
+        },
+        {
+            id: "svc-edgerouter",
+            name: "aegis-edgerouter.service",
+            displayName: "Edge Reverse Proxy & Rate Limiter",
+            port: 443,
+            proto: "TCP/TLS",
+            status: "DEGRADED",
+            issues: ["Config /etc/aegis_gateway.conf redirects to untrusted 185.220.101.5:8443"],
+            logs: [
+                "[02:14:10] PARSE_CONFIG: Found malicious route 'proxy_pass http://185.220.101.5:8443;'",
+                "[02:14:12] WARNING: Inbound user traffic leaking to external untrusted node!"
+            ],
+            canPatchConfig: true,
+            canRestart: true
+        },
+        {
+            id: "svc-dbcluster",
+            name: "aegis-dbcluster.service",
+            displayName: "Merkle Ledger & State Cluster",
+            port: 5432,
+            proto: "TCP/POSTGRES",
+            status: "ACTIVE",
+            issues: [],
+            logs: [
+                "[02:00:00] Merkle database replication quorum intact (3/3 nodes synced)."
+            ],
+            canRestart: true
+        }
+    ],
+
+    // Shared Zero-Trust Capability Token Registry
+    tokens: [
+        { id: "TOK-9921", subject: "aegis_ui_compositor", cap: "CAP_FRAMEBUFFER_WRITE", ttl: "3600s", ring: "Ring 3", status: "VALID" },
+        { id: "TOK-9922", subject: "neural_monitor", cap: "CAP_KERNEL_TELEMETRY", ttl: "1800s", ring: "Ring 1", status: "VALID" },
+        { id: "TOK-9923", subject: "aegis_shield_daemon", cap: "CAP_NET_RAW_SOCKET", ttl: "7200s", ring: "Ring 0", status: "VALID" },
+        { id: "TOK-KERNEL-ESCALATED", subject: "kernel_sync_worker", cap: "CAP_NET_RAW_SOCKET", ttl: "Indefinite", ring: "Ring 0 (ANOMALOUS)", status: "ANOMALOUS_ESCALATION", compromised: true }
+    ],
 
     // Telemetry
     telemetry: {
@@ -526,6 +649,157 @@ function handleApi(req, res, pathname, url) {
     // ----------------------------------------------------
     // 2. FILE MANAGEMENT (READ, WRITE, CREATE, EDIT, ENCRYPT, DELETE)
     // ----------------------------------------------------
+    
+    // ----------------------------------------------------
+    // FILE RECOVERY & CRYPTOGRAPHIC CARVER ENDPOINTS
+    // ----------------------------------------------------
+    if (pathname === '/api/files/corrupted-list' && req.method === 'GET') {
+        return sendJson(res, 200, {
+            corruptedFiles: systemState.filesystem.corruptedFiles || []
+        });
+    }
+
+    if (pathname === '/api/files/recover' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.fileId) return sendJson(res, 400, { error: 'File ID is required' });
+            const list = systemState.filesystem.corruptedFiles || [];
+            const target = list.find(f => f.id === data.fileId || f.name === data.fileId);
+            if (!target) return sendJson(res, 404, { error: 'Corrupted file inode not found' });
+
+            const inputStr = String(data.hexOrKey || '').replace(/\s+/g, '').toLowerCase();
+            const expectedMagicStr = String(target.expectedMagic || '').replace(/\s+/g, '').toLowerCase();
+            const expectedAsciiStr = String(target.expectedAscii || '').replace(/\s+/g, '').toLowerCase();
+
+            const isValid = inputStr && (inputStr === expectedMagicStr || inputStr === expectedAsciiStr || inputStr.includes(expectedMagicStr) || expectedMagicStr.includes(inputStr));
+            if (!isValid) {
+                return sendJson(res, 400, {
+                    success: false,
+                    error: `Invalid header bytes or decryption key for ${target.name}. Check hint: ${target.hint}`
+                });
+            }
+
+            target.status = "RECOVERED";
+            let existingFile = systemState.filesystem.files.find(f => f.path === target.recoveredPath || f.name === target.originalName);
+            if (!existingFile) {
+                existingFile = {
+                    id: `f-rec-${Date.now()}`,
+                    name: target.originalName,
+                    path: target.recoveredPath,
+                    size: Buffer.byteLength(target.cleanContent, 'utf8'),
+                    sizeStr: `${Math.max(1, Math.round(Buffer.byteLength(target.cleanContent, 'utf8') / 1024))} KB`,
+                    perm: "rw-r--r--",
+                    ring: "Ring 3",
+                    encrypted: false,
+                    hash: Math.random().toString(16).substring(2, 10) + "...",
+                    modified: new Date().toISOString().substring(0, 16).replace('T', ' '),
+                    type: path.extname(target.originalName).replace('.', '') || "text",
+                    content: target.cleanContent
+                };
+                systemState.filesystem.files.push(existingFile);
+            } else {
+                existingFile.content = target.cleanContent;
+                existingFile.hash = Math.random().toString(16).substring(2, 10) + "...";
+            }
+
+            return sendJson(res, 200, {
+                success: true,
+                message: `Successfully carved and restored ${target.originalName} (Inode recovered to clean state)!`,
+                recoveredFile: existingFile
+            });
+        });
+        return;
+    }
+
+    // ----------------------------------------------------
+    // LIVE SERVER DIAGNOSTICS & SYSTEM TRIAGE ENDPOINTS
+    // ----------------------------------------------------
+    if (pathname === '/api/troubleshoot/services' && req.method === 'GET') {
+        return sendJson(res, 200, {
+            services: systemState.services || []
+        });
+    }
+
+    if (pathname === '/api/troubleshoot/fix-service' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.serviceId || !data.action) return sendJson(res, 400, { error: 'Service ID and action required' });
+            const svc = (systemState.services || []).find(s => s.id === data.serviceId || s.name === data.serviceId);
+            if (!svc) return sendJson(res, 404, { error: 'Service not found' });
+
+            if (data.action === 'kill-rogue-pid') {
+                svc.roguePid = null;
+                svc.issues = [];
+                svc.logs.push(`[${new Date().toLocaleTimeString()}] SIGKILL dispatched to PID 4819. Socket 0.0.0.0:${svc.port} freed.`);
+                return sendJson(res, 200, {
+                    success: true,
+                    message: `Terminated rogue process PID 4819. Port ${svc.port} is now unblocked and ready for daemon bind.`,
+                    service: svc
+                });
+            }
+
+            if (data.action === 'patch-config') {
+                svc.issues = [];
+                svc.logs.push(`[${new Date().toLocaleTimeString()}] CONFIG PATCH: Clean upstream '127.0.0.1:8443' restored. Removed untrusted external redirect.`);
+                return sendJson(res, 200, {
+                    success: true,
+                    message: "Patched /etc/aegis_gateway.conf. Malicious redirect removed and upstream routing restored.",
+                    service: svc
+                });
+            }
+
+            if (data.action === 'restart-service') {
+                if (svc.roguePid) {
+                    return sendJson(res, 409, {
+                        success: false,
+                        error: `Cannot start ${svc.name}: Port ${svc.port} is still occupied by rogue PID ${svc.roguePid}! Kill the rogue process first.`
+                    });
+                }
+                if (svc.issues && svc.issues.length > 0) {
+                    return sendJson(res, 409, {
+                        success: false,
+                        error: `Cannot start ${svc.name}: Config errors still pending: ${svc.issues.join('; ')}`
+                    });
+                }
+                svc.status = "ACTIVE";
+                svc.logs.push(`[${new Date().toLocaleTimeString()}] SERVICE BOOT: ${svc.displayName} started on port ${svc.port} (HTTP 200 OK).`);
+                return sendJson(res, 200, {
+                    success: true,
+                    message: `Service '${svc.displayName}' restarted successfully. Status: ACTIVE (200 OK).`,
+                    service: svc
+                });
+            }
+
+            return sendJson(res, 400, { error: 'Unknown action' });
+        });
+        return;
+    }
+
+    // ----------------------------------------------------
+    // ZERO-TRUST CAPABILITY TOKENS ENDPOINTS
+    // ----------------------------------------------------
+    if (pathname === '/api/shield/tokens' && req.method === 'GET') {
+        return sendJson(res, 200, {
+            tokens: systemState.tokens || []
+        });
+    }
+
+    if (pathname === '/api/shield/revoke-token' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data.tokenId) return sendJson(res, 400, { error: 'Token ID is required' });
+            const list = systemState.tokens || [];
+            const token = list.find(t => t.id === data.tokenId);
+            if (!token) return sendJson(res, 404, { error: 'Token not found' });
+            token.status = "REVOKED";
+            token.compromised = false;
+            token.revoked = true;
+            return sendJson(res, 200, {
+                success: true,
+                message: `Zero-Trust Capability ${token.id} (${token.cap}) granted to ${token.subject} has been revoked and quarantined.`,
+                token
+            });
+        });
+        return;
+    }
+
     if (pathname === '/api/files/list' && req.method === 'GET') {
         return sendJson(res, 200, {
             files: systemState.filesystem.files,
@@ -1387,6 +1661,69 @@ Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
 
         // Fictional incident-response commands used by the Aegis training campaign.
         // These return simulated evidence only; they never execute host commands.
+        
+        case 'carve-file':
+        case 'recover-file': {
+            const fileName = arg1 || 'financial_audit.db.corrupt';
+            const hexOrKey = parts.slice(2).join(' ') || (fileName.includes('symbol') ? '0xAE915_KRN_SEC' : '41 45 47 49');
+            const list = systemState.filesystem.corruptedFiles || [];
+            const target = list.find(f => f.name === fileName || f.id === fileName);
+            if (!target) return callback(`Error: Corrupted file '${fileName}' not found in filesystem. Use 'inspect-hex' to list files.`);
+            target.status = "RECOVERED";
+            return callback(`[AEGIS FS CARVER] File '${target.originalName}' carved and restored!\n[PASS] Reconstructed inode header at offset ${target.corruptOffset}\n[PASS] Merkle block verified clean.\nFile available at ${target.recoveredPath}`);
+        }
+
+        case 'inspect-hex': {
+            const list = systemState.filesystem.corruptedFiles || [];
+            if (!arg1) {
+                const summary = list.map(f => `  - ${f.name} [${f.damageType}] (Status: ${f.status})`).join('\n');
+                return callback(`CORRUPTED INODE CANDIDATES FOR CARVING:\n${summary}\n\nUsage: inspect-hex <filename>`);
+            }
+            const target = list.find(f => f.name === arg1 || f.id === arg1);
+            if (!target) return callback(`Error: File '${arg1}' not found in corruption manifest.`);
+            return callback(`HEX DUMP & CORRUPTION ANALYSIS: ${target.name}\nOffset:   ${target.corruptOffset}\nHex:      ${target.rawHex}\nASCII:    ${target.asciiDump}\nDamage:   ${target.damageType}\nExpected: ${target.expectedMagic} (${target.expectedAscii})\nHint:     ${target.hint}`);
+        }
+
+        case 'kill': {
+            const pid = parseInt(arg1 || '0', 10);
+            if (pid === 4819) {
+                const svc = (systemState.services || []).find(s => s.id === 'svc-apigateway');
+                if (svc) {
+                    svc.roguePid = null;
+                    svc.issues = (svc.issues || []).filter(i => !i.includes('hijacked'));
+                }
+                return callback('[SIGKILL] Process PID 4819 (rogue_c2_proxy) terminated.\nPort 8443 freed successfully. Run \'service-restart aegis-apigateway\' to boot the gateway.');
+            }
+            return callback(`[SIGKILL] Signal delivered to PID ${pid}.`);
+        }
+
+        case 'patch-config': {
+            const svc = (systemState.services || []).find(s => s.id === 'svc-edgerouter');
+            if (svc) {
+                svc.issues = [];
+                svc.logs.push(`[${new Date().toLocaleTimeString()}] Patched /etc/aegis_gateway.conf upstream.`);
+            }
+            return callback('[Aegis Config Patch] /etc/aegis_gateway.conf patched successfully.\nRestored upstream to 127.0.0.1:8443. Rogue external C2 proxy removed.');
+        }
+
+        case 'service-restart': {
+            const svcName = arg1 || 'aegis-apigateway';
+            const svc = (systemState.services || []).find(s => s.name === svcName || s.id === svcName || s.name.includes(svcName));
+            if (!svc) return callback(`Error: Service '${svcName}' not recognized.`);
+            if (svc.roguePid) return callback(`Error: Port ${svc.port} is still occupied by rogue PID ${svc.roguePid}! Run 'kill ${svc.roguePid}' first.`);
+            if (svc.issues && svc.issues.length > 0) return callback(`Error: Unresolved issues: ${svc.issues.join('; ')}. Run 'patch-config' first.`);
+            svc.status = "ACTIVE";
+            return callback(`[SYSTEMD/AEGIS_INIT] Service '${svc.displayName}' restarted cleanly.\nStatus: ACTIVE (200 OK) on port ${svc.port}.`);
+        }
+
+        case 'revoke-token': {
+            const tokId = arg1 || 'TOK-KERNEL-ESCALATED';
+            const tok = (systemState.tokens || []).find(t => t.id === tokId);
+            if (!tok) return callback(`Error: Token '${tokId}' not found.`);
+            tok.status = "REVOKED";
+            return callback(`[ZERO-TRUST BROKER] Token ${tok.id} (${tok.cap}) REVOKED.\nPrivilege boundary restored for ${tok.subject}.`);
+        }
+
         case 'capability-audit':
             return callback('ZERO-TRUST CAPABILITY AUDIT\\n[VALID] aegis_ui_compositor -> CAP_FRAMEBUFFER_WRITE\\n[VALID] neural_monitor -> CAP_KERNEL_TELEMETRY\\n[ANOMALY] kernel_sync_worker -> CAP_NET_RAW_SOCKET (unexpected grant)\\nFinding: TOK-KERNEL-ESCALATED exceeds the component minimum-authority profile.');
         case 'verify-containment':

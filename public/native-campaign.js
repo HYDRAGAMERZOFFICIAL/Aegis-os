@@ -857,7 +857,24 @@ function build(){
   render();
 }
 
-document.addEventListener('aegis:desktop-event',function(e){var d=e.detail||{};observe(d.type||'',String(d.value||''));});
+document.addEventListener('aegis:desktop-event',function(e){
+  var d=e.detail||{};
+  var type=d.type||'';
+  var val=String(d.value||'');
+  observe(type,val);
+  if(type==='token-revoked'){
+    observe('click','shield-token-audit');
+    unlockAchievement('zero_trust_elite');
+  }
+  if(type==='file-recovered'){
+    observe('click','files-inspect-suspicious');
+    unlockAchievement('crypt_inode');
+  }
+  if(type==='server-fixed'){
+    observe('click','optimizer-resource-audit');
+    observe('terminal','service-health');
+  }
+});
 document.addEventListener('aegis:ai-prompt',function(e){var p=String(e.detail&&e.detail.prompt||'').toLowerCase();if(/correlat|timeline|root cause/.test(p)){observe('click','ai-correlate-timeline');observe('click','ai-correlate-kernel');observe('click','ai-correlate-traffic');}});
 document.addEventListener('aegis:terminal-command',function(e){
   var c=String(e.detail&&e.detail.command||'').trim().toLowerCase();
@@ -871,7 +888,10 @@ document.addEventListener('aegis:terminal-command',function(e){
     panel.hidden=false;
     render();
   }
-  ['ps','netstat','ss','journalctl','capability-audit','verify-containment','verify-root','quarantine-component','service-health','route-health','route-select'].forEach(function(k){if(c.indexOf(k)>=0)observe('terminal',k);});
+  ['ps','netstat','ss','journalctl','capability-audit','verify-containment','verify-root','quarantine-component','service-health','route-health','route-select','carve-file','recover-file','inspect-hex','kill','patch-config','service-restart','revoke-token'].forEach(function(k){if(c.indexOf(k)>=0)observe('terminal',k);});
+  if(c.indexOf('revoke-token')>=0){unlockAchievement('zero_trust_elite');observe('click','shield-token-audit');}
+  if(c.indexOf('carve-file')>=0||c.indexOf('recover-file')>=0){unlockAchievement('crypt_inode');observe('click','files-inspect-suspicious');}
+  if(c.indexOf('service-restart')>=0||c.indexOf('kill 4819')>=0){observe('terminal','service-health');}
 });
 document.addEventListener('click',function(e){var b=e.target.closest('button,[role="button"],tr,.packet-row,.process-row,.process-card,.event-row,.merkle-block-card,.metric-gauge');if(!b)return;var id=b.id||'',txt=(b.textContent||'').toLowerCase(),app=b.closest('.aegis-window')&&b.closest('.aegis-window').dataset.appId;var map={'btn-run-vuln-scan':'cybersec-vulnerability-scan','btn-scan-guard':'shield-guard-scan','btn-rollback-merkle':'merkle-rollback','btn-corrupt-merkle':'merkle-corrupt','btn-refresh-files':'files-refresh','btn-run-trim-optimize':'optimizer-resource-audit'};if(map[id])observe('click',map[id]);if(app==='neural'){if(b.closest('.process-row,.process-card,.event-row')||/process detail|inspect process/.test(txt))observe('click','neural-process-detail');if(b.closest('.event-row')||/memory|privilege|address space/.test(txt))observe('click','neural-memory-map');}if(app==='cybersec'){if(b.closest('.packet-row')||/packet|sniffer|traffic feed/.test(txt)||id==='tab-packets')observe('click','cybersec-packet-inspect');if(/kernel patch|apply patch|patch signature/.test(txt))observe('click','cybersec-apply-kernel-patch');}if(app==='shield'){if(/token|capability|zero.trust/.test(txt)||id==='tab-zt-tokens')observe('click','shield-token-audit');if(/firewall|edge|rule/.test(txt)||id==='tab-firewall')observe('click','shield-edge-audit');if(/reroute|route 02|resilient route/.test(txt))observe('click','shield-reroute');}if(app==='merkle'&&(/integrity|merkle root|verify|block hash/.test(txt)||b.classList.contains('merkle-block-card')))observe('click','merkle-integrity-scan');if(app==='files'&&b.closest('tr')&&/suspicious|service|stager|sync-cache/.test(b.closest('tr').textContent.toLowerCase()))observe('click','files-inspect-suspicious');if(app==='files'&&b.closest('tr')&&/libaegis_kernel/.test(b.closest('tr').textContent))observe('click','files-inspect-library');if(app==='ai'&&/correlate|analyse|analyze|timeline|root cause/.test(txt)){observe('click','ai-correlate-timeline');observe('click','ai-correlate-kernel');observe('click','ai-correlate-traffic');}if(app==='optimizer'&&(b.closest('.metric-gauge')||/resource|performance|telemetry|refresh/.test(txt)))observe('click','optimizer-resource-audit');},true);
 document.addEventListener('change',function(e){if(e.target.matches('.rule-toggle')){if(e.target.dataset.id==='7')observe('change','shield-rule');if(e.target.dataset.id==='8')observe('change','shield-rate-policy');}});

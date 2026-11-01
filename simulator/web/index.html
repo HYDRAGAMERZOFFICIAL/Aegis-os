@@ -555,7 +555,67 @@
                 </div>
             </div>
 
-            <!-- Tab 2: Tiered Storage Hierarchy & TRIM -->
+            
+            <!-- Tab 2: File Recovery & Hex Carver -->
+            <div class="tab-content hidden" id="tab-file-recovery">
+                <div class="recovery-hero-bar">
+                    <div>
+                        <strong>Cryptographic File Carver & Inode Reconstructor:</strong>
+                        <div class="text-muted" style="font-size: 11px;">Recover ransomware-encrypted assets, repair corrupt file magic headers, and reconstruct damaged Merkle block leaves.</div>
+                    </div>
+                    <button class="btn-action-small" id="btn-refresh-recovery">↻ Refresh Corrupted Manifest</button>
+                </div>
+
+                <div class="recovery-layout">
+                    <div class="recovery-sidebar">
+                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">DAMAGED INODES:</div>
+                        <div class="recovery-item-list" id="recovery-item-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="recovery-workbench" id="recovery-workbench">
+                        <div class="workbench-empty" id="workbench-empty">Select a damaged file from the sidebar to inspect raw hex dump and carve the inode.</div>
+                        <div class="workbench-content hidden" id="workbench-content">
+                            <div class="workbench-header">
+                                <div>
+                                    <h3 id="carve-file-name" style="margin: 0; color: var(--accent);">filename.ext</h3>
+                                    <div id="carve-file-damage" class="damage-badge">HEADER_CORRUPTED</div>
+                                </div>
+                                <span class="status-pill pill-blocked" id="carve-file-status">UNRECOVERED</span>
+                            </div>
+
+                            <div class="hex-viewer-box">
+                                <div class="hex-viewer-title">RAW HEX & ASCII DUMP (OFFSET 0x00000000)</div>
+                                <div class="hex-dump-columns">
+                                    <div class="hex-col-offset" id="hex-dump-offset">00000000:</div>
+                                    <div class="hex-col-bytes" id="hex-dump-bytes">00 00 00 00 32 30 32 36 ...</div>
+                                    <div class="hex-col-ascii" id="hex-dump-ascii">....2026</div>
+                                </div>
+                            </div>
+
+                            <div class="carve-forensic-hint" id="carve-forensic-hint">
+                                <strong>Forensic Clue:</strong> <span>...</span>
+                            </div>
+
+                            <div class="carve-action-row">
+                                <div class="carve-input-group">
+                                    <label for="carve-hex-input">Enter Magic Bytes (Hex) or Decryption Key:</label>
+                                    <input type="text" id="carve-hex-input" class="editor-path-input" placeholder="e.g. 41 45 47 49 or 0xAE915_KRN_SEC">
+                                </div>
+                                <button class="btn-primary" id="btn-execute-carve">
+                                    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    Carve & Restore Inode
+                                </button>
+                            </div>
+
+                            <div class="recovery-result-box hidden" id="recovery-result-box"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Tiered Storage Hierarchy & TRIM -->
             <div class="tab-content hidden" id="tab-tier-storage">
                 <div class="tier-action-bar">
                     <div>
