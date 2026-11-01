@@ -201,6 +201,7 @@
         },
 
         open(appId, title, width = 740, height = 500) {
+            window.dispatchEvent(new CustomEvent('aegis:wm-open', { detail: { app: appId, title } }));
             if (this.windows.has(appId)) {
                 const win = this.windows.get(appId);
                 if (win.classList.contains('minimized')) {
@@ -1109,6 +1110,7 @@
                     if (!cmd) return;
 
                     commandHistory.push(cmd);
+                    document.dispatchEvent(new CustomEvent('aegis:terminal-command', { detail: { command: cmd } }));
                     historyIndex = commandHistory.length;
 
                     const line = document.createElement('div');
