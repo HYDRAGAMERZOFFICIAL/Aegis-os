@@ -1,24 +1,45 @@
 # AegisOS Game Foundation
 
-This directory contains the first modular game layer for the AegisOS cyberwarfare simulation. It is deliberately separate from the existing OS simulator.
+This directory contains the modular campaign layer for the AegisOS cyberwarfare strategy simulation. It is integrated with the existing AegisOS desktop simulator; the original desktop interface remains the primary OS environment.
 
-## Current foundation
+## Current game systems
 - Event bus for decoupled game-system events.
 - Resource economy with validated transactions.
 - Research tree with prerequisite and point checks.
 - Threat lifecycle: spawn, detect, contain and turn-based pressure.
-- Mission framework with objectives, completion and rewards.
-- Versioned, atomic local save files.
-- Three campaign missions: The Silent Intrusion, Ghost in the Kernel, and Blackout Protocol.
+- Three sequential campaign operations with briefings, objectives, tactical decisions, completion rewards and unlock progression.
+- Versioned, atomic local save files, scoped to each player profile.
+- Local player authentication using salted Node.js scrypt password hashes and HttpOnly, SameSite session cookies.
+- Boot sequence, player sign-in/profile creation, session lock and password unlock screens.
 
-All threats, attacks, files and recovery operations are fictional game-state objects. The game layer must never execute malware, scan external networks, or alter host files.
+## Campaign operations
+1. **The Silent Intrusion** — investigate a suspicious process, trace the hostile relay, configure Aegis Shield, quarantine the process, restore a clean checkpoint and submit the incident report.
+2. **Ghost in the Kernel** — inspect a privilege anomaly, revoke the compromised capability, apply a verified training patch, quarantine the process and audit kernel integrity. Unlocked after Operation 1.
+3. **Blackout Protocol** — analyse a simulated traffic flood, apply adaptive ingress limits, reroute critical traffic, restore the API gateway and submit the recovery report. Unlocked after Operation 2.
 
-## Run the smoke tests
+Selected mission steps require the player to choose the correct evidence, policy, patch, checkpoint or recovery option. Incorrect choices do not advance the objective.
+
+## Local profile data
+The local simulator stores player profiles in `~/.aegis-os/accounts.json` and per-player campaign saves in `~/.aegis-os/saves/`. Passwords are never stored in plaintext. Session tokens are held in memory and expire after seven days; restarting the local server requires the player to sign in again.
+
+This is local game authentication, not Steam account authentication or a cloud identity service. Steamworks integration remains a separate release task.
+
+## Run and test
 From the repository root:
 
 ```bash
-node --test game/tests/*.test.js
+npm install
+npm start
 ```
 
-## API integration
-The game engine is CommonJS and has no third-party runtime dependencies. The next integration step is to expose its state/actions through the local simulator API and build a dedicated campaign UI.
+Open `http://127.0.0.1:3000/game`. The first launch prompts you to create a local player profile.
+
+Run all automated tests and syntax checks:
+
+```bash
+npm run check:game
+npm run test:game
+```
+
+## Safety boundary
+All threats, attacks, files, endpoints and recovery operations are fictional game-state objects. The game layer does not execute malware, scan external networks or modify host files.
