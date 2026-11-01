@@ -43,8 +43,13 @@
       $('#top-bar .top-right')?.appendChild(badge);
       badge.addEventListener('click', async () => {
         if (!confirm('Sign out of this AegisOS operator profile?')) return;
-        try { await request('/api/auth/logout', {}); } catch (error) { alert(error.message); return; }
+        try {
+          const campaignState = window.AegisCampaign && window.AegisCampaign.state;
+          if (campaignState) await request('/api/campaign/state', { state: campaignState });
+          await request('/api/auth/logout', {});
+        } catch (error) { alert(error.message); return; }
         user = null;
+        document.dispatchEvent(new Event('aegis:logged-out'));
         root.classList.add('aegis-locked');
         gate.hidden = false;
         showMode('login');
