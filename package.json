@@ -7,7 +7,8 @@
     "start": "node simulator/server.js",
     "sim": "node simulator/server.js",
     "sim:native": ".\\aegis_sim.exe --demo",
-    "test": ".\\aegis_tests.exe"
+    "test": ".\\aegis_tests.exe",
+    "test:game": "node --test game/tests/*.test.js"
   },
   "keywords": [
     "operating-system",
@@ -20,4 +21,3 @@
   "author": "AegisOS Team",
   "license": "Apache-2.0"
 }
-
