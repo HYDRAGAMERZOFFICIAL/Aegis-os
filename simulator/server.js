@@ -22,6 +22,8 @@ const AuthManager = require('../game/auth/AuthManager');
 const aegisDataDir = path.join(os.homedir(), '.aegis-os');
 const authManager = new AuthManager(aegisDataDir);
 const gameSaves = new SaveManager(path.join(aegisDataDir, 'saves'));
+const campaignDataDir = path.join(aegisDataDir, 'campaigns');
+fs.mkdirSync(campaignDataDir, { recursive: true });
 const playerGames = new Map();
 function playerSaveSlot(user) { return 'player_' + user.id; }
 function getPlayerGame(user) {
@@ -214,6 +216,20 @@ const systemState = {
                 type: "vault",
                 content: "[TOP_SECRET_ENCLAVE_DATA]\nCIPHER: AES-256-GCM\nKEY_ID: HSM-SECURE-KEY-882\nPAYLOAD: 88f9104c88e9124018b871cda912bc78"
             }
+            ,{
+                id: "f-8",
+                name: "svc-sync-cache.bin",
+                path: "/var/cache/svc-sync-cache.bin",
+                size: 24576,
+                sizeStr: "24 KB",
+                perm: "rwxrwxr-x",
+                ring: "Ring 3",
+                encrypted: false,
+                hash: "d91f0a7e...",
+                modified: "2026-11-01 02:11",
+                type: "binary",
+                content: "AEGIS TRAINING ARTEFACT\\nservice=sync-worker\\nparent=systemd\\nremote=185.220.101.5:8443\\nretry=15s\\nNOTE: simulated suspicious persistence artefact for campaign investigation only."
+            }
         ],
         snapshots: [
             { id: "chkpt-0001", name: "Clean Boot Baseline", timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(), size: "482 MB", bootable: true },
@@ -303,7 +319,7 @@ const server = http.createServer((req, res) => {
     }
 
     // Static Web File Serving
-    let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : (pathname === '/game' ? 'game.html' : pathname));
+    let filePath = path.join(WEB_DIR, (pathname === '/' || pathname === '/game' || pathname === '/game.html') ? 'index.html' : pathname);
     filePath = path.normalize(filePath);
 
     if (!filePath.toLowerCase().startsWith(WEB_DIR.toLowerCase())) {
@@ -377,6 +393,47 @@ function handleApi(req, res, pathname, url) {
         authManager.logout(req);
         clearSessionCookie(res);
         return sendJson(res, 200, { success: true });
+    }
+
+    // Per-account native desktop campaign progress. The browser is only a cache;
+    // authoritative progress is stored in the authenticated operator's server-side slot.
+    if (pathname === '/api/campaign/state') {
+        const session = authManager.getSession(req);
+        if (!session) return sendJson(res, 401, { error: 'Authenticate to access campaign progress.' });
+        const safeUserId = String(session.user.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        if (!safeUserId) return sendJson(res, 401, { error: 'Invalid operator identity.' });
+        const savePath = path.join(campaignDataDir, safeUserId + '.json');
+        if (req.method === 'GET') {
+            try {
+                const saved = JSON.parse(fs.readFileSync(savePath, 'utf8'));
+                return sendJson(res, 200, { state: saved.state || null, updatedAt: saved.updatedAt || null });
+            } catch (error) {
+                if (error.code === 'ENOENT') return sendJson(res, 200, { state: null, updatedAt: null });
+                return sendJson(res, 500, { error: 'Campaign save could not be read.' });
+            }
+        }
+        if (req.method === 'POST') {
+            parseBody(req, (err, data) => {
+                if (err || !data || !data.state || data.state.v !== 1 || !Number.isInteger(data.state.index) || data.state.index < 0 || data.state.index > 2 || !Array.isArray(data.state.done) || !Array.isArray(data.state.log)) {
+                    return sendJson(res, 400, { error: 'Invalid campaign save payload.' });
+                }
+                const serialized = JSON.stringify({ state: data.state, updatedAt: Date.now() });
+                if (serialized.length > 100000 || data.state.done.length > 3 || data.state.log.length > 200) {
+                    return sendJson(res, 413, { error: 'Campaign save exceeds allowed limits.' });
+                }
+                const tempPath = savePath + '.tmp';
+                try {
+                    fs.writeFileSync(tempPath, serialized, { mode: 0o600 });
+                    fs.renameSync(tempPath, savePath);
+                    return sendJson(res, 200, { success: true, updatedAt: Date.now() });
+                } catch (error) {
+                    try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } catch (_) {}
+                    return sendJson(res, 500, { error: 'Campaign save could not be written.' });
+                }
+            });
+            return;
+        }
+        return sendJson(res, 405, { error: 'Method not allowed.' });
     }
 
     // ----------------------------------------------------
@@ -992,6 +1049,13 @@ function executeShellCommand(cmd, callback) {
   storage [info|opt]      - Inspect tiered storage & run TRIM
   opt [game|work|stream]  - Switch Task Optimizer profile
   checkpoint [list|heal]  - Rollback to cryptographic snapshot
+  capability-audit        - Inspect simulated Zero-Trust grants
+  verify-containment      - Verify simulated process and network isolation
+  verify-root             - Compare Merkle root with trusted checkpoint
+  quarantine-component    - Quarantine a simulated training component
+  service-health          - Inspect simulated service dependency health
+  route-health            - Compare simulated edge route health
+  route-select <edge>     - Select a simulated resilient edge route
   ai <instruction>        - Dispatch autonomous task to Aegis Mind
   theme [cyan|amber|dark] - Switch Adaptive UI visual theme
   clear                   - Clear screen`);
@@ -1297,6 +1361,24 @@ Quarantined Threats: ${systemState.securityStatus.quarantinedFiles.length} files
 [PASS] System Checkpoint Storage State
 [PASS] CFS Scheduler & Task Optimizer Affinity
 Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
+
+        // Fictional incident-response commands used by the Aegis training campaign.
+        // These return simulated evidence only; they never execute host commands.
+        case 'capability-audit':
+            return callback('ZERO-TRUST CAPABILITY AUDIT\\n[VALID] aegis_ui_compositor -> CAP_FRAMEBUFFER_WRITE\\n[VALID] neural_monitor -> CAP_KERNEL_TELEMETRY\\n[ANOMALY] kernel_sync_worker -> CAP_NET_RAW_SOCKET (unexpected grant)\\nFinding: TOK-KERNEL-ESCALATED exceeds the component minimum-authority profile.');
+        case 'verify-containment':
+            return callback('CONTAINMENT VERIFICATION\\n[PASS] suspicious worker isolated in the simulated process table\\n[PASS] hostile outbound session no longer established\\n[PASS] trusted desktop services remain available\\nResult: containment verified in the training environment.');
+        case 'verify-root':
+            return callback('MERKLE ROOT VERIFICATION\\n[PASS] checkpoint manifest readable\\n[PASS] affected branch compared against trusted snapshot\\nRoot: ' + (systemState.filesystem.merkleRoot || 'AEGIS-ROOT-VERIFIED') + '\\nResult: simulated integrity verification complete.');
+        case 'quarantine-component':
+            return callback('COMPONENT QUARANTINE\\n[PASS] kernel_sync_worker moved to isolated training namespace\\n[PASS] privileged capability removed from active session\\n[PASS] audit record sealed\\nNo host process was affected.');
+        case 'service-health':
+            return callback('SERVICE HEALTH MATRIX\\n[HEALTHY] identity broker 12ms\\n[HEALTHY] DNS resolver 18ms\\n[DEGRADED] public API gateway queue depth elevated\\n[HEALTHY] priority service edge-02 latency 24ms\\nFinding: preserve priority service path while mitigating ingress.');
+        case 'route-health':
+            return callback('EDGE ROUTE HEALTH\\nedge-route-01: DEGRADED / queue saturation 91%\\nedge-route-02: HEALTHY / queue 28% / priority traffic enabled\\nedge-route-03: HEALTHY / capacity reserve 12%\\nRecommendation: edge-route-02 for critical service traffic.');
+        case 'route-select':
+            if (arg1 !== 'edge-route-02') return callback('Route rejected: select a route with passing health and priority capacity.');
+            return callback('ROUTE CHANGE ACCEPTED\\nCritical service path moved to edge-route-02. Health check passed; priority traffic preserved.');
 
         case 'neural':
             return callback(`Neural Activity Telemetry:
