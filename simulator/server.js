@@ -12,6 +12,7 @@
  */
 
 const http = require('http');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { spawn, exec } = require('child_process');
@@ -22,6 +23,8 @@ const AuthManager = require('../game/auth/AuthManager');
 const isVercel = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
 const aegisDataDir = isVercel ? path.join(os.tmpdir(), '.aegis-os') : path.join(os.homedir(), '.aegis-os');
 const authManager = new AuthManager(aegisDataDir);
+const AegisDB = require('./db/AegisDB');
+const aegisDB = new AegisDB(path.join(aegisDataDir, 'database'));
 const gameSaves = new SaveManager(path.join(aegisDataDir, 'saves'));
 const campaignDataDir = path.join(aegisDataDir, 'campaigns');
 fs.mkdirSync(campaignDataDir, { recursive: true });
@@ -397,6 +400,28 @@ const systemState = {
     }
 };
 
+const staticAssetCache = new Map();
+
+function getCachedAsset(filePath) {
+    try {
+        const stats = fs.statSync(filePath);
+        if (!stats.isFile()) return null;
+        const cached = staticAssetCache.get(filePath);
+        if (cached && cached.mtimeMs === stats.mtimeMs) {
+            return cached;
+        }
+        const ext = path.extname(filePath).toLowerCase();
+        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+        const content = fs.readFileSync(filePath);
+        const etag = 'W/"' + crypto.createHash('md5').update(content).digest('hex') + '"';
+        const record = { content, contentType, etag, mtimeMs: stats.mtimeMs };
+        staticAssetCache.set(filePath, record);
+        return record;
+    } catch (_) {
+        return null;
+    }
+}
+
 const MIME_TYPES = {
     '.html': 'text/html; charset=UTF-8',
     '.css': 'text/css; charset=UTF-8',
@@ -443,7 +468,7 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Static Web File Serving
+    // Static Web File Serving with In-Memory Cache & ETag acceleration
     let filePath = path.join(WEB_DIR, (pathname === '/' || pathname === '/game' || pathname === '/game.html') ? 'index.html' : pathname);
     filePath = path.normalize(filePath);
 
@@ -452,28 +477,33 @@ const server = http.createServer((req, res) => {
         return res.end('Access Denied');
     }
 
-    fs.stat(filePath, (err, stats) => {
-        if (err || !stats.isFile()) {
-            if (!path.extname(pathname)) {
-                filePath = path.join(WEB_DIR, 'index.html');
-            } else {
-                res.writeHead(404, { 'Content-Type': 'text/plain' });
-                return res.end('404 Not Found');
-            }
-        }
+    let asset = getCachedAsset(filePath);
+    if (!asset && !path.extname(pathname)) {
+        filePath = path.join(WEB_DIR, 'index.html');
+        asset = getCachedAsset(filePath);
+    }
 
-        const ext = path.extname(filePath).toLowerCase();
-        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    if (!asset) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        return res.end('404 Not Found');
+    }
 
-        fs.readFile(filePath, (readErr, content) => {
-            if (readErr) {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                return res.end('Internal Server Error');
-            }
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content);
+    const ifNoneMatch = req.headers['if-none-match'];
+    if (ifNoneMatch && ifNoneMatch === asset.etag) {
+        res.writeHead(304, {
+            'ETag': asset.etag,
+            'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400'
         });
+        return res.end();
+    }
+
+    res.writeHead(200, {
+        'Content-Type': asset.contentType,
+        'Content-Length': asset.content.length,
+        'ETag': asset.etag,
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400'
     });
+    res.end(asset.content);
 });
 
 // API Dispatcher
@@ -547,11 +577,11 @@ function handleApi(req, res, pathname, url) {
         }
         if (req.method === 'POST') {
             parseBody(req, (err, data) => {
-                if (err || !data || !data.state || data.state.v !== 1 || !Number.isInteger(data.state.index) || data.state.index < 0 || data.state.index > 2 || !Array.isArray(data.state.done) || !Array.isArray(data.state.log)) {
+                if (err || !data || !data.state || data.state.v !== 1 || !Number.isInteger(data.state.index) || data.state.index < 0 || data.state.index > 10 || !Array.isArray(data.state.done) || !Array.isArray(data.state.log)) {
                     return sendJson(res, 400, { error: 'Invalid campaign save payload.' });
                 }
                 const serialized = JSON.stringify({ state: data.state, updatedAt: Date.now() });
-                if (serialized.length > 100000 || data.state.done.length > 3 || data.state.log.length > 200) {
+                if (serialized.length > 100000 || data.state.done.length > 12 || data.state.log.length > 200) {
                     return sendJson(res, 413, { error: 'Campaign save exceeds allowed limits.' });
                 }
                 const tempPath = savePath + '.tmp';
@@ -568,6 +598,87 @@ function handleApi(req, res, pathname, url) {
             return;
         }
         return sendJson(res, 405, { error: 'Method not allowed.' });
+    }
+
+    
+    // ----------------------------------------------------
+    // AEGIS EMBEDDED SYSTEM DATABASE (AegisDB) ENDPOINTS
+    // ----------------------------------------------------
+    if (pathname === '/api/db/tables' && req.method === 'GET') {
+        const stats = aegisDB.getStats();
+        return sendJson(res, 200, {
+            success: true,
+            status: 'ONLINE',
+            totalTables: stats.totalTables,
+            totalRecords: stats.totalRecords,
+            tables: Array.from(aegisDB.tables.keys()).map(name => ({
+                name,
+                records: aegisDB.tables.get(name).size,
+                status: 'SYNCHRONIZED',
+                cached: true
+            })),
+            cache: stats.cache
+        });
+    }
+
+    if (pathname === '/api/db/table' && req.method === 'GET') {
+        const tableName = (url.searchParams.get('name') || '').toLowerCase();
+        if (!tableName) return sendJson(res, 400, { error: 'Table name parameter (?name=...) required.' });
+        const result = aegisDB.getTable(tableName);
+        if (!result) return sendJson(res, 404, { error: `Table '${tableName}' not found in AegisDB.` });
+        return sendJson(res, 200, result);
+    }
+
+    if (pathname === '/api/db/query' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data || !data.query) return sendJson(res, 400, { error: 'Query string required.' });
+            const result = aegisDB.executeQuery(data.query);
+            return sendJson(res, 200, result);
+        });
+        return;
+    }
+
+    if (pathname === '/api/db/stats' && req.method === 'GET') {
+        return sendJson(res, 200, aegisDB.getStats());
+    }
+
+    if (pathname === '/api/db/cache/flush' && req.method === 'POST') {
+        const result = aegisDB.executeQuery('FLUSH CACHE');
+        return sendJson(res, 200, result);
+    }
+
+    if (pathname === '/api/db/side-quest/claim' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data || !data.questId) return sendJson(res, 400, { error: 'Quest ID required.' });
+            const session = authManager.getSession(req);
+            const quest = aegisDB.findById('user_side_quests', data.questId) || 
+                          aegisDB.findBy('user_side_quests', 'questId', data.questId)[0];
+            if (!quest) return sendJson(res, 404, { error: 'Side quest not found.' });
+            
+            const updated = aegisDB.update('user_side_quests', quest.id, {
+                status: 'COMPLETED',
+                progress: '1/1 Objective Accomplished',
+                completedAt: Date.now()
+            });
+
+            if (session && session.user) {
+                const profiles = aegisDB.findBy('user_profiles', 'userId', session.user.id);
+                if (profiles.length > 0) {
+                    aegisDB.update('user_profiles', profiles[0].id, {
+                        xp: (profiles[0].xp || 0) + (quest.rewardXp || 350),
+                        credits: (profiles[0].credits || 0) + (quest.rewardCredits || 250),
+                        sideQuestsDone: (profiles[0].sideQuestsDone || 0) + 1
+                    });
+                }
+                aegisDB.logAudit(session.user.id, 'SIDE_QUEST_COMPLETED', quest.questTitle, 'CLAIMED', 'INFO');
+            }
+            return sendJson(res, 200, {
+                success: true,
+                message: `Side quest '${quest.questTitle}' completed! +${quest.rewardXp} XP, +${quest.rewardCredits} Credits awarded.`,
+                quest: updated
+            });
+        });
+        return;
     }
 
     // ----------------------------------------------------
@@ -1798,6 +1909,35 @@ Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
   Active Procs:    ${systemState.telemetry.activeProcesses}
   Network Rate:    ${systemState.telemetry.networkKbps} KB/s
   Events Logged:   ${systemState.telemetry.totalEventsLogged}`);
+
+                case 'db': {
+            const sub = (arg1 || 'tables').toLowerCase();
+            if (sub === 'tables') {
+                const stats = aegisDB.getStats();
+                const tableRows = Array.from(aegisDB.tables.keys()).map(t => '  [+] ' + t.padEnd(20) + ' | Records: ' + String(aegisDB.tables.get(t).size).padStart(4) + ' | Status: HEALTHY [IN-RAM]').join('\n');
+                return callback('AegisDB v2.4 In-Memory Hybrid Database Engine\nTotal Tables: ' + stats.totalTables + ' | Total Records: ' + stats.totalRecords + ' | Cache Hit Ratio: ' + stats.cache.hitRatioPercent + '%\n---------------------------------------------------------------\n' + tableRows + '\n\nUse \'db query <sql>\' or \'db stats\' to inspect.');
+            }
+            if (sub === 'stats') {
+                const stats = aegisDB.getStats();
+                return callback('AegisDB Performance Telemetry:\nStatus: ' + stats.status + '\nEngine: ' + stats.engine + '\nTotal In-Memory Records: ' + stats.totalRecords + '\nCache Hits: ' + stats.cache.hits + ' | Misses: ' + stats.cache.misses + '\nCache Hit Ratio: ' + stats.cache.hitRatioPercent + '%\nAverage Query Latency: ' + stats.cache.avgQueryLatencyMs + ' ms [HIGH-SPEED RAM]');
+            }
+            if (sub === 'query') {
+                const q = parts.slice(2).join(' ');
+                if (!q) return callback('Usage: db query SELECT * FROM <table> [WHERE <col> = \'<val>\']');
+                const res = aegisDB.executeQuery(q);
+                if (!res.success) return callback('AegisDB Query Error: ' + res.error);
+                if (res.rows) {
+                    const sample = res.rows.slice(0, 5).map(r => JSON.stringify(r)).join('\n');
+                    return callback('[AegisDB Execution Complete: ' + res.count + ' rows in ' + res.latencyMs + 'ms (CACHED)]\n' + sample + (res.count > 5 ? ('\n...and ' + (res.count - 5) + ' more records.') : ''));
+                }
+                return callback(JSON.stringify(res, null, 2));
+            }
+            if (sub === 'flush') {
+                aegisDB.executeQuery('FLUSH CACHE');
+                return callback('AegisDB in-memory cache flushed and indexed.');
+            }
+            return callback('Unknown db command. Valid: db tables, db stats, db query <sql>, db flush');
+        }
 
         case 'achievements':
             return callback('AEGIS OPERATOR ACHIEVEMENTS & MEDALS:\n' +

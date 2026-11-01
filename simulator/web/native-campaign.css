@@ -342,3 +342,90 @@
   color: #fff;
   box-shadow: 0 0 16px rgba(255, 71, 87, 0.4);
 }
+
+
+.aegis-sidequest-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.aegis-sidequest-card {
+  background: rgba(14, 24, 38, 0.85);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 6px;
+  padding: 12px 14px;
+  transition: all 0.2s ease;
+}
+.aegis-sidequest-card:hover {
+  border-color: #00f3ff;
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.15);
+}
+.aegis-sidequest-card.is-completed {
+  border-color: rgba(0, 255, 128, 0.35);
+  background: rgba(8, 20, 16, 0.85);
+}
+.sq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.sq-cat-badge {
+  font-size: 9px;
+  font-family: var(--font-mono, monospace);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.sq-cat-forensics { background: rgba(0, 243, 255, 0.15); color: #00f3ff; border: 1px solid rgba(0, 243, 255, 0.3); }
+.sq-cat-zero_trust { background: rgba(157, 0, 255, 0.15); color: #bf55ec; border: 1px solid rgba(157, 0, 255, 0.3); }
+.sq-cat-network { background: rgba(0, 180, 255, 0.15); color: #00b4ff; border: 1px solid rgba(0, 180, 255, 0.3); }
+.sq-cat-audit { background: rgba(255, 165, 0, 0.15); color: #ffa500; border: 1px solid rgba(255, 165, 0, 0.3); }
+.sq-cat-kernel { background: rgba(255, 50, 80, 0.15); color: #ff3250; border: 1px solid rgba(255, 50, 80, 0.3); }
+.sq-diff-badge {
+  font-size: 9px;
+  font-family: var(--font-mono, monospace);
+  color: var(--text-muted);
+}
+.aegis-sidequest-card h4 {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: var(--text-main);
+}
+.aegis-sidequest-card p {
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.sq-hint {
+  display: block;
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  color: #00f3ff;
+  margin-bottom: 8px;
+}
+.sq-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sq-reward-pill {
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  color: #00ff80;
+  background: rgba(0, 255, 128, 0.08);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.btn-claim {
+  color: #00f3ff;
+  border-color: #00f3ff;
+}
+.btn-claimed {
+  color: #00ff80;
+  border-color: #00ff80;
+  opacity: 0.7;
+}
