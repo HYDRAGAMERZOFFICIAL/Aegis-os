@@ -18,6 +18,7 @@ const { spawn, exec } = require('child_process');
 
 const PORT = process.env.PORT || 3000;
 const WEB_DIR = path.join(__dirname, 'web');
+const GAME_DIR = path.resolve(__dirname, '..', 'game');
 const SIM_EXE = path.join(__dirname, '..', 'aegis_sim.exe');
 
 // ==========================================
@@ -288,11 +289,19 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Static Web File Serving
-    let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : pathname);
-    filePath = path.normalize(filePath);
+    // Static Web File Serving. The game is mounted separately so the
+    // simulator can load the root-level /game directory without exposing
+    // arbitrary files outside either approved asset directory.
+    const isGameAsset = pathname === '/game' || pathname.startsWith('/game/');
+    const assetRoot = isGameAsset ? GAME_DIR : WEB_DIR;
+    const relativeAssetPath = isGameAsset
+        ? pathname.replace(/^\\/game\\/?/, '')
+        : (pathname === '/' ? 'index.html' : pathname.replace(/^\\//, ''));
+    let filePath = path.resolve(assetRoot, relativeAssetPath || 'index.html');
+    const safeRoot = assetRoot.toLowerCase() + path.sep;
 
-    if (!filePath.toLowerCase().startsWith(WEB_DIR.toLowerCase())) {
+    if (filePath.toLowerCase() !== assetRoot.toLowerCase() &&
+        !filePath.toLowerCase().startsWith(safeRoot)) {
         res.writeHead(403, { 'Content-Type': 'text/plain' });
         return res.end('Access Denied');
     }
