@@ -3641,3 +3641,181 @@ body.system-breached-critical {
     margin: 0;
     overflow-x: auto;
 }
+
+/* ====================================================
+   17. AEGIS DIALOG POPUP & CLUE CARD INSPECTOR MODAL
+   ==================================================== */
+.aegis-dialog-box {
+    width: 440px;
+    max-width: 90vw;
+    background: rgba(10, 18, 30, 0.98);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 25px rgba(0, 243, 255, 0.25);
+    border-radius: 8px;
+    overflow: hidden;
+    animation: zoomIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+.aegis-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(14, 26, 42, 0.85);
+    border-bottom: 1px solid var(--border-glass);
+}
+.aegis-dialog-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.aegis-dialog-icon {
+    font-size: 16px;
+}
+.aegis-dialog-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: var(--font-mono, monospace);
+    letter-spacing: 0.5px;
+}
+.aegis-dialog-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+}
+.aegis-dialog-close:hover { color: var(--accent); }
+.aegis-dialog-body {
+    padding: 18px 16px;
+    font-size: 13px;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+.aegis-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(8, 14, 24, 0.9);
+    border-top: 1px solid var(--border-glass);
+}
+
+/* Clue Card Detail Box */
+.aegis-clue-detail-box {
+    width: 540px;
+    max-width: 92vw;
+    background: rgba(8, 15, 26, 0.98);
+    border: 1px solid #00f3ff;
+    box-shadow: 0 0 35px rgba(0, 243, 255, 0.25);
+    border-radius: 8px;
+    overflow: hidden;
+    animation: zoomIn 0.2s ease;
+}
+.aegis-clue-detail-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+.clue-modal-badge-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.clue-modal-type-badge {
+    font-size: 10px;
+    font-family: var(--font-mono, monospace);
+    padding: 2px 8px;
+    background: rgba(0, 243, 255, 0.15);
+    border: 1px solid rgba(0, 243, 255, 0.35);
+    color: #00f3ff;
+    border-radius: 3px;
+    font-weight: 700;
+}
+.clue-modal-status-badge {
+    font-size: 10px;
+    font-family: var(--font-mono, monospace);
+    color: #00ff80;
+    font-weight: 600;
+}
+.clue-modal-heading {
+    margin: 0;
+    font-size: 15px;
+    color: #fff;
+}
+.clue-modal-ioc-box, .clue-modal-snippet-box, .clue-modal-guide-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.clue-modal-ioc-box label, .clue-modal-snippet-box label, .clue-modal-guide-box label {
+    font-size: 9px;
+    font-family: var(--font-mono, monospace);
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+.clue-modal-ioc-box code {
+    background: rgba(0, 243, 255, 0.08);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    color: #00f3ff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+}
+.clue-modal-snippet-box pre {
+    background: rgba(4, 8, 14, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #00ff80;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    margin: 0;
+    overflow-x: auto;
+}
+.clue-modal-guide-box p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #c9d6e4;
+    background: rgba(14, 24, 38, 0.6);
+    padding: 8px 10px;
+    border-radius: 4px;
+    border-left: 3px solid #00f3ff;
+}
+
+/* Coming Soon Banner Placeholder */
+.coming-soon-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px 20px;
+    background: rgba(10, 18, 30, 0.6);
+    border: 1px dashed rgba(0, 243, 255, 0.3);
+    border-radius: 8px;
+    margin: 16px;
+    color: var(--text-muted);
+}
+.coming-soon-banner .cs-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+.coming-soon-banner h4 {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: #00f3ff;
+    letter-spacing: 0.5px;
+    font-family: var(--font-mono, monospace);
+}
+.coming-soon-banner p {
+    margin: 0;
+    font-size: 11px;
+    max-width: 440px;
+    line-height: 1.4;
+}
