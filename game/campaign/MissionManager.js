@@ -10,7 +10,7 @@ class MissionManager {
   }
   recordAction(action) {
     if (!this.current || this.current.status !== 'active') return { ok: false, reason: 'No active mission.' };
-    const accepted = this.current.objectives.filter(item => !item.completed && item.action === action);
+    const nextObjective = this.current.objectives.find(item => !item.completed); const accepted = nextObjective && nextObjective.action === action ? [nextObjective] : [];
     if (!accepted.length) return { ok: false, reason: 'That action does not advance an outstanding objective.' };
     accepted.forEach(item => { item.completed = true; this.events.emit('mission:objective', { missionId: this.current.id, objectiveId: item.id }); });
     this.current.actions.push({ action, at: Date.now() });
