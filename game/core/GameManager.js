@@ -17,7 +17,7 @@ class GameManager {
     this.startedAt = Date.now();
     this.difficulty = options.difficulty || 'normal';
   }
-  startMission(id = 'mission-01') { return this.missions.start(id); }
+  startMission(id = 'mission-01') { const mission = this.missions.start(id); if (!this.threats.list().some(item => item.status === 'active')) this.threats.spawn('ransomware-stager'); return mission; }
   performAction(action, payload = {}) {
     const handlers = {
       inspect_process: () => { const threat = this.threats.list().find(item => item.status === 'active'); if (threat) this.threats.detect(threat.instanceId); return { ok: true, detail: 'Process telemetry inspected.', threatId: threat && threat.instanceId }; },
