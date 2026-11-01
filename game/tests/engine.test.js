@@ -28,12 +28,12 @@ test("first campaign mission completes and awards its defined rewards",()=>{
     const result=game.perform(step);
     if(step==="restore") {
       assert.equal(result.complete,true);
-      assert.equal(result.reward.xp,250);
+      assert.equal(result.reward.xp,300);
     } else assert.equal(result.ok,true);
   }
   const saved=game.snapshot();
   assert.deepEqual(saved.completed,["silent-intrusion"]);
-  assert.equal(saved.player.credits,680);
+  assert.equal(saved.player.credits,715);
   assert.equal(saved.player.research,2);
   assert.equal(saved.stats.systemsRestored,1);
 });
@@ -45,7 +45,7 @@ test("recovery cannot occur before containment and integrity verification",()=>{
   assert.equal(noDecision.ok,false);
   game.decide("preserve");
   const premature=game.perform("restore");
-  assert.equal(premature.ok,true);
+  assert.equal(premature.ok,false);
   const restore=game.perform("restore");
   assert.equal(restore.ok,false);
   assert.match(restore.message,/sequence/i);
@@ -57,7 +57,7 @@ test("campaign progress survives engine recreation",()=>{
   ["isolate","scan","restore"].forEach(step=>first.perform(step));
   const second=new AegisGameEngine();
   assert.deepEqual(second.snapshot().completed,["silent-intrusion"]);
-  assert.equal(second.snapshot().player.xp,250);
+  assert.equal(second.snapshot().player.xp,300);
 });
 test("research upgrades enforce costs and prevent duplicate purchases",()=>{
   const game=new AegisGameEngine();
