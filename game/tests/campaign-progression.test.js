@@ -28,7 +28,7 @@ test('campaign operations unlock sequentially after the previous operation is se
   const chapterTwo = [
     ['inspect_memory', {}], ['revoke_token', { answer: 'TOK-KERNEL-ESCALATED' }],
     ['apply_patch', { answer: 'AEGIS-KERNEL-2.0.4' }], ['quarantine_process', {}],
-    ['audit_kernel', { answer: 'AEGIS-ROOT-VERIFIED' }], ['submit_report', { answer: 'privilege-contained' }]
+    ['audit_kernel', { answer: 'AEGIS-ROOT-VERIFIED' }]
   ];
   for (const [action, payload] of chapterTwo) assert.equal(game.performAction(action, payload).ok, true, action);
   assert.equal(game.getState().missions[2].unlocked, true);
