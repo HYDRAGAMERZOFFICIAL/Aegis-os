@@ -1,0 +1,45 @@
+{
+  "id": "mission-02",
+  "title": "Ghost in the Kernel",
+  "chapter": 2,
+  "difficulty": "intermediate",
+  "description": "A privileged process is behaving outside its assigned capability boundary. Find the escalation path, revoke the compromised authority and restore kernel trust.",
+  "briefing": "Aegis telemetry has flagged a process requesting memory access beyond its assigned capability set. The process is still contained within the fictional training environment. Validate the evidence before applying a kernel patch.",
+  "objectives": [
+    {
+      "id": "obj-memory",
+      "title": "Inspect the memory anomaly",
+      "description": "Review the process memory map and identify the suspicious privilege transition.",
+      "action": "inspect_memory"
+    },
+    {
+      "id": "obj-token",
+      "title": "Revoke the compromised token",
+      "description": "Invalidate the process capability token and prevent further privileged requests.",
+      "action": "revoke_token"
+    },
+    {
+      "id": "obj-patch",
+      "title": "Apply the kernel security patch",
+      "description": "Deploy the verified training patch to close the simulated privilege boundary weakness.",
+      "action": "apply_patch"
+    },
+    {
+      "id": "obj-quarantine",
+      "title": "Isolate the compromised process",
+      "description": "Move the detected process into the simulated quarantine.",
+      "action": "quarantine_process"
+    },
+    {
+      "id": "obj-audit",
+      "title": "Audit kernel integrity",
+      "description": "Verify the kernel trust state and record the incident evidence.",
+      "action": "audit_kernel"
+    }
+  ],
+  "rewards": {
+    "credits": 350,
+    "research": 75,
+    "reputation": 8
+  }
+}

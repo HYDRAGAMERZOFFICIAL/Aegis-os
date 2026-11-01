@@ -1,0 +1,45 @@
+{
+  "id": "mission-03",
+  "title": "Blackout Protocol",
+  "chapter": 3,
+  "difficulty": "advanced",
+  "description": "A coordinated traffic flood is disrupting the Aegis network edge. Stabilise the service, preserve critical bandwidth and bring the network back online.",
+  "briefing": "Multiple simulated service endpoints are receiving an abnormal volume of traffic. The infrastructure is under pressure. Analyse the traffic pattern, apply defensive rate controls and restore critical service availability.",
+  "objectives": [
+    {
+      "id": "obj-traffic",
+      "title": "Analyse abnormal traffic",
+      "description": "Inspect network telemetry and identify the simulated traffic flood.",
+      "action": "analyze_traffic"
+    },
+    {
+      "id": "obj-limit",
+      "title": "Apply traffic rate limits",
+      "description": "Contain the flood by enforcing a defensive ingress policy.",
+      "action": "rate_limit"
+    },
+    {
+      "id": "obj-reroute",
+      "title": "Reroute critical traffic",
+      "description": "Prioritise trusted service traffic through the resilient route.",
+      "action": "reroute_traffic"
+    },
+    {
+      "id": "obj-service",
+      "title": "Restore service availability",
+      "description": "Bring the affected simulated service back to a healthy state.",
+      "action": "restore_service"
+    },
+    {
+      "id": "obj-report",
+      "title": "Submit the recovery report",
+      "description": "Document the mitigation steps and close the incident.",
+      "action": "submit_report"
+    }
+  ],
+  "rewards": {
+    "credits": 500,
+    "research": 90,
+    "reputation": 12
+  }
+}

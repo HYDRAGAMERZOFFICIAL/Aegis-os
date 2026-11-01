@@ -1,0 +1,51 @@
+{
+  "id": "mission-01",
+  "title": "The Silent Intrusion",
+  "chapter": 1,
+  "difficulty": "introductory",
+  "description": "A suspicious process has appeared inside the Aegis research network. Investigate the incident, contain the intrusion and restore system integrity.",
+  "briefing": "Aegis Command has detected an unexplained process and unusual outbound traffic. You are the on-call systems operator. All actions in this mission take place inside the fictional AegisOS simulation.",
+  "objectives": [
+    {
+      "id": "obj-inspect",
+      "title": "Inspect the suspicious process",
+      "description": "Open Neural Monitor and inspect the unknown process.",
+      "action": "inspect_process"
+    },
+    {
+      "id": "obj-trace",
+      "title": "Trace the attack origin",
+      "description": "Correlate network events and reconstruct the intrusion path.",
+      "action": "trace_origin"
+    },
+    {
+      "id": "obj-firewall",
+      "title": "Update Aegis Shield",
+      "description": "Apply a defensive firewall policy to block the suspicious ingress.",
+      "action": "configure_firewall"
+    },
+    {
+      "id": "obj-quarantine",
+      "title": "Quarantine the process",
+      "description": "Isolate the detected process from the simulated system.",
+      "action": "quarantine_process"
+    },
+    {
+      "id": "obj-recovery",
+      "title": "Restore affected files",
+      "description": "Restore the clean simulated checkpoint.",
+      "action": "restore_files"
+    },
+    {
+      "id": "obj-report",
+      "title": "Submit the incident report",
+      "description": "Send the final report to Aegis Command.",
+      "action": "submit_report"
+    }
+  ],
+  "rewards": {
+    "credits": 250,
+    "research": 50,
+    "reputation": 5
+  }
+}

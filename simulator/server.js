@@ -15,6 +15,29 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { spawn, exec } = require('child_process');
+const os = require('os');
+const GameManager = require('../game/core/GameManager');
+const SaveManager = require('../game/saves/SaveManager');
+const AuthManager = require('../game/auth/AuthManager');
+const aegisDataDir = path.join(os.homedir(), '.aegis-os');
+const authManager = new AuthManager(aegisDataDir);
+const gameSaves = new SaveManager(path.join(aegisDataDir, 'saves'));
+const playerGames = new Map();
+function playerSaveSlot(user) { return 'player_' + user.id; }
+function getPlayerGame(user) {
+    if (!playerGames.has(user.id)) {
+        const instance = new GameManager();
+        try { instance.restore(gameSaves.load(playerSaveSlot(user)).game); } catch (error) { if (error.code !== 'ENOENT') console.warn('Player save not restored:', error.message); }
+        playerGames.set(user.id, instance);
+    }
+    return playerGames.get(user.id);
+}
+function setSessionCookie(res, token) {
+    res.setHeader('Set-Cookie', 'aegis_session=' + token + '; HttpOnly; SameSite=Strict; Path=/; Max-Age=604800');
+}
+function clearSessionCookie(res) {
+    res.setHeader('Set-Cookie', 'aegis_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');
+}
 
 const PORT = process.env.PORT || 3000;
 const WEB_DIR = path.join(__dirname, 'web');
@@ -246,12 +269,7 @@ const MIME_TYPES = {
 };
 
 function sendJson(res, statusCode, data) {
-    res.writeHead(statusCode, {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-    });
+    res.writeHead(statusCode, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(data));
 }
 
@@ -271,11 +289,7 @@ function parseBody(req, callback) {
 // Request Server
 const server = http.createServer((req, res) => {
     if (req.method === 'OPTIONS') {
-        res.writeHead(204, {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        });
+        res.writeHead(204);
         return res.end();
     }
 
@@ -289,7 +303,7 @@ const server = http.createServer((req, res) => {
     }
 
     // Static Web File Serving
-    let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : pathname);
+    let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : (pathname === '/game' ? 'game.html' : pathname));
     filePath = path.normalize(filePath);
 
     if (!filePath.toLowerCase().startsWith(WEB_DIR.toLowerCase())) {
@@ -323,6 +337,107 @@ const server = http.createServer((req, res) => {
 
 // API Dispatcher
 function handleApi(req, res, pathname, url) {
+    // Player identity endpoints are local to this AegisOS instance.
+    if (pathname === '/api/auth/me' && req.method === 'GET') {
+        const session = authManager.getSession(req);
+        return sendJson(res, 200, { authenticated: !!session, user: session ? session.user : null, needsProfile: !authManager.hasAccounts() });
+    }
+    if (pathname === '/api/auth/register' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err) return sendJson(res, 400, { error: 'Invalid JSON body.' });
+            try {
+                const result = authManager.createAccount(data || {}, req.socket.remoteAddress);
+                setSessionCookie(res, result.token);
+                return sendJson(res, 201, { success: true, user: result.user });
+            } catch (error) { return sendJson(res, 400, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/auth/login' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err) return sendJson(res, 400, { error: 'Invalid JSON body.' });
+            try {
+                const result = authManager.login(data || {}, req.socket.remoteAddress);
+                setSessionCookie(res, result.token);
+                return sendJson(res, 200, { success: true, user: result.user });
+            } catch (error) { return sendJson(res, 401, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/auth/unlock' && req.method === 'POST') {
+        const session = authManager.getSession(req);
+        if (!session) return sendJson(res, 401, { error: 'Your player session has expired. Sign in again.' });
+        parseBody(req, (err, data) => {
+            if (err || !authManager.unlock(session.user.id, data && data.password, req.socket.remoteAddress)) return sendJson(res, 401, { error: 'Access phrase is incorrect.' });
+            return sendJson(res, 200, { success: true });
+        });
+        return;
+    }
+    if (pathname === '/api/auth/logout' && req.method === 'POST') {
+        authManager.logout(req);
+        clearSessionCookie(res);
+        return sendJson(res, 200, { success: true });
+    }
+
+    // ----------------------------------------------------
+    // AEGIS GAME API - isolated fictional game state only
+    // Every campaign request is bound to an authenticated local player.
+    // ----------------------------------------------------
+    if (pathname.startsWith('/api/game/')) {
+        const session = authManager.getSession(req);
+        if (!session) return sendJson(res, 401, { error: 'Authenticate to access the campaign.' });
+        const gameManager = getPlayerGame(session.user);
+    if (pathname === '/api/game/state' && req.method === 'GET') {
+        return sendJson(res, 200, gameManager.getState());
+    }
+    if (pathname === '/api/game/missions' && req.method === 'GET') {
+        return sendJson(res, 200, { missions: gameManager.missions.list() });
+    }
+    if (pathname === '/api/game/start' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err) return sendJson(res, 400, { error: 'Invalid JSON body.' });
+            try { const mission = gameManager.startMission((data && data.missionId) || 'mission-01'); gameSaves.save(gameManager, playerSaveSlot(session.user)); return sendJson(res, 200, { success: true, mission, state: gameManager.getState() }); }
+            catch (error) { return sendJson(res, 400, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/game/action' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data || typeof data.action !== 'string') return sendJson(res, 400, { error: 'A valid action is required.' });
+            try { const result = gameManager.performAction(data.action, data.payload || {}); if (result.ok) gameSaves.save(gameManager, playerSaveSlot(session.user)); return sendJson(res, result.ok ? 200 : 409, result); }
+            catch (error) { return sendJson(res, 400, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/game/research' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err || !data || typeof data.nodeId !== 'string') return sendJson(res, 400, { error: 'Research node ID is required.' });
+            try {
+                const result = gameManager.unlockResearch(data.nodeId);
+                if (result.ok) gameSaves.save(gameManager, playerSaveSlot(session.user));
+                return sendJson(res, result.ok ? 200 : 409, { ...result, state: gameManager.getState() });
+            } catch (error) { return sendJson(res, 400, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/game/save' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err) return sendJson(res, 400, { error: 'Invalid JSON body.' });
+            try { return sendJson(res, 200, { success: true, ...gameSaves.save(gameManager, playerSaveSlot(session.user)) }); }
+            catch (error) { return sendJson(res, 400, { error: error.message }); }
+        });
+        return;
+    }
+    if (pathname === '/api/game/load' && req.method === 'POST') {
+        parseBody(req, (err, data) => {
+            if (err) return sendJson(res, 400, { error: 'Invalid JSON body.' });
+            try { const payload = gameSaves.load(playerSaveSlot(session.user)); return sendJson(res, 200, { success: true, state: gameManager.restore(payload.game), savedAt: payload.savedAt }); }
+            catch (error) { return sendJson(res, 404, { error: 'Save could not be loaded: ' + error.message }); }
+        });
+        return;
+    }
+    }
+
     // ----------------------------------------------------
     // 1. SYSTEM STATUS & TELEMETRY
     // ----------------------------------------------------
@@ -1196,11 +1311,14 @@ Result: ALL 7 DIAGNOSTIC CHECKS PASSED.`);
     }
 }
 
-server.listen(PORT, () => {
+const HOST = process.env.HOST || '127.0.0.1';
+server.listen(PORT, HOST, () => {
     console.log(`========================================================================`);
     console.log(`   *  AEGIS OS WEB SIMULATOR SERVER ONLINE  *`);
     console.log(`========================================================================`);
-    console.log(`   Dashboard: http://localhost:${PORT}`);
-    console.log(`   Direct API: http://localhost:${PORT}/api/system/status`);
+    console.log(`   Dashboard: http://127.0.0.1:${PORT}`);
+    console.log(`   Direct API: http://127.0.0.1:${PORT}/api/system/status`);
     console.log(`========================================================================`);
 });
+
+module.exports = server;
