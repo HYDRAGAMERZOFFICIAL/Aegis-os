@@ -181,9 +181,14 @@
       const status = addText('span', 'objective-check', completed ? 'SECURED' : isNext ? 'NEXT' : 'PENDING');
       row.append(number, copy, status);
       if (isNext) {
-        const button = addText('button', 'button button-primary', 'Execute');
+        const action = activeMission.objectives[index].action;
+        const challenge = challenges[activeMission.id] && challenges[activeMission.id][action];
+        const button = addText('button', 'button button-primary', challenge ? 'Open console' : 'Execute');
         button.type = 'button';
-        button.addEventListener('click', () => execute(activeMission.objectives[index].action));
+        button.addEventListener('click', () => {
+          if (challenge) { activeChallenge = { ...challenge, action, missionId: activeMission.id }; render(latestState); }
+          else execute(action);
+        });
         row.append(button);
       }
       objectives.append(row);
