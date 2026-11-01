@@ -368,7 +368,7 @@ function handleApi(req, res, pathname, url) {
         const session = authManager.getSession(req);
         if (!session) return sendJson(res, 401, { error: 'Your player session has expired. Sign in again.' });
         parseBody(req, (err, data) => {
-            if (err || !authManager.unlock(session.user.id, data && data.password)) return sendJson(res, 401, { error: 'Access phrase is incorrect.' });
+            if (err || !authManager.unlock(session.user.id, data && data.password, req.socket.remoteAddress)) return sendJson(res, 401, { error: 'Access phrase is incorrect.' });
             return sendJson(res, 200, { success: true });
         });
         return;
