@@ -13,7 +13,7 @@ class ThreatEngine {
   }
   advanceTurn() { this.turn += 1; for (const threat of this.active.filter(item => item.status === 'active')) this.resources.applyPressure(threat.pressure); this.events.emit('threat:turn', { turn: this.turn, active: this.active.length }); }
   detect(instanceId) { const threat = this.active.find(item => item.instanceId === instanceId && item.status === 'active'); if (!threat) return false; threat.detected = true; this.events.emit('threat:detected', threat); return true; }
-  contain(instanceId) { const threat = this.active.find(item => item.instanceId === instanceId && item.status === 'active'); if (!threat) return false; threat.status = 'contained'; this.events.emit('threat:contained', threat); return true; }
+  contain(instanceId) { const threat = this.active.find(item => item.instanceId === instanceId && item.status === 'active'); if (!threat || !threat.detected) return false; threat.status = 'contained'; this.events.emit('threat:contained', threat); return true; }
   list() { return this.active.map(item => ({ ...item, pressure: { ...item.pressure } })); }
   serialize() { return { active: this.list(), sequence: this.sequence, turn: this.turn }; }
   restore(state = {}) { this.active = Array.isArray(state.active) ? state.active.map(item => ({ ...item, pressure: { ...item.pressure } })) : []; this.sequence = Number.isInteger(state.sequence) ? state.sequence : 0; this.turn = Number.isInteger(state.turn) ? state.turn : 0; }
