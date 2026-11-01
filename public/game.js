@@ -77,9 +77,15 @@
       headers: body ? { 'Content-Type': 'application/json' } : {},
       body: body ? JSON.stringify(body) : undefined
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || data.reason || 'Request failed');
     return data;
+  };
+  const setCloudStatus = (message, healthy = true) => {
+    const status = $('#cloud-sync');
+    if (!status) return;
+    status.textContent = message;
+    status.classList.toggle('offline', !healthy);
   };
   const addText = (tag, className, value) => {
     const element = document.createElement(tag);
@@ -129,6 +135,7 @@
   const render = (state) => {
     if (!state) return;
     latestState = state;
+    if (state.saveUpdatedAt) setCloudStatus('CLOUD SAVE SYNCED');
     const r = state.resources;
     $('#resources').replaceChildren(
       metric('Credits', r.credits), metric('Research', r.research), metric('CPU capacity', r.cpu, '%'),
@@ -251,7 +258,8 @@
     try {
       const result = await api('/api/game/action', { action, payload });
       activeChallenge = null;
-      log(result.detail || action, 'success');
+      setCloudStatus('CLOUD SAVE SYNCED');
+      log((result.detail || action) + ' · cloud save confirmed', 'success');
       if (result.progress && result.progress.completed) log('OPERATION SECURED — campaign rewards transferred to your profile.', 'success');
       render(result.state);
     } catch (error) { log(error.message, 'warning'); $('#mission-feedback').textContent = error.message; }
@@ -259,7 +267,8 @@
   const unlock = async (nodeId) => {
     try {
       const result = await api('/api/game/research', { nodeId });
-      log('Research unlocked: ' + result.node.name, 'success');
+      setCloudStatus('CLOUD SAVE SYNCED');
+      log('Research unlocked: ' + result.node.name + ' · cloud save confirmed', 'success');
       render(result.state);
     } catch (error) { log(error.message, 'warning'); }
   };
@@ -271,16 +280,17 @@
   $('#start-mission').addEventListener('click', async () => {
     try {
       const result = await api('/api/game/start', { missionId: selectedMissionId });
-      log('Operation deployed: ' + result.mission.title, 'success');
+      setCloudStatus('CLOUD SAVE SYNCED');
+      log('Operation deployed: ' + result.mission.title + ' · cloud save confirmed', 'success');
       render(result.state);
     } catch (error) { $('#mission-feedback').textContent = error.message; log(error.message, 'warning'); }
   });
   $('#save').addEventListener('click', async () => {
-    try { const result = await api('/api/game/save', { slot: 'profile' }); log('Player campaign saved at ' + result.savedAt, 'success'); }
+    try { const result = await api('/api/game/save', { slot: 'cloud-profile' }); setCloudStatus('CLOUD SAVE SYNCED'); log('Cloud campaign saved at ' + result.savedAt, 'success'); }
     catch (error) { log(error.message, 'warning'); }
   });
   $('#load').addEventListener('click', async () => {
-    try { const result = await api('/api/game/load', { slot: 'profile' }); render(result.state); log('Your player campaign was restored.', 'success'); }
+    try { const result = await api('/api/game/load', { slot: 'cloud-profile' }); setCloudStatus('CLOUD SAVE RESTORED'); render(result.state); log('Your cloud campaign was restored.', 'success'); }
     catch (error) { log(error.message, 'warning'); }
   });
 
@@ -288,6 +298,7 @@
     $('#mission-feedback').textContent = '';
     refresh().then(() => log('Authenticated player profile loaded. Welcome to Aegis Command.', 'success')).catch(error => {
       $('#connection').textContent = 'OFFLINE';
+      setCloudStatus('CLOUD OFFLINE', false);
       log(error.message, 'warning');
     });
   });
