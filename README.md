@@ -445,10 +445,18 @@ npm run dist:win
 
 A Linux AppImage build target is also configured with `npm run dist:linux`.
 
-### Game foundation status
+### Cloud game deployment
 
-The first development branch introduces a modular campaign engine, ordered mission objectives, simulated threat lifecycle, resource economy, research progression, local save/load, a dedicated command interface, and an Electron desktop launcher.
+The game now includes a Vercel-compatible cloud account and campaign-save path:
 
-**Current milestone:** playable three-mission playable campaign foundation. Steamworks achievements, Cloud Saves, leaderboards, SteamPipe depots, final artwork, and release QA remain future work. The current build is not yet a Steam release candidate.
+- Supabase Auth handles player registration, email verification and sign-in.
+- Each player receives a unique operator ID and a separate cloud campaign save.
+- Campaign progress, mission rewards and research upgrades are written to Postgres after successful game actions.
+- HttpOnly session cookies and row-level security isolate each player's data.
+- The Vercel static build is served from `public/`; the local simulator assets remain under `simulator/web/`.
+
+Follow [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) and apply the SQL migration in `supabase/migrations/` before deploying. The cloud database is not provisioned automatically: create a dedicated Supabase project and configure its URL and anon/publishable key in Vercel.
+
+The Electron desktop launcher continues to use local profiles and local saves. Cloud accounts are the Vercel deployment path; Steamworks achievements, leaderboards, SteamPipe depots, final artwork, and Steam release QA remain separate release tasks.
 
 All game threats and recovery actions are simulated. The game does not execute malware or operate on the player's real network or host files.
