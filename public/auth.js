@@ -8,7 +8,7 @@
   const app = $('#game-app');
   let currentUser = null;
   let authMode = 'login';
-  let storageMode = 'local';
+  let storageMode = 'cloud';
 
   const request = async (path, body) => {
     const response = await fetch(path, {
@@ -82,7 +82,7 @@
     }
     try {
       const session = await request('/api/auth/me');
-      storageMode = session.storageMode || 'local';
+      storageMode = 'cloud';
       if (session.authenticated) enterGame(session.user);
       else showAuth(!!session.needsProfile);
     } catch (error) {
@@ -100,7 +100,7 @@
     setBusy(form, true);
     $('#login-error').textContent = '';
     try {
-      const result = await request('/api/auth/login', values(form));
+      const loginData = values(form);\n      const result = await request('/api/auth/login', { email: loginData.username, password: loginData.password });
       form.reset();
       enterGame(result.user);
     } catch (error) {
@@ -114,7 +114,7 @@
     setBusy(form, true);
     $('#register-error').textContent = '';
     try {
-      const result = await request('/api/auth/register', values(form));
+      const result = await request('/api/auth/register', values(form));\n      storageMode = 'cloud';
       form.reset();
       if (result.confirmationRequired) {
         setMode('login');
