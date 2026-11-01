@@ -24,6 +24,7 @@ test("first campaign mission completes and awards its defined rewards",()=>{
   const game=new AegisGameEngine();
   game.startMission("silent-intrusion");
   for(const step of ["inspect","isolate","scan","restore"]) {
+    if(step==="isolate") game.decide("preserve");
     const result=game.perform(step);
     if(step==="restore") {
       assert.equal(result.complete,true);
@@ -40,7 +41,10 @@ test("recovery cannot occur before containment and integrity verification",()=>{
   const game=new AegisGameEngine();
   game.startMission("silent-intrusion");
   game.perform("inspect");
-  const premature=game.perform("isolate");
+  const noDecision=game.perform("isolate");
+  assert.equal(noDecision.ok,false);
+  game.decide("preserve");
+  const premature=game.perform("restore");
   assert.equal(premature.ok,true);
   const restore=game.perform("restore");
   assert.equal(restore.ok,false);
@@ -49,7 +53,8 @@ test("recovery cannot occur before containment and integrity verification",()=>{
 test("campaign progress survives engine recreation",()=>{
   const first=new AegisGameEngine();
   first.startMission("silent-intrusion");
-  ["inspect","isolate","scan","restore"].forEach(step=>first.perform(step));
+  first.perform("inspect"); first.decide("preserve");
+  ["isolate","scan","restore"].forEach(step=>first.perform(step));
   const second=new AegisGameEngine();
   assert.deepEqual(second.snapshot().completed,["silent-intrusion"]);
   assert.equal(second.snapshot().player.xp,250);
@@ -62,4 +67,32 @@ test("research upgrades enforce costs and prevent duplicate purchases",()=>{
   const bought=game.buyUpgrade("rapid-triage");
   assert.equal(bought.ok,true);
   assert.equal(game.buyUpgrade("rapid-triage").ok,false);
+});
+
+
+test("branching response choices affect grade and bonus rewards",()=>{
+  const game=new AegisGameEngine();
+  game.startMission("silent-intrusion");
+  game.perform("inspect");
+  assert.equal(game.perform("isolate").ok,false);
+  assert.equal(game.decide("preserve").ok,true);
+  for(const step of ["isolate","scan","restore"]) {
+    const result=game.perform(step);
+    if(step==="restore") {
+      assert.equal(result.grade,"A");
+      assert.equal(result.score,100);
+      assert.equal(result.reward.xp,300);
+      assert.equal(result.reward.credits,215);
+    }
+  }
+  assert.equal(game.snapshot().stats.perfectMissions,1);
+});
+test("active mission and selected decision survive engine recreation",()=>{
+  const first=new AegisGameEngine();
+  first.startMission("silent-intrusion");
+  first.perform("inspect");
+  first.decide("terminate");
+  const second=new AegisGameEngine();
+  assert.equal(second.getSession().missionId,"silent-intrusion");
+  assert.equal(second.getSession().decision.choiceId,"terminate");
 });
